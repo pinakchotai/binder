@@ -7,10 +7,10 @@ import { GridRows } from "@visx/grid";
 import { LinearGradient } from "@visx/gradient";
 import { curveMonotoneX } from "@visx/curve";
 import { extent, cumsum } from "d3-array";
-import type { SyllabusSession } from "@/lib/supabase";
+import type { StudySession } from "@/lib/supabase";
 
 interface Props {
-  sessions: SyllabusSession[];
+  sessions: StudySession[];
 }
 
 interface CumulativePoint {
@@ -78,7 +78,7 @@ function ResponsiveAreaChart({ data }: { data: CumulativePoint[] }) {
     <svg viewBox={`0 0 ${width} ${height}`} className="h-full w-full" preserveAspectRatio="xMidYMid meet">
       <defs>
         <LinearGradient
-          id="syllabusAreaGrad"
+          id="studyAreaGrad"
           from="#f59e0b"
           to="#f59e0b"
           x1="0"
@@ -102,7 +102,7 @@ function ResponsiveAreaChart({ data }: { data: CumulativePoint[] }) {
           y={(d) => yScale(d.value)}
           yScale={yScale}
           curve={curveMonotoneX}
-          fill="url(#syllabusAreaGrad)"
+          fill="url(#studyAreaGrad)"
         />
         <LinePath
           data={data}

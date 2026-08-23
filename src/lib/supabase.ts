@@ -14,8 +14,14 @@ export const supabase = createClient(
   supabaseAnonKey ?? "",
 );
 
-export interface SyllabusSession {
+export async function getUserId(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user.id ?? null;
+}
+
+export interface StudySession {
   id: string;
+  user_id: string;
   topic_name: string;
   hours_spent: number;
   created_at: string;
@@ -23,8 +29,9 @@ export interface SyllabusSession {
 
 export interface PracticeQuestion {
   id: string;
+  user_id: string;
   question_name: string;
-  marks: number;
+  marks: number | null;
   actual_time_minutes: number | null;
   target_time_minutes: number;
   variance_minutes: number | null;
@@ -33,12 +40,14 @@ export interface PracticeQuestion {
 
 export interface WaterIntake {
   id: string;
+  user_id: string;
   amount_ml: number;
   created_at: string;
 }
 
 export interface DailyNonNegotiable {
   id: string;
+  user_id: string;
   log_date: string;
   wake_on_time: boolean;
   hydrated: boolean;

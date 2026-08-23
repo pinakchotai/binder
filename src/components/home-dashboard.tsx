@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Droplets, Loader2, Trash2, BookOpen, Play, ExternalLink, BarChart3 } from "lucide-react";
-import { supabase, type WaterIntake } from "@/lib/supabase";
+import { supabase, getUserId, type WaterIntake } from "@/lib/supabase";
 import { useSettings } from "@/lib/settings";
 import HistoryPanel from "./history-panel";
 
@@ -19,23 +19,24 @@ interface BookRec {
 interface VideoRec {
   title: string;
   channel: string;
-  videoId: string;
+  searchQuery: string;
   description: string;
 }
 
 const BOOK_SUBJECTS = ["business", "finance", "self-improvement", "productivity", "leadership"];
 
-const CURATED_VIDEOS: VideoRec[] = [
-  { title: "ACCA Prep Strategy 70-20-10 Rule", channel: "ArivuPro ACCA", videoId: "gzGFoI8gOXQ", description: "Simple strategy for exam preparation" },
-  { title: "ACCA SBL Exam Techniques", channel: "VIFHE", videoId: "prqOV1UWJmw", description: "Time management and exam technique" },
-  { title: "TX Revision to Practice", channel: "ACCA Student Study Resources", videoId: "jNzGLxNT3TE", description: "Pocket hole studying, first hour rule" },
-  { title: "Study Audit Reports", channel: "ACCA Ben Wilson AAA", videoId: "fWDHEsglZFM", description: "4-step method for audit report questions" },
-  { title: "The HAT Method for ACCA Answers", channel: "aCOWtancy", videoId: "_l_ewTp0dnY", description: "Heading, Answer, Tieback technique" },
-  { title: "9 Mistakes Killing Your SBL Score", channel: "Manisha Gupta ACCA", videoId: "-b7REex2WUE", description: "Common mistakes from examiner reports" },
-  { title: "SBR Orientation and Paper Structure", channel: "NL Professional Academy", videoId: "PBhSOTbIYcY", description: "Full SBR breakdown, sections, pass rates" },
-  { title: "AA Mock Exam Debrief", channel: "ACCA Student Study Resources", videoId: "YL0rhZuZmlI", description: "Real mock exam debrief and common mistakes" },
-  { title: "FR Student Review", channel: "Escribir Academy", videoId: "r8Wr0iP1sGM", description: "Structured notes and weekly planner approach" },
-  { title: "ACCA Study Resources Playlist", channel: "ACCA Student Study Resources", videoId: "c/ACCAStudentStudyResources", description: "Ongoing webinars, debriefs, revision sessions" },
+// Generic study topics — rotate weekly, link to YouTube search
+const STUDY_VIDEO_TOPICS: VideoRec[] = [
+  { title: "Active Recall", channel: "YouTube Search", searchQuery: "active recall study technique", description: "The most evidence-backed study method" },
+  { title: "Spaced Repetition", channel: "YouTube Search", searchQuery: "spaced repetition technique explained", description: "Remember more by reviewing less often" },
+  { title: "Deep Work", channel: "YouTube Search", searchQuery: "deep work focus strategies", description: "How to focus without distraction" },
+  { title: "Pomodoro Technique", channel: "YouTube Search", searchQuery: "pomodoro technique tutorial", description: "Timeboxing for sustained concentration" },
+  { title: "Deliberate Practice", channel: "YouTube Search", searchQuery: "deliberate practice explained", description: "Practice smarter, not just longer" },
+  { title: "Beat Procrastination", channel: "YouTube Search", searchQuery: "how to beat procrastination science", description: "The science of getting started" },
+  { title: "Effective Note-Taking", channel: "YouTube Search", searchQuery: "effective note taking methods students", description: "Notes that actually stick" },
+  { title: "Exam Preparation Strategy", channel: "YouTube Search", searchQuery: "exam preparation strategy top students", description: "Plan your way to exam day" },
+  { title: "Habit Building", channel: "YouTube Search", searchQuery: "how to build habits that stick", description: "Systems over motivation" },
+  { title: "Sleep And Learning", channel: "YouTube Search", searchQuery: "sleep and memory consolidation learning", description: "Why sleep is a study superpower" },
 ];
 
 function getWeekNumber(): number {
@@ -123,8 +124,8 @@ export default function HomeDashboard() {
 
   useEffect(() => {
     const week = getWeekNumber();
-    const start = (week * 2) % CURATED_VIDEOS.length;
-    setVideos([CURATED_VIDEOS[start], CURATED_VIDEOS[(start + 1) % CURATED_VIDEOS.length]]);
+    const start = (week * 2) % STUDY_VIDEO_TOPICS.length;
+    setVideos([STUDY_VIDEO_TOPICS[start], STUDY_VIDEO_TOPICS[(start + 1) % STUDY_VIDEO_TOPICS.length]]);
   }, []);
 
   const totalMl = todayEntries.reduce((sum, e) => sum + e.amount_ml, 0);
@@ -136,7 +137,9 @@ export default function HomeDashboard() {
   const handleAdd = async (amountMl: number) => {
     if (amountMl <= 0) return;
     setSubmitting(true);
+    const userId = await getUserId();
     const { error } = await supabase.from("water_intake").insert({
+      user_id: userId,
       amount_ml: amountMl,
     });
     if (error) {
@@ -417,8 +420,8 @@ export default function HomeDashboard() {
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {videos.map((video) => (
                   <a
-                    key={video.videoId}
-                    href={`https://youtube.com/watch?v=${video.videoId}`}
+                    key={video.searchQuery}
+                    href={`https://www.youtube.com/results?search_query=${encodeURIComponent(video.searchQuery)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group flex items-start gap-3 border-[2px] border-input-border bg-input-bg p-4 transition-colors hover:border-accent/40"

@@ -14,9 +14,11 @@ import {
   Check,
   Loader2,
   AlertTriangle,
+  LogOut,
 } from "lucide-react";
 import { useSettings } from "@/lib/settings";
-import { supabase } from "@/lib/supabase";
+import { supabase, getUserId } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth";
 
 interface NavItem {
   id: string;
@@ -27,7 +29,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { id: "home", label: "Home", icon: Home },
-  { id: "academia", label: "Academia", icon: GraduationCap },
+  { id: "study", label: "Study", icon: GraduationCap },
   { id: "daily-systems", label: "Daily Systems", icon: Zap },
   { id: "professional", label: "Professional", icon: Briefcase, comingSoon: true },
   { id: "physical", label: "Physical", icon: Dumbbell, comingSoon: true },
@@ -41,6 +43,7 @@ interface SidebarProps {
 
 export default function Sidebar({ activePanel, onNavigate }: SidebarProps) {
   const { settings } = useSettings();
+  const { signOut } = useAuth();
   const displayName = settings.userName;
   const initial = displayName.charAt(0).toUpperCase();
   const [reportStatus, setReportStatus] = useState<"idle" | "sending" | "queued" | "processing" | "sent" | "failed">("idle");
@@ -57,9 +60,15 @@ export default function Sidebar({ activePanel, onNavigate }: SidebarProps) {
     }
     setReportStatus("sending");
     try {
+      const userId = await getUserId();
+      if (!userId) {
+        setReportStatus("failed");
+        reportTimeoutRef.current = setTimeout(() => setReportStatus("idle"), 5000);
+        return;
+      }
       const { data, error } = await supabase
         .from("report_requests")
-        .insert({})
+        .insert({ user_id: userId })
         .select("id")
         .single();
       if (error) {
@@ -68,6 +77,13 @@ export default function Sidebar({ activePanel, onNavigate }: SidebarProps) {
       } else if (data) {
         setReportId(data.id);
         setReportStatus("queued");
+        // Fire the edge function — it sends the email and marks the request sent.
+        supabase.functions
+          .invoke("send-report", { body: { user_id: userId } })
+          .catch(() => {
+            setReportStatus("failed");
+            reportTimeoutRef.current = setTimeout(() => setReportStatus("idle"), 5000);
+          });
       }
     } catch {
       setReportStatus("failed");
@@ -228,6 +244,13 @@ export default function Sidebar({ activePanel, onNavigate }: SidebarProps) {
               Goal Tracker
             </p>
           </div>
+          <button
+            onClick={() => void signOut()}
+            title="Sign out"
+            className="flex h-8 w-8 shrink-0 items-center justify-center border-[2px] border-transparent text-muted transition-colors hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </aside>

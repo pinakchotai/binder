@@ -13,7 +13,7 @@ import {
   Save,
   Trophy,
 } from "lucide-react";
-import { supabase, type DailyNonNegotiable, type WaterIntake } from "@/lib/supabase";
+import { supabase, getUserId, type DailyNonNegotiable, type WaterIntake } from "@/lib/supabase";
 import { useSettings } from "@/lib/settings";
 
 function getTodayDateString(): string {
@@ -214,7 +214,9 @@ export default function DailySystemsPanel() {
     setSaving(true);
     setSaved(false);
     const today = getTodayDateString();
+    const userId = await getUserId();
     const payload = {
+      user_id: userId,
       log_date: today,
       ...form,
       hydrated: autoHydrated || form.hydrated,
