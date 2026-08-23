@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Layers, Loader2, ArrowRight, Check } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 import { useSettings } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 
@@ -35,7 +36,7 @@ export default function OnboardingScreen({ onDone }: { onDone: () => void }) {
   const [partnerEmail, setPartnerEmail] = useState(settings.partnerEmail);
   const [busy, setBusy] = useState(false);
 
-  const handleFinish = async () => {
+    const handleFinish = async () => {
     setBusy(true);
     if (name.trim()) updateSetting("userName", name.trim());
     if (partnerEmail.trim()) updateSetting("partnerEmail", partnerEmail.trim());
@@ -44,6 +45,10 @@ export default function OnboardingScreen({ onDone }: { onDone: () => void }) {
     const mt = parseInt(meditationTargetMin, 10);
     if (!isNaN(mt) && mt >= 1) updateSetting("meditationTargetMin", mt);
     await saveAll();
+    // Server-side flag so other devices (web or Android) skip onboarding too.
+    try {
+      await supabase.auth.updateUser({ data: { onboarding_completed: true } });
+    } catch {}
     if (user) localStorage.setItem(`thebinder_onboarded_${user.id}`, "true");
     setBusy(false);
     onDone();

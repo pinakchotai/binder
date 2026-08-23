@@ -34,8 +34,9 @@ export default function Home() {
 
   const needsOnboarding =
     loadedForUser === user.id &&
+    !skipOnboarding &&
     !localStorage.getItem(`thebinder_onboarded_${user.id}`) &&
-    !skipOnboarding;
+    !user.user_metadata?.onboarding_completed;
 
   if (needsOnboarding) {
     return (
