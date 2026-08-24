@@ -20,9 +20,6 @@ export interface BinderSettings {
   sleepMinute: number;
   screenDisconnectMinutes: number;
   waterTargetMl: number;
-  accountabilityPartnerName: string;
-  accountabilityPartnerPhone: string;
-  partnerEmail: string;
 }
 
 const defaults: BinderSettings = {
@@ -34,16 +31,12 @@ const defaults: BinderSettings = {
   sleepMinute: 0,
   screenDisconnectMinutes: 60,
   waterTargetMl: 3000,
-  accountabilityPartnerName: "",
-  accountabilityPartnerPhone: "",
-  partnerEmail: "",
 };
 
 // Columns synced to the per-user user_settings row (cross-device)
 // Everything else stays local-only.
 const SYNCED_COLUMNS = [
   "user_name",
-  "partner_email",
   "water_target_ml",
   "meditation_target_min",
   "wake_up_hour",
@@ -76,7 +69,6 @@ function saveLocal(userId: string, settings: BinderSettings) {
 function toRow(settings: BinderSettings) {
   return {
     user_name: settings.userName,
-    partner_email: settings.partnerEmail,
     water_target_ml: settings.waterTargetMl,
     meditation_target_min: settings.meditationTargetMin,
     wake_up_hour: settings.wakeUpHour,
@@ -88,7 +80,6 @@ function mergeRow(row: Record<string, unknown>, base: BinderSettings): BinderSet
   return {
     ...base,
     userName: (row.user_name as string) ?? base.userName,
-    partnerEmail: (row.partner_email as string) ?? base.partnerEmail,
     waterTargetMl: (row.water_target_ml as number) ?? base.waterTargetMl,
     meditationTargetMin: (row.meditation_target_min as number) ?? base.meditationTargetMin,
     wakeUpHour: (row.wake_up_hour as number) ?? base.wakeUpHour,

@@ -123,6 +123,20 @@ export default function OnboardingWizard() {
       const uid = await getUserId();
       if (!uid) throw new Error("Not signed in");
 
+      // Settings-based defaults for the volume templates (Sprint 6):
+      // Hydration/Meditation inherit the user's water/meditation targets
+      // from user_settings; every other template keeps its hardcoded default.
+      const { data: srow } = await supabase
+        .from("user_settings")
+        .select("water_target_ml, meditation_target_min")
+        .eq("user_id", uid)
+        .maybeSingle();
+      const targetOverrides: Partial<Record<string, number>> = {};
+      if (srow) {
+        if (srow.water_target_ml != null) targetOverrides["Hydration"] = srow.water_target_ml;
+        if (srow.meditation_target_min != null) targetOverrides["Meditation"] = srow.meditation_target_min;
+      }
+
       const rows: TemplateInsertRow[] = [];
       for (const d of DOMAIN_IDS) {
         const customNames = new Set(customs[d].map((h) => h.name));
@@ -133,6 +147,9 @@ export default function OnboardingWizard() {
             domain: d,
             is_template: false,
             ...tpl,
+            ...(tpl.type === "volume" && targetOverrides[tpl.name] !== undefined
+              ? { target_value: targetOverrides[tpl.name] }
+              : {}),
           });
         }
       }

@@ -2,19 +2,14 @@
 
 import { useState } from "react";
 import {
-  Settings,
   Brain,
   Sunrise,
   Moon,
   WifiOff,
   Droplets,
-  Users,
   User,
-  Mail,
   ArrowLeft,
   Save,
-  Loader2,
-  Check,
 } from "lucide-react";
 import { useSettings } from "@/lib/settings";
 
@@ -63,10 +58,6 @@ const inputClass =
 export default function SettingsPanel({ onBack }: { onBack: () => void }) {
   const { settings, updateSetting } = useSettings();
   const [saved, setSaved] = useState(false);
-  const [partnerSaved, setPartnerSaved] = useState(false);
-  const [partnerName, setPartnerName] = useState(settings.accountabilityPartnerName);
-  const [partnerPhone, setPartnerPhone] = useState(settings.accountabilityPartnerPhone);
-  const [partnerEmail, setPartnerEmail] = useState(settings.partnerEmail);
 
   const handleTimeChange = (
     key: "wakeUp" | "sleep",
@@ -98,14 +89,6 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
     updateSetting(key as never, value as never);
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
-  };
-
-  const handleSavePartner = () => {
-    updateSetting("accountabilityPartnerName", partnerName);
-    updateSetting("accountabilityPartnerPhone", partnerPhone);
-    updateSetting("partnerEmail", partnerEmail);
-    setPartnerSaved(true);
-    setTimeout(() => setPartnerSaved(false), 3000);
   };
 
   return (
@@ -153,7 +136,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
             <SettingRow
               icon={Brain}
               label="Meditation Target"
-              description={`Minimum minutes per day (currently ${settings.meditationTargetMin} min)`}
+              description={`Minimum minutes per day (currently ${settings.meditationTargetMin} min). This sets your default target when you first add this habit. To change an existing habit's target later, you'll need habit editing — coming soon.`}
             >
               <input
                 type="number"
@@ -168,7 +151,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
             <SettingRow
               icon={Sunrise}
               label="Wake-up Time"
-              description={`Target time to wake up (currently ${formatTime(settings.wakeUpHour, settings.wakeUpMinute)})`}
+              description={`Target time to wake up (currently ${formatTime(settings.wakeUpHour, settings.wakeUpMinute)}). Reminders based on this time are coming in a future update — this doesn't affect anything yet.`}
             >
               <input
                 type="time"
@@ -182,7 +165,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
             <SettingRow
               icon={Moon}
               label="Sleep Time"
-              description={`Target time to sleep (currently ${formatTime(settings.sleepHour, settings.sleepMinute)})`}
+              description={`Target time to sleep (currently ${formatTime(settings.sleepHour, settings.sleepMinute)}). Reminders based on this time are coming in a future update — this doesn't affect anything yet.`}
             >
               <input
                 type="time"
@@ -213,7 +196,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
             <SettingRow
               icon={Droplets}
               label="Water Target"
-              description={`Daily water intake goal (currently ${(settings.waterTargetMl / 1000).toFixed(1)}L)`}
+              description={`Daily water intake goal (currently ${(settings.waterTargetMl / 1000).toFixed(1)}L). This sets your default target when you first add this habit. To change an existing habit's target later, you'll need habit editing — coming soon.`}
             >
               <div className="flex items-center gap-2">
                 <input
@@ -227,66 +210,6 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
                 <span className="font-mono text-[10px] text-muted">ml</span>
               </div>
             </SettingRow>
-
-            {/* Accountability Partner */}
-            <div className="border-[2px] border-input-border bg-input-bg p-4 space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
-                  <Users className="h-4 w-4 text-accent" />
-                </div>
-                <div>
-                  <p className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">
-                    Accountability Partner
-                  </p>
-                  <p className="font-mono text-[10px] text-muted mt-0.5">Set your partner details for sharing and reports</p>
-                </div>
-              </div>
-
-              <input
-                type="text"
-                placeholder="Partner name"
-                value={partnerName}
-                onChange={(e) => setPartnerName(e.target.value)}
-                className={`${inputClass} text-left w-full`}
-              />
-
-              <input
-                type="tel"
-                placeholder="+91... (phone)"
-                value={partnerPhone}
-                onChange={(e) => setPartnerPhone(e.target.value)}
-                className={`${inputClass} text-left w-full`}
-              />
-
-              <input
-                type="email"
-                placeholder="partner@email.com"
-                value={partnerEmail}
-                onChange={(e) => setPartnerEmail(e.target.value)}
-                className={`${inputClass} text-left w-full`}
-              />
-
-              <button
-                onClick={handleSavePartner}
-                className={`flex w-full items-center justify-center gap-2 border-[2px] px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-[0.2em] transition-colors ${
-                  partnerSaved
-                    ? "border-green-500/40 bg-green-500/10 text-green-400"
-                    : "border-accent/40 bg-accent/10 text-accent hover:bg-accent/20"
-                }`}
-              >
-                {partnerSaved ? (
-                  <>
-                    <Check className="h-3 w-3" />
-                    Partner Saved
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-3 w-3" />
-                    Save Partner
-                  </>
-                )}
-              </button>
-            </div>
           </div>
 
           {/* Saved indicator */}
