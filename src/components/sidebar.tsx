@@ -2,13 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import {
-  Home,
-  GraduationCap,
-  Briefcase,
-  Dumbbell,
-  DollarSign,
+  LayoutDashboard,
+  BarChart3,
   Layers,
-  Zap,
   Settings,
   Send,
   Check,
@@ -27,22 +23,6 @@ import { supabase, getUserId } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 import { DOMAIN_IDS, DOMAIN_META } from "@/lib/domains";
 
-interface NavItem {
-  id: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  comingSoon?: boolean;
-}
-
-const navItems: NavItem[] = [
-  { id: "home", label: "Home", icon: Home },
-  { id: "study", label: "Study", icon: GraduationCap },
-  { id: "daily-systems", label: "Daily Systems", icon: Zap },
-  { id: "professional", label: "Professional", icon: Briefcase, comingSoon: true },
-  { id: "physical", label: "Physical", icon: Dumbbell, comingSoon: true },
-  { id: "financial", label: "Financial", icon: DollarSign, comingSoon: true },
-];
-
 const DOMAIN_ICONS: Record<(typeof DOMAIN_IDS)[number], React.ComponentType<{ className?: string }>> = {
   non_negotiables: Flame,
   academia: BookOpen,
@@ -50,12 +30,7 @@ const DOMAIN_ICONS: Record<(typeof DOMAIN_IDS)[number], React.ComponentType<{ cl
   personal_growth: Sprout,
 };
 
-interface SidebarProps {
-  activePanel: string;
-  onNavigate: (panel: string) => void;
-}
-
-export default function Sidebar({ activePanel, onNavigate }: SidebarProps) {
+export default function Sidebar() {
   const { settings } = useSettings();
   const { signOut } = useAuth();
   const pathname = usePathname();
@@ -147,21 +122,53 @@ export default function Sidebar({ activePanel, onNavigate }: SidebarProps) {
           </h1>
           <p className="font-mono text-[10px] text-muted">DASHBOARD</p>
         </div>
-        <button
-          onClick={() => onNavigate("settings")}
+        <Link
+          href="/settings"
           className={`flex h-8 w-8 shrink-0 items-center justify-center border-[2px] transition-colors ${
-            activePanel === "settings"
+            pathname === "/settings"
               ? "border-accent/50 bg-accent/15 text-accent"
               : "border-transparent text-muted hover:text-foreground/60 hover:bg-white/[0.02]"
           }`}
           title="Settings"
         >
           <Settings className="h-4 w-4" />
-        </button>
+        </Link>
       </div>
 
       <nav className="flex flex-1 flex-col gap-0 px-0 py-4">
         <p className="mb-2 px-5 font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-muted">
+          Main
+        </p>
+        {[
+          { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+          { href: "/history", label: "History", icon: BarChart3 },
+        ].map(({ href, label, icon: Icon }) => {
+          const isActive = pathname === href || pathname.startsWith(href + "/");
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`group flex items-center gap-3 px-5 py-3 text-xs font-bold uppercase tracking-wider transition-colors duration-100 ${
+                isActive
+                  ? "border-l-[3px] border-accent bg-accent/10 text-accent"
+                  : "border-l-[3px] border-transparent text-muted hover:bg-white/[0.02] hover:text-foreground/60"
+              }`}
+            >
+              <Icon
+                className={`h-4 w-4 shrink-0 ${
+                  isActive
+                    ? "text-accent"
+                    : "text-muted group-hover:text-foreground/60"
+                }`}
+              />
+              <span className="flex-1 truncate text-left font-mono">
+                {label}
+              </span>
+              {isActive && <span className="h-2 w-2 shrink-0 bg-accent" />}
+            </Link>
+          );
+        })}
+        <p className="mb-2 mt-5 px-5 font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-muted">
           Binder Domains
         </p>
         {DOMAIN_IDS.map((id) => {
@@ -189,42 +196,6 @@ export default function Sidebar({ activePanel, onNavigate }: SidebarProps) {
               </span>
               {isActive && <span className="h-2 w-2 shrink-0 bg-accent" />}
             </Link>
-          );
-        })}
-        <p className="mb-2 mt-5 px-5 font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-muted">
-          Panels
-        </p>
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = item.id === activePanel;
-          return (
-            <button
-              key={item.id}
-              disabled={!!item.comingSoon}
-              onClick={() => !item.comingSoon && onNavigate(item.id)}
-              className={`group flex items-center gap-3 px-5 py-3 text-xs font-bold uppercase tracking-wider transition-colors duration-100 ${
-                isActive
-                  ? "border-l-[3px] border-accent bg-accent/10 text-accent"
-                  : "border-l-[3px] border-transparent text-muted hover:bg-white/[0.02] hover:text-foreground/60"
-              } ${item.comingSoon ? "cursor-not-allowed opacity-40" : "cursor-pointer"}`}
-            >
-              <Icon
-                className={`h-4 w-4 shrink-0 ${
-                  isActive
-                    ? "text-accent"
-                    : "text-muted group-hover:text-foreground/60"
-                }`}
-              />
-              <span className="flex-1 text-left font-mono">{item.label}</span>
-              {item.comingSoon && (
-                <span className="border border-badge-text/20 bg-badge-bg px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-badge-text">
-                  Soon
-                </span>
-              )}
-              {isActive && (
-                <span className="h-2 w-2 bg-accent" />
-              )}
-            </button>
           );
         })}
       </nav>

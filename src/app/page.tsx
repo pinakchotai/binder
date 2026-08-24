@@ -1,15 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Sidebar from "@/components/sidebar";
-import HomeDashboard from "@/components/home-dashboard";
-import StudyPanel from "@/components/study-panel";
-import DailySystemsPanel from "@/components/daily-systems-panel";
-import SettingsPanel from "@/components/settings-panel";
 import AuthScreen from "@/components/auth-screen";
 import { useAuth } from "@/lib/auth";
-import { useSettings } from "@/lib/settings";
 import { Layers, Loader2 } from "lucide-react";
 
 function Splash() {
@@ -23,36 +17,18 @@ function Splash() {
   );
 }
 
-/** Signed in but never onboarded → send to the wizard route. */
-function ToOnboarding() {
-  const router = useRouter();
-  useEffect(() => {
-    router.replace("/onboarding");
-  }, [router]);
-  return <Splash />;
-}
-
 export default function Home() {
   const { user, loading } = useAuth();
-  const { loadedForUser } = useSettings();
-  const [activePanel, setActivePanel] = useState("home");
+  const router = useRouter();
+  const onboarded = user?.user_metadata?.onboarding_completed === true;
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace(onboarded ? "/dashboard" : "/onboarding");
+    }
+  }, [loading, user, onboarded, router]);
 
   if (loading) return <Splash />;
   if (!user) return <AuthScreen />;
-
-  if (!user.user_metadata?.onboarding_completed) return <ToOnboarding />;
-
-  if (loadedForUser !== user.id) return <Splash />;
-
-  return (
-    <div className="flex h-screen bg-background">
-      <Sidebar activePanel={activePanel} onNavigate={setActivePanel} />
-      {activePanel === "home" && <HomeDashboard />}
-      {activePanel === "study" && <StudyPanel />}
-      {activePanel === "daily-systems" && <DailySystemsPanel />}
-      {activePanel === "settings" && (
-        <SettingsPanel onBack={() => setActivePanel("home")} />
-      )}
-    </div>
-  );
+  return <Splash />;
 }

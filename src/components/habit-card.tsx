@@ -229,19 +229,22 @@ function VolumeBody({
   isLoading: boolean;
   onLog: (value: number) => void;
 }) {
-  // Local draft while typing; falls back to the authoritative server value.
-  const [dirty, setDirty] = useState<string | null>(null);
-  const shown = dirty ?? (todayLog?.value != null ? String(todayLog.value) : "");
+  // Draft holds the AMOUNT TO ADD (delta), not the running total.
+  const [dirty, setDirty] = useState<string>("");
 
   const target = habit.target_value ?? 0;
   const current = todayLog?.value ?? 0;
   const pct = target > 0 ? Math.min((current / target) * 100, 100) : 0;
 
+  const addDelta = (delta: number) => {
+    onLog(Math.max(0, current + delta));
+  };
+
   const commit = () => {
-    const parsed = parseFloat(shown);
-    if (!Number.isFinite(parsed) || parsed < 0) return;
-    onLog(parsed);
-    setDirty(null);
+    const parsed = parseFloat(dirty);
+    if (!Number.isFinite(parsed)) return;
+    addDelta(parsed);
+    setDirty("");
   };
 
   return (
@@ -272,40 +275,41 @@ function VolumeBody({
       <div className="flex items-stretch gap-2">
         <button
           type="button"
-          onClick={() => setDirty(String(Math.max(0, (parseFloat(shown) || 0) - 1)))}
-          className="flex w-9 items-center justify-center border-[2px] border-input-border bg-input-bg text-muted transition-colors hover:border-accent/40 hover:text-accent"
-          aria-label="Decrease value"
+          onClick={() => addDelta(-1)}
+          disabled={isLoading || current <= 0}
+          className="flex w-9 items-center justify-center border-[2px] border-input-border bg-input-bg text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+          aria-label="Subtract 1"
         >
           <Minus className="h-3.5 w-3.5" />
         </button>
         <input
           type="number"
-          min={0}
           step="any"
           inputMode="decimal"
-          value={shown}
+          value={dirty}
           onChange={(e) => setDirty(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") commit();
           }}
-          placeholder="0"
-          className="w-24 border-[2px] border-input-border bg-input-bg px-2 py-2 text-center font-mono text-sm tabular-nums text-foreground focus:border-input-focus focus:outline-none"
+          placeholder="+ add"
+          className="w-24 border-[2px] border-input-border bg-input-bg px-2 py-2 text-center font-mono text-sm tabular-nums text-foreground placeholder:text-muted/60 focus:border-input-focus focus:outline-none"
         />
         <button
           type="button"
-          onClick={() => setDirty(String((parseFloat(shown) || 0) + 1))}
-          className="flex w-9 items-center justify-center border-[2px] border-input-border bg-input-bg text-muted transition-colors hover:border-accent/40 hover:text-accent"
-          aria-label="Increase value"
+          onClick={() => addDelta(1)}
+          disabled={isLoading}
+          className="flex w-9 items-center justify-center border-[2px] border-input-border bg-input-bg text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+          aria-label="Add 1"
         >
           <Plus className="h-3.5 w-3.5" />
         </button>
         <button
           type="button"
           onClick={commit}
-          disabled={isLoading || shown === "" || !Number.isFinite(parseFloat(shown))}
+          disabled={isLoading || dirty === "" || !Number.isFinite(parseFloat(dirty))}
           className="flex flex-1 items-center justify-center border-[2px] border-button-bg bg-button-bg px-4 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
         >
-          Log value
+          Add
         </button>
       </div>
     </div>
