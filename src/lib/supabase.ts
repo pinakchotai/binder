@@ -59,3 +59,31 @@ export interface DailyNonNegotiable {
   daily_score: number;
   created_at: string;
 }
+
+export interface Habit {
+  id: string;
+  user_id: string;
+  domain: string;
+  name: string;
+  type: "recurring" | "volume" | "milestone";
+  frequency: "daily" | "weekly";
+  difficulty: "easy" | "medium" | "hard";
+  target_value: number | null;
+  checkpoint_count: number | null;
+  is_template: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HabitLog {
+  id: string;
+  habit_id: string;
+  user_id: string;
+  log_date: string;
+  value: number | null;
+  completed: boolean;
+  checkpoints_done: number | null;
+  points_earned: number;
+  created_at: string;
+  updated_at: string;
+}

@@ -15,10 +15,17 @@ import {
   Loader2,
   AlertTriangle,
   LogOut,
+  Flame,
+  BookOpen,
+  Activity,
+  Sprout,
 } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useSettings } from "@/lib/settings";
 import { supabase, getUserId } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
+import { DOMAIN_IDS, DOMAIN_META } from "@/lib/domains";
 
 interface NavItem {
   id: string;
@@ -36,6 +43,13 @@ const navItems: NavItem[] = [
   { id: "financial", label: "Financial", icon: DollarSign, comingSoon: true },
 ];
 
+const DOMAIN_ICONS: Record<(typeof DOMAIN_IDS)[number], React.ComponentType<{ className?: string }>> = {
+  non_negotiables: Flame,
+  academia: BookOpen,
+  physical: Activity,
+  personal_growth: Sprout,
+};
+
 interface SidebarProps {
   activePanel: string;
   onNavigate: (panel: string) => void;
@@ -44,6 +58,7 @@ interface SidebarProps {
 export default function Sidebar({ activePanel, onNavigate }: SidebarProps) {
   const { settings } = useSettings();
   const { signOut } = useAuth();
+  const pathname = usePathname();
   const displayName = settings.userName;
   const initial = displayName.charAt(0).toUpperCase();
   const [reportStatus, setReportStatus] = useState<"idle" | "sending" | "queued" | "processing" | "sent" | "failed">("idle");
@@ -147,7 +162,37 @@ export default function Sidebar({ activePanel, onNavigate }: SidebarProps) {
 
       <nav className="flex flex-1 flex-col gap-0 px-0 py-4">
         <p className="mb-2 px-5 font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-muted">
-          Domains
+          Binder Domains
+        </p>
+        {DOMAIN_IDS.map((id) => {
+          const Icon = DOMAIN_ICONS[id];
+          const isActive = pathname === `/domain/${id}`;
+          return (
+            <Link
+              key={id}
+              href={`/domain/${id}`}
+              className={`group flex items-center gap-3 px-5 py-3 text-xs font-bold uppercase tracking-wider transition-colors duration-100 ${
+                isActive
+                  ? "border-l-[3px] border-accent bg-accent/10 text-accent"
+                  : "border-l-[3px] border-transparent text-muted hover:bg-white/[0.02] hover:text-foreground/60"
+              }`}
+            >
+              <Icon
+                className={`h-4 w-4 shrink-0 ${
+                  isActive
+                    ? "text-accent"
+                    : "text-muted group-hover:text-foreground/60"
+                }`}
+              />
+              <span className="flex-1 truncate text-left font-mono">
+                {DOMAIN_META[id].label}
+              </span>
+              {isActive && <span className="h-2 w-2 shrink-0 bg-accent" />}
+            </Link>
+          );
+        })}
+        <p className="mb-2 mt-5 px-5 font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-muted">
+          Panels
         </p>
         {navItems.map((item) => {
           const Icon = item.icon;

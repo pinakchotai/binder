@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Sidebar from "@/components/sidebar";
 import HomeDashboard from "@/components/home-dashboard";
 import StudyPanel from "@/components/study-panel";
 import DailySystemsPanel from "@/components/daily-systems-panel";
 import SettingsPanel from "@/components/settings-panel";
 import AuthScreen from "@/components/auth-screen";
-import OnboardingScreen from "@/components/onboarding-screen";
 import { useAuth } from "@/lib/auth";
 import { useSettings } from "@/lib/settings";
 import { Layers, Loader2 } from "lucide-react";
@@ -23,31 +23,24 @@ function Splash() {
   );
 }
 
+/** Signed in but never onboarded → send to the wizard route. */
+function ToOnboarding() {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/onboarding");
+  }, [router]);
+  return <Splash />;
+}
+
 export default function Home() {
   const { user, loading } = useAuth();
   const { loadedForUser } = useSettings();
   const [activePanel, setActivePanel] = useState("home");
-  const [skipOnboarding, setSkipOnboarding] = useState(false);
 
   if (loading) return <Splash />;
   if (!user) return <AuthScreen />;
 
-  const needsOnboarding =
-    loadedForUser === user.id &&
-    !skipOnboarding &&
-    !localStorage.getItem(`thebinder_onboarded_${user.id}`) &&
-    !user.user_metadata?.onboarding_completed;
-
-  if (needsOnboarding) {
-    return (
-      <OnboardingScreen
-        onDone={() => {
-          setSkipOnboarding(true);
-          localStorage.setItem(`thebinder_onboarded_${user.id}`, "true");
-        }}
-      />
-    );
-  }
+  if (!user.user_metadata?.onboarding_completed) return <ToOnboarding />;
 
   if (loadedForUser !== user.id) return <Splash />;
 
