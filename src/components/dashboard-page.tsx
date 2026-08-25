@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Flame, Loader2 } from "lucide-react";
+import { Flame, Loader2, Star } from "lucide-react";
 import AuthScreen from "@/components/auth-screen";
 import DomainScoreCard, { DOMAIN_HEX } from "@/components/domain-score-card";
 import QuickLogRow from "@/components/quick-log-row";
@@ -43,7 +43,24 @@ export default function DashboardPage() {
   const { bundle, loading, error, reload, patchLogLocal } = useDashboardData();
   const [busyId, setBusyId] = useState<string | null>(null);
   const [rowErrors, setRowErrors] = useState<Record<string, string>>({});
+  const [levelUpToast, setLevelUpToast] = useState<number | null>(null);
+  const prevLevelRef = useRef<number | null>(null);
   const lastPatchRef = useRef<Record<string, LogPatch>>({});
+
+  const xpLevel = bundle?.userXp?.current_level ?? 1;
+
+  useEffect(() => {
+    if (prevLevelRef.current !== null && xpLevel > prevLevelRef.current) {
+      setLevelUpToast(xpLevel);
+    }
+    prevLevelRef.current = xpLevel;
+  }, [xpLevel]);
+
+  useEffect(() => {
+    if (!levelUpToast) return;
+    const id = setTimeout(() => setLevelUpToast(null), 3000);
+    return () => clearTimeout(id);
+  }, [levelUpToast]);
 
   const today = getTodayDateString();
   const streaks = useMemo(
@@ -135,6 +152,14 @@ export default function DashboardPage() {
       ).length;
 
   const totalScore = bundle?.latestTotal ? Math.round(Number(bundle.latestTotal.score)) : null;
+  const userXp = bundle?.userXp;
+  const xpTotal = userXp?.total_xp ?? 0;
+  const levelXpFor = (lvl: number) => (lvl - 1) * (lvl - 1) * 100;
+  const currentLevelXp = levelXpFor(xpLevel);
+  const nextLevelXp = levelXpFor(xpLevel + 1);
+  const xpProgress = nextLevelXp > currentLevelXp
+    ? Math.min(((xpTotal - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100, 100)
+    : 100;
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-8">
@@ -195,6 +220,59 @@ export default function DashboardPage() {
           />
         </div>
       </div>
+
+      <div className="mb-6 border-[2px] border-card-border bg-card-bg p-5">
+        <div className="flex items-center gap-2">
+          <Star className="h-3.5 w-3.5 text-accent" />
+          <p className="font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
+            Level {xpLevel}
+          </p>
+          <p className="ml-auto font-mono text-[10px] tabular-nums text-muted">
+            {xpTotal} XP
+          </p>
+        </div>
+        <div className="mt-2 flex items-baseline gap-2">
+          <span className="font-mono text-[10px] tabular-nums text-muted">
+            {currentLevelXp}
+          </span>
+          <div className="flex-1 h-1.5 bg-input-bg">
+            <div
+              className="h-full bg-accent transition-all duration-500"
+              style={{ width: `${xpProgress}%` }}
+            />
+          </div>
+          <span className="font-mono text-[10px] tabular-nums text-muted">
+            {nextLevelXp}
+          </span>
+        </div>
+      </div>
+
+      {bundle && bundle.earnedBadges.length > 0 && (
+        <div className="mb-6 border-[2px] border-card-border bg-card-bg p-5">
+          <p className="mb-3 font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
+            Badges
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {bundle.earnedBadges.map((ub) => (
+              <div
+                key={ub.id}
+                className="flex items-center gap-2 border-[2px] border-accent/30 bg-accent/5 px-3 py-2"
+                title={ub.badges?.description}
+              >
+                <span className="text-lg">{ub.badges?.icon}</span>
+                <div>
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-foreground">
+                    {ub.badges?.name}
+                  </p>
+                  <p className="font-mono text-[8px] uppercase tracking-wider text-muted">
+                    {new Date(ub.earned_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {loading && !bundle ? (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -273,6 +351,11 @@ export default function DashboardPage() {
             )
           )}
         </>
+      )}
+      {levelUpToast && (
+        <div className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 border-[2px] border-accent/40 bg-card-bg px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-accent shadow-lg">
+          Level Up! You&apos;re now Level {levelUpToast}
+        </div>
       )}
     </div>
   );

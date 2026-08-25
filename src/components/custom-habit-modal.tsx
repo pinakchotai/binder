@@ -15,9 +15,20 @@ export interface CustomHabitInput {
 
 type HabitType = CustomHabitInput["type"];
 
+export interface EditingHabit {
+  id: string;
+  name: string;
+  type: "recurring" | "volume" | "milestone";
+  frequency: "daily" | "weekly";
+  difficulty: "easy" | "medium" | "hard";
+  target_value: number | null;
+  checkpoint_count: number | null;
+}
+
 interface CustomHabitModalProps {
   isOpen: boolean;
   domain: DomainId;
+  editingHabit?: EditingHabit | null;
   onClose: () => void;
   onSubmit: (input: CustomHabitInput) => Promise<void>;
   isLoading: boolean;
@@ -55,12 +66,26 @@ const segBtn = (active: boolean) =>
 export default function CustomHabitModal({
   isOpen,
   domain,
+  editingHabit,
   onClose,
   onSubmit,
   isLoading,
   error,
 }: CustomHabitModalProps) {
-  const [form, setForm] = useState(EMPTY_FORM);
+  const isEditing = Boolean(editingHabit);
+  const [form, setForm] = useState(() => {
+    if (editingHabit) {
+      return {
+        name: editingHabit.name,
+        type: editingHabit.type as HabitType,
+        frequency: editingHabit.frequency,
+        difficulty: editingHabit.difficulty,
+        targetValue: editingHabit.target_value != null ? String(editingHabit.target_value) : "",
+        checkpointCount: editingHabit.checkpoint_count != null ? String(editingHabit.checkpoint_count) : "",
+      };
+    }
+    return EMPTY_FORM;
+  });
   const [validationError, setValidationError] = useState<string | null>(null);
 
   if (!isOpen) return null;
@@ -113,7 +138,7 @@ export default function CustomHabitModal({
         <div className="flex items-center justify-between border-b-[2px] border-card-border px-5 py-4">
           <div>
             <h2 className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-foreground">
-              New Habit
+              {isEditing ? "Edit Habit" : "New Habit"}
             </h2>
             <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-muted">
               {DOMAIN_META[domain].label}
@@ -155,12 +180,13 @@ export default function CustomHabitModal({
                 <button
                   key={opt.value}
                   type="button"
+                  disabled={isEditing}
                   onClick={() => setForm((f) => ({ ...f, type: opt.value }))}
                   className={`border-[2px] px-2 py-2.5 text-center transition-colors ${
                     form.type === opt.value
                       ? "border-accent/60 bg-accent/10"
                       : "border-input-border hover:border-accent/30"
-                  }`}
+                  } ${isEditing ? "cursor-not-allowed opacity-60" : ""}`}
                 >
                   <span
                     className={`block font-mono text-[10px] font-bold uppercase tracking-wider ${
@@ -177,6 +203,11 @@ export default function CustomHabitModal({
                 </button>
               ))}
             </div>
+            {isEditing && (
+              <p className="mt-1.5 font-mono text-[9px] uppercase tracking-wider text-muted/70">
+                Habit type can&apos;t be changed after creation. Delete and recreate if you need a different type.
+              </p>
+            )}
           </div>
 
           {/* Frequency — recurring only */}
@@ -294,7 +325,7 @@ export default function CustomHabitModal({
             className="flex flex-1 items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-4 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-            Create
+            {isEditing ? "Save changes" : "Create"}
           </button>
         </div>
       </div>

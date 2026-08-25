@@ -14,6 +14,7 @@ import { supabase, getUserId, type Habit, type HabitLog } from "@/lib/supabase";
 import { DOMAIN_META, type DomainId } from "@/lib/domains";
 import CustomHabitModal, {
   type CustomHabitInput,
+  type EditingHabit,
 } from "@/components/custom-habit-modal";
 import HabitCard, { sortHabits } from "@/components/habit-card";
 
@@ -46,9 +47,12 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
   const [cardUi, setCardUi] = useState<Record<string, CardUiState>>({});
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingHabit, setEditingHabit] = useState<EditingHabit | null>(null);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [deletingHabit, setDeletingHabit] = useState<Habit | null>(null);
+  const [deleteConfirming, setDeleteConfirming] = useState(false);
 
   const setCardState = useCallback(
     (habitId: string, patch: Partial<CardUiState>) => {
@@ -237,6 +241,65 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
     [domainId, fetchScore],
   );
 
+  const handleEditHabit = useCallback(
+    async (input: CustomHabitInput) => {
+      if (!editingHabit) return;
+      const uid = await getUserId();
+      if (!uid) {
+        setCreateError("Session expired — sign in again.");
+        return;
+      }
+      setCreating(true);
+      setCreateError(null);
+      const { data, error } = await supabase
+        .from("habits")
+        .update({ name: input.name, difficulty: input.difficulty, target_value: input.target_value, checkpoint_count: input.checkpoint_count })
+        .eq("id", editingHabit.id)
+        .eq("user_id", uid)
+        .select()
+        .single();
+      setCreating(false);
+      if (error || !data) {
+        setCreateError(error?.message ?? "Failed to update habit.");
+        return;
+      }
+      setHabits((prev) => prev.map((h) => (h.id === editingHabit.id ? (data as Habit) : h)));
+      setEditingHabit(null);
+      setModalOpen(false);
+      setToast("Habit updated");
+      void fetchScore(uid);
+    },
+    [editingHabit, fetchScore],
+  );
+
+  const handleDeleteHabit = useCallback(
+    async (habit: Habit) => {
+      const uid = await getUserId();
+      if (!uid) return;
+      setDeleteConfirming(true);
+      const { error } = await supabase
+        .from("habits")
+        .delete()
+        .eq("id", habit.id)
+        .eq("user_id", uid);
+      setDeleteConfirming(false);
+      if (error) {
+        setToast("Failed to delete habit");
+        return;
+      }
+      setHabits((prev) => prev.filter((h) => h.id !== habit.id));
+      setLogsByHabit((prev) => {
+        const next = { ...prev };
+        delete next[habit.id];
+        return next;
+      });
+      setDeletingHabit(null);
+      setToast("Habit deleted");
+      void fetchScore(uid);
+    },
+    [fetchScore],
+  );
+
   const refresh = useCallback(() => {
     setLoading(true);
     setLoadError(null);
@@ -334,6 +397,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
               <button
                 type="button"
                 onClick={() => {
+                  setEditingHabit(null);
                   setCreateError(null);
                   setModalOpen(true);
                 }}
@@ -345,10 +409,6 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
             </div>
           ) : (
             <>
-              {/* Streak placeholder (real logic arrives in Sprint 7) */}
-              <p className="mb-3 font-mono text-[10px] uppercase tracking-wider text-muted/70">
-                🔥 Current: -- days (streaks arrive in Sprint 7)
-              </p>
               <div className="space-y-4">
                 {sorted.map((habit) => {
                   const ui = cardUi[habit.id];
@@ -364,6 +424,20 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
                       onDismissError={() =>
                         setCardState(habit.id, { error: null })
                       }
+                      onEdit={() => {
+                        setEditingHabit({
+                          id: habit.id,
+                          name: habit.name,
+                          type: habit.type,
+                          frequency: habit.frequency,
+                          difficulty: habit.difficulty,
+                          target_value: habit.target_value,
+                          checkpoint_count: habit.checkpoint_count,
+                        });
+                        setCreateError(null);
+                        setModalOpen(true);
+                      }}
+                      onDelete={() => setDeletingHabit(habit)}
                     />
                   );
                 })}
@@ -377,6 +451,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
           <button
             type="button"
             onClick={() => {
+              setEditingHabit(null);
               setCreateError(null);
               setModalOpen(true);
             }}
@@ -393,8 +468,9 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
         <CustomHabitModal
           isOpen
           domain={domainId}
-          onClose={() => setModalOpen(false)}
-          onSubmit={handleCreateHabit}
+          editingHabit={editingHabit}
+          onClose={() => { setModalOpen(false); setEditingHabit(null); }}
+          onSubmit={editingHabit ? handleEditHabit : handleCreateHabit}
           isLoading={creating}
           error={createError}
         />
@@ -402,6 +478,48 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
       {toast && (
         <div className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 border-[2px] border-accent/40 bg-card-bg px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-accent shadow-lg">
           {toast}
+        </div>
+      )}
+      {deletingHabit && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+          onClick={() => !deleteConfirming && setDeletingHabit(null)}
+        >
+          <div
+            className="w-full max-w-sm border-[2px] border-card-border bg-sidebar-bg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="border-b-[2px] border-card-border px-5 py-4">
+              <h2 className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-foreground">
+                Delete Habit
+              </h2>
+            </div>
+            <div className="px-5 py-5">
+              <p className="font-mono text-sm text-foreground">
+                Delete <span className="font-bold text-red-400">{deletingHabit.name}</span>?
+                This removes all its logged history and can&apos;t be undone.
+              </p>
+            </div>
+            <div className="flex gap-3 border-t-[2px] border-card-border px-5 py-4">
+              <button
+                type="button"
+                onClick={() => setDeletingHabit(null)}
+                disabled={deleteConfirming}
+                className="flex-1 border-[2px] border-input-border px-4 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-muted transition-colors hover:text-foreground/80 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleDeleteHabit(deletingHabit)}
+                disabled={deleteConfirming}
+                className="flex flex-1 items-center justify-center gap-2 border-[2px] border-red-500/60 bg-red-500/10 px-4 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-red-400 transition-colors hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {deleteConfirming && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

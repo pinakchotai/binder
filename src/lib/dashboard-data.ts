@@ -104,12 +104,36 @@ export function computeStreaks(trackedDates: Set<string>): StreakInfo {
   return { current, best };
 }
 
+export interface UserXpRow {
+  user_id: string;
+  total_xp: number;
+  current_level: number;
+}
+
+export interface BadgeRow {
+  id: string;
+  key: string;
+  name: string;
+  description: string;
+  icon: string;
+}
+
+export interface UserBadgeRow {
+  id: string;
+  user_id: string;
+  badge_id: string;
+  earned_at: string;
+  badges: BadgeRow;
+}
+
 export interface DashboardDataBundle {
   habits: Habit[];
   logsByHabit: Map<string, Map<string, HabitLog>>;
   todayScores: Partial<Record<DomainId, number>>;
   latestTotal: TotalScoreRow | null;
   trackedDates: Set<string>;
+  userXp: UserXpRow | null;
+  earnedBadges: UserBadgeRow[];
 }
 
 function buildLogsByHabit(logs: HabitLog[]): Map<string, Map<string, HabitLog>> {
@@ -135,11 +159,14 @@ export function useDashboardData() {
       const userId = await getUserId();
       if (!userId) throw new Error("Not signed in");
       const today = getTodayDateString();
-      const [habitsRes, logsRes, dsRes, tsRes] = await Promise.all([
+      const [habitsRes, logsRes, dsRes, tsRes, xpRes, ubRes, badgeCatRes] = await Promise.all([
         supabase.from("habits").select("*").order("created_at", { ascending: true }),
         supabase.from("habit_logs").select("*").gte("log_date", today),
         supabase.from("domain_scores").select("*").eq("score_date", today),
         supabase.from("total_scores").select("*").order("score_date", { ascending: true }),
+        supabase.from("user_xp").select("*").maybeSingle(),
+        supabase.from("user_badges").select("id, user_id, badge_id, earned_at").order("earned_at", { ascending: false }),
+        supabase.from("badges").select("id, key, name, description, icon"),
       ]);
       if (habitsRes.error) throw new Error(habitsRes.error.message);
       if (logsRes.error) throw new Error(logsRes.error.message);
@@ -158,7 +185,11 @@ export function useDashboardData() {
       const latestTotal = tsRows.find((r) => r.score_date === today) ?? null;
       const trackedDates = new Set(tsRows.map((r) => r.score_date));
 
-      return { habits, logsByHabit, todayScores, latestTotal, trackedDates };
+      const badgeCatMap = new Map<string, BadgeRow>();
+      for (const b of (badgeCatRes.data ?? []) as BadgeRow[]) badgeCatMap.set(b.id, b);
+      const earnedBadges: UserBadgeRow[] = ((ubRes.data ?? []) as UserBadgeRow[]).map((ub) => ({ ...ub, badges: badgeCatMap.get(ub.badge_id)! })).filter((ub) => ub.badges);
+
+      return { habits, logsByHabit, todayScores, latestTotal, trackedDates, userXp: (xpRes.data as UserXpRow) ?? null, earnedBadges };
     }, []);
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Minus, Plus } from "lucide-react";
+import { Loader2, Minus, Pencil, Plus, Trash2 } from "lucide-react";
 import type { Habit, HabitLog } from "@/lib/supabase";
 
 const DIFFICULTY_WEIGHT: Record<Habit["difficulty"], number> = {
@@ -58,6 +58,8 @@ interface HabitCardProps {
   error: string | null;
   onRetry: () => void;
   onDismissError: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
 export default function HabitCard({
@@ -68,6 +70,8 @@ export default function HabitCard({
   error,
   onRetry,
   onDismissError,
+  onEdit,
+  onDelete,
 }: HabitCardProps) {
   const points = todayLog?.points_earned ?? 0;
 
@@ -126,6 +130,24 @@ export default function HabitCard({
           {habit.type === "volume" ? "📊 " : ""}
           {habit.type === "milestone" ? "🎯 " : ""}+{formatPoints(points)} PTS
         </span>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onEdit(); }}
+          disabled={isLoading}
+          className="border border-transparent p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+          aria-label="Edit habit"
+        >
+          <Pencil className="h-3 w-3" />
+        </button>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          disabled={isLoading}
+          className="border border-transparent p-1 text-muted transition-colors hover:border-red-500/40 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40"
+          aria-label="Delete habit"
+        >
+          <Trash2 className="h-3 w-3" />
+        </button>
       </div>
 
       <div className="px-5 pb-4">
