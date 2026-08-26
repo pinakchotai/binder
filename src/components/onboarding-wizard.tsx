@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ChevronRight, Layers, Loader2, Plus } from "lucide-react";
+import { Check, CaretRight, StackSimple, CircleNotch, Plus } from "@phosphor-icons/react";
 import { supabase, getUserId, type Habit } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 import { DOMAIN_IDS, DOMAIN_META, type DomainId } from "@/lib/domains";
@@ -177,7 +177,7 @@ export default function OnboardingWizard() {
     return (
       <Shell>
         <div className="flex justify-center py-20">
-          <Loader2 className="h-5 w-5 animate-spin text-muted" />
+          <CircleNotch className="h-5 w-5 animate-spin text-muted" />
         </div>
       </Shell>
     );
@@ -189,20 +189,20 @@ export default function OnboardingWizard() {
       <Shell>
         <div className="flex flex-col items-center gap-6 border-[2px] border-card-border bg-card-bg px-8 py-14 text-center">
           <div className="flex h-12 w-12 items-center justify-center border-[2px] border-accent/30 bg-accent/15">
-            <Layers className="h-6 w-6 text-accent" />
+            <StackSimple className="h-6 w-6 text-accent" />
           </div>
           <div>
-            <h1 className="font-mono text-2xl font-bold uppercase tracking-[0.15em] text-foreground">
+            <h1 className="font-sans text-3xl font-bold tracking-tight text-foreground">
               The Binder
             </h1>
-            <p className="mt-3 font-mono text-xs uppercase tracking-wider text-muted">
+            <p className="mt-3 font-sans text-sm text-muted">
               Track habits across 4 life domains and level up
             </p>
           </div>
           <button
             type="button"
             onClick={() => setStep(0)}
-            className="mt-2 border-[2px] border-button-bg bg-button-bg px-8 py-3 font-mono text-xs font-bold uppercase tracking-[0.2em] text-button-text transition-colors hover:bg-button-hover"
+            className="mt-2 border-[2px] border-button-bg bg-button-bg px-8 py-3 font-mono text-xs font-bold uppercase tracking-[0.2em] text-button-text btn-primary"
           >
             Get Started
           </button>
@@ -220,7 +220,7 @@ export default function OnboardingWizard() {
           <p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-muted">
             Setup Complete
           </p>
-          <h1 className="mt-4 font-mono text-2xl font-bold uppercase leading-snug tracking-[0.1em] text-foreground">
+          <h1 className="mt-4 font-sans text-2xl font-bold tracking-tight text-foreground">
             You&apos;re tracking {totalHabits}{" "}
             {totalHabits === 1 ? "habit" : "habits"} across 4 domains
           </h1>
@@ -251,9 +251,9 @@ export default function OnboardingWizard() {
             type="button"
             onClick={() => void handleFinish()}
             disabled={finishing}
-            className="mt-8 inline-flex items-center gap-2 border-[2px] border-button-bg bg-button-bg px-8 py-3 font-mono text-xs font-bold uppercase tracking-[0.2em] text-button-text transition-colors hover:bg-button-hover disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-8 inline-flex items-center gap-2 border-[2px] border-button-bg bg-button-bg px-8 py-3 font-mono text-xs font-bold uppercase tracking-[0.2em] text-button-text btn-primary disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {finishing && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            {finishing && <CircleNotch className="h-3.5 w-3.5 animate-spin" />}
             Start Tracking
           </button>
         </div>
@@ -299,10 +299,10 @@ export default function OnboardingWizard() {
         </div>
 
         <div className="px-6 py-6">
-          <h1 className="font-mono text-xl font-bold uppercase tracking-[0.1em] text-foreground">
+          <h1 className="font-sans text-xl font-bold tracking-tight text-foreground">
             {meta.label}
           </h1>
-          <p className="mt-1 font-mono text-[11px] uppercase tracking-wider text-muted">
+          <p className="mt-1 font-sans text-[11px] text-muted">
             {meta.description}
           </p>
 
@@ -378,7 +378,7 @@ export default function OnboardingWizard() {
                 setCreateError(null);
                 setModalDomain(d);
               }}
-              className="inline-flex items-center gap-1.5 border-[2px] border-input-border px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-wider text-muted transition-colors hover:border-accent/40 hover:text-accent"
+              className="inline-flex items-center gap-1.5 border-[2px] border-input-border px-3 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wider text-muted transition-colors hover:border-accent/40 hover:text-accent"
             >
               <Plus className="h-3 w-3" />
               Add custom habit
@@ -386,10 +386,10 @@ export default function OnboardingWizard() {
             <button
               type="button"
               onClick={() => setStep(step + 1)}
-              className="ml-auto inline-flex items-center gap-2 border-[2px] border-button-bg bg-button-bg px-6 py-2.5 font-mono text-xs font-bold uppercase tracking-[0.2em] text-button-text transition-colors hover:bg-button-hover"
+              className="ml-auto inline-flex items-center gap-2 border-[2px] border-button-bg bg-button-bg px-6 py-3 font-mono text-xs font-bold uppercase tracking-[0.2em] text-button-text btn-primary"
             >
               {step === 3 ? "Review" : "Next"}
-              <ChevronRight className="h-3.5 w-3.5" />
+              <CaretRight className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
@@ -401,8 +401,8 @@ export default function OnboardingWizard() {
 /* Shared page scaffolding */
 function Shell({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen overflow-y-auto bg-background">
-      <div className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-center px-6 py-10">
+    <div className="min-h-dvh overflow-y-auto bg-background">
+      <div className="mx-auto flex min-h-dvh w-full max-w-xl flex-col justify-center px-6 py-10">
         {children}
       </div>
     </div>

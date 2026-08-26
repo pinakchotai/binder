@@ -3,14 +3,14 @@
 import { useState } from "react";
 import {
   Brain,
-  Sunrise,
+  SunHorizon,
   Moon,
-  WifiOff,
-  Droplets,
+  WifiSlash,
+  Drop,
   User,
   ArrowLeft,
-  Save,
-} from "lucide-react";
+  FloppyDisk,
+} from "@phosphor-icons/react";
 import { useSettings } from "@/lib/settings";
 
 function formatTime(h: number, m: number): string {
@@ -42,10 +42,10 @@ function SettingRow({ icon: Icon, label, description, children }: SettingRowProp
         <Icon className="h-4 w-4 text-accent" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">
+        <p className="font-sans text-xs font-bold tracking-tight text-foreground">
           {label}
         </p>
-        <p className="font-mono text-[10px] text-muted mt-0.5">{description}</p>
+        <p className="font-sans text-[10px] text-muted mt-0.5">{description}</p>
       </div>
       <div className="shrink-0">{children}</div>
     </div>
@@ -53,7 +53,7 @@ function SettingRow({ icon: Icon, label, description, children }: SettingRowProp
 }
 
 const inputClass =
-  "border-[2px] border-input-border bg-card-bg px-3 py-2 font-mono text-sm text-foreground focus:border-input-focus focus:outline-none transition-colors w-32 text-center";
+  "border-[2px] border-input-border bg-card-bg px-3 py-2 font-mono text-sm text-foreground focus:border-input-focus focus:ring-2 focus:ring-accent/50 focus:outline-none transition-colors w-32 text-center";
 
 export default function SettingsPanel({ onBack }: { onBack: () => void }) {
   const { settings, updateSetting } = useSettings();
@@ -94,10 +94,10 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <div className="shrink-0 border-b-[2px] border-card-border bg-card-bg px-8 py-5">
-        <button
-          onClick={onBack}
-          className="mb-3 inline-flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted transition-colors hover:text-foreground"
-        >
+          <button
+            onClick={onBack}
+            className="mb-3 inline-flex items-center gap-2 font-sans text-[11px] font-medium text-muted transition-colors hover:text-foreground"
+          >
           <ArrowLeft className="h-3 w-3" />
           Back
         </button>
@@ -106,10 +106,10 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
             Settings
           </span>
         </div>
-        <h2 className="font-mono text-lg font-bold uppercase tracking-wide text-foreground">
+        <h2 className="font-sans text-xl font-bold tracking-tight text-foreground">
           Configuration
         </h2>
-        <p className="mt-1 font-mono text-xs text-muted">
+        <p className="mt-1 font-sans text-xs text-muted">
           Customize your targets and preferences
         </p>
       </div>
@@ -149,7 +149,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
 
             {/* Wake-up Time */}
             <SettingRow
-              icon={Sunrise}
+              icon={SunHorizon}
               label="Wake-up Time"
               description={`Target time to wake up (currently ${formatTime(settings.wakeUpHour, settings.wakeUpMinute)}). Reminders based on this time are coming in a future update — this doesn't affect anything yet.`}
             >
@@ -177,7 +177,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
 
             {/* Screen Disconnect */}
             <SettingRow
-              icon={WifiOff}
+              icon={WifiSlash}
               label="Screen Disconnect"
               description={`Minutes before sleep without screens (currently ${settings.screenDisconnectMinutes} min)`}
             >
@@ -194,7 +194,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
 
             {/* Water Target */}
             <SettingRow
-              icon={Droplets}
+              icon={Drop}
               label="Water Target"
               description={`Daily water intake goal (currently ${(settings.waterTargetMl / 1000).toFixed(1)}L). This sets your default target when you first add this habit. To change an existing habit's target later, you'll need habit editing — coming soon.`}
             >
@@ -215,7 +215,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
           {/* Saved indicator */}
           {saved && (
             <div className="mt-4 flex items-center justify-center gap-2 border-[2px] border-green-500/30 bg-green-500/10 px-4 py-2">
-              <Save className="h-3 w-3 text-green-400" />
+              <FloppyDisk className="h-3 w-3 text-green-400" />
               <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-green-400">
                 Saved
               </span>

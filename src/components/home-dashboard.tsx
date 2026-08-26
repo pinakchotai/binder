@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Droplets, Loader2, Trash2, BookOpen, Play, ExternalLink, BarChart3 } from "lucide-react";
+import { Drop, CircleNotch, Trash, BookOpen, Play, ArrowSquareOut, ChartBar } from "@phosphor-icons/react";
 import { supabase, getUserId, type WaterIntake } from "@/lib/supabase";
 import { useSettings } from "@/lib/settings";
 import HistoryPanel from "./history-panel";
@@ -190,7 +190,7 @@ export default function HomeDashboard() {
             {/* Card header */}
             <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
               <div className="flex h-7 w-7 items-center justify-center border-[2px] border-blue-400/30 bg-blue-400/10">
-                <Droplets className="h-3.5 w-3.5 text-blue-400" />
+                <Drop className="h-3.5 w-3.5 text-blue-400" />
               </div>
               <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
                 Water Intake
@@ -265,7 +265,7 @@ export default function HomeDashboard() {
                   value={customAmount}
                   onChange={(e) => setCustomAmount(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleCustomAdd()}
-                  className="flex-1 border-[2px] border-input-border bg-input-bg px-3 py-2.5 font-mono text-sm text-foreground placeholder:text-muted/60 focus:border-input-focus focus:outline-none transition-colors"
+                   className="flex-1 border-[2px] border-input-border bg-input-bg px-3 py-2.5 font-mono text-sm text-foreground placeholder:text-muted/60 focus:border-input-focus focus:ring-2 focus:ring-accent/50 focus:outline-none transition-colors"
                 />
                 <button
                   onClick={handleCustomAdd}
@@ -273,7 +273,7 @@ export default function HomeDashboard() {
                   className="inline-flex items-center justify-center gap-2 border-[2px] border-blue-400/50 bg-blue-400/10 px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-blue-400 transition-colors hover:bg-blue-400/20 active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {submitting ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <CircleNotch className="h-3.5 w-3.5 animate-spin" />
                   ) : (
                     "Add"
                   )}
@@ -293,7 +293,7 @@ export default function HomeDashboard() {
                         className="flex items-center justify-between border border-table-border px-3 py-2"
                       >
                         <div className="flex items-center gap-3">
-                          <Droplets className="h-3 w-3 text-blue-400/60" />
+                          <Drop className="h-3 w-3 text-blue-400/60" />
                           <span className="font-mono text-sm font-bold text-foreground">
                             {entry.amount_ml}ml
                           </span>
@@ -305,7 +305,7 @@ export default function HomeDashboard() {
                           onClick={() => handleDelete(entry.id)}
                           className="p-1 text-muted transition-colors hover:text-red-400"
                         >
-                          <Trash2 className="h-3 w-3" />
+                          <Trash className="h-3 w-3" />
                         </button>
                       </div>
                     ))}
@@ -325,7 +325,7 @@ export default function HomeDashboard() {
               {/* Loading */}
               {loading && (
                 <div className="mt-5 flex justify-center py-4">
-                  <Loader2 className="h-4 w-4 animate-spin text-muted" />
+                  <CircleNotch className="h-4 w-4 animate-spin text-muted" />
                 </div>
               )}
             </div>
@@ -337,7 +337,7 @@ export default function HomeDashboard() {
             className="w-full border-[2px] border-card-border bg-card-bg px-5 py-3 flex items-center gap-2.5 transition-colors hover:border-accent/40"
           >
             <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
-              <BarChart3 className="h-3.5 w-3.5 text-accent" />
+              <ChartBar className="h-3.5 w-3.5 text-accent" />
             </div>
             <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
               {showHistory ? "Hide History" : "View History"}
@@ -368,7 +368,7 @@ export default function HomeDashboard() {
               </p>
               {booksLoading ? (
                 <div className="flex justify-center py-4">
-                  <Loader2 className="h-4 w-4 animate-spin text-muted" />
+                  <CircleNotch className="h-4 w-4 animate-spin text-muted" />
                 </div>
               ) : (
                 <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -399,7 +399,7 @@ export default function HomeDashboard() {
                       </p>
                       <div className="mt-auto pt-2">
                         <span className="inline-flex items-center gap-1 font-mono text-[9px] text-accent">
-                          <ExternalLink className="h-2.5 w-2.5" />
+                          <ArrowSquareOut className="h-2.5 w-2.5" />
                           OPEN LIBRARY
                         </span>
                       </div>

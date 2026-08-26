@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Flame, Loader2, Star } from "lucide-react";
+import { Flame, CircleNotch, Star } from "@phosphor-icons/react";
 import AuthScreen from "@/components/auth-screen";
 import DomainScoreCard, { DOMAIN_HEX } from "@/components/domain-score-card";
 import QuickLogRow from "@/components/quick-log-row";
@@ -24,7 +24,7 @@ type LogPatch = Partial<
 function Splash() {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4 py-24">
-      <Loader2 className="h-4 w-4 animate-spin text-muted" />
+      <CircleNotch className="h-4 w-4 animate-spin text-muted" />
     </div>
   );
 }
@@ -162,7 +162,7 @@ export default function DashboardPage() {
     : 100;
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-8">
+    <div className="mx-auto max-w-4xl px-6 py-10" id="main-content">
       {error && (
         <div className="mb-6 flex items-center justify-between gap-3 border-[2px] border-red-500/40 bg-red-500/[0.07] px-4 py-3">
           <p className="min-w-0 truncate font-mono text-[11px] text-red-300">
@@ -183,7 +183,7 @@ export default function DashboardPage() {
           <p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-muted">
             Today
           </p>
-          <h1 className="mt-1 font-mono text-lg font-bold uppercase tracking-wider text-foreground">
+          <h1 className="mt-1 font-sans text-xl font-bold tracking-tight text-foreground">
             {new Date(today + "T00:00:00").toLocaleDateString("en-US", {
               weekday: "long",
               month: "long",
@@ -193,7 +193,7 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-2">
           {busyId && (
-            <Loader2 className="h-3.5 w-3.5 animate-spin text-muted" />
+            <CircleNotch className="h-3.5 w-3.5 animate-spin text-muted" />
           )}
           <Flame className="h-4 w-4 text-accent" />
           <span className="font-mono text-xs font-bold tabular-nums text-foreground">
@@ -205,23 +205,23 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="mb-6 border-[2px] border-card-border bg-card-bg p-5">
+      <div className="mb-6 border-[2px] border-card-border bg-card-bg p-6 card-depth-lg">
         <p className="font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
-          Total Score — All Domains
+          Total Score
         </p>
-        <p className="mt-1 font-mono text-4xl font-bold tabular-nums text-accent">
+        <p className="mt-1 font-mono text-5xl font-bold tabular-nums text-accent">
           {totalScore == null ? "--" : totalScore}
-          <span className="text-base text-muted">/100</span>
+          <span className="text-base font-normal text-muted">/100</span>
         </p>
         <div className="mt-3 h-1.5 w-full bg-input-bg">
           <div
-            className="h-full bg-accent transition-all duration-500"
+            className="h-full bg-accent progress-animate transition-all duration-500"
             style={{ width: `${Math.max(0, Math.min(100, totalScore ?? 0))}%` }}
           />
         </div>
       </div>
 
-      <div className="mb-6 border-[2px] border-card-border bg-card-bg p-5">
+      <div className="mb-6 border-[2px] border-card-border bg-card-bg p-6 card-depth">
         <div className="flex items-center gap-2">
           <Star className="h-3.5 w-3.5 text-accent" />
           <p className="font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
@@ -231,13 +231,13 @@ export default function DashboardPage() {
             {xpTotal} XP
           </p>
         </div>
-        <div className="mt-2 flex items-baseline gap-2">
+        <div className="mt-2.5 flex items-baseline gap-2">
           <span className="font-mono text-[10px] tabular-nums text-muted">
             {currentLevelXp}
           </span>
           <div className="flex-1 h-1.5 bg-input-bg">
             <div
-              className="h-full bg-accent transition-all duration-500"
+              className="h-full bg-accent progress-animate transition-all duration-500"
               style={{ width: `${xpProgress}%` }}
             />
           </div>
@@ -248,15 +248,16 @@ export default function DashboardPage() {
       </div>
 
       {bundle && bundle.earnedBadges.length > 0 && (
-        <div className="mb-6 border-[2px] border-card-border bg-card-bg p-5">
+        <div className="mb-6 border-[2px] border-card-border bg-card-bg p-5 card-depth">
           <p className="mb-3 font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
             Badges
           </p>
           <div className="flex flex-wrap gap-3">
-            {bundle.earnedBadges.map((ub) => (
+            {bundle.earnedBadges.map((ub, i) => (
               <div
                 key={ub.id}
-                className="flex items-center gap-2 border-[2px] border-accent/30 bg-accent/5 px-3 py-2"
+                className="flex items-center gap-2 border-[2px] border-accent/30 bg-accent/5 px-3 py-2 badge-enter"
+                style={{ animationDelay: `${i * 60}ms` }}
                 title={ub.badges?.description}
               >
                 <span className="text-lg">{ub.badges?.icon}</span>
@@ -353,7 +354,7 @@ export default function DashboardPage() {
         </>
       )}
       {levelUpToast && (
-        <div className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 border-[2px] border-accent/40 bg-card-bg px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-accent shadow-lg">
+        <div className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 border-[2px] border-accent/40 bg-card-bg px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-accent shadow-lg toast-animate">
           Level Up! You&apos;re now Level {levelUpToast}
         </div>
       )}

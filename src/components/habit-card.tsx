@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Minus, Pencil, Plus, Trash2 } from "lucide-react";
+import { CircleNotch, Minus, PencilSimple, Plus, Trash } from "@phosphor-icons/react";
 import type { Habit, HabitLog } from "@/lib/supabase";
 
 const DIFFICULTY_WEIGHT: Record<Habit["difficulty"], number> = {
@@ -96,14 +96,14 @@ export default function HabitCard({
     >
       {isLoading && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60">
-          <Loader2 className="h-4 w-4 animate-spin text-accent" />
+          <CircleNotch className="h-4 w-4 animate-spin text-accent" />
         </div>
       )}
 
       {/* Header */}
       <div className="flex flex-wrap items-center gap-2 px-5 py-3">
         <h3
-          className={`font-mono text-sm font-bold uppercase tracking-wider ${
+          className={`font-sans text-sm font-bold tracking-tight ${
             complete ? "text-accent" : "text-foreground"
           }`}
         >
@@ -126,31 +126,31 @@ export default function HabitCard({
               : "border-input-border bg-input-bg text-muted"
           }`}
         >
-          {complete ? "✓ " : ""}
-          {habit.type === "volume" ? "📊 " : ""}
-          {habit.type === "milestone" ? "🎯 " : ""}+{formatPoints(points)} PTS
+          {complete ? "DONE " : ""}
+          {habit.type === "volume" ? "VOL " : ""}
+          {habit.type === "milestone" ? "MST " : ""}+{formatPoints(points)} PTS
         </span>
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onEdit(); }}
           disabled={isLoading}
-          className="border border-transparent p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-8 w-8 items-center justify-center border border-transparent p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Edit habit"
         >
-          <Pencil className="h-3 w-3" />
+          <PencilSimple className="h-3 w-3" />
         </button>
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onDelete(); }}
           disabled={isLoading}
-          className="border border-transparent p-1 text-muted transition-colors hover:border-red-500/40 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-8 w-8 items-center justify-center border border-transparent p-1 text-muted transition-colors hover:border-red-500/40 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Delete habit"
         >
-          <Trash2 className="h-3 w-3" />
+          <Trash className="h-3 w-3" />
         </button>
       </div>
 
-      <div className="px-5 pb-4">
+      <div className="px-5 pb-5">
         {habit.type === "recurring" && (
           <RecurringBody
             done={todayLog?.completed === true}
@@ -192,6 +192,7 @@ export default function HabitCard({
               type="button"
               onClick={onDismissError}
               className="font-mono text-[10px] font-bold uppercase text-red-400 hover:text-red-200"
+              aria-label="Dismiss error"
             >
               ✕
             </button>
@@ -211,21 +212,31 @@ function RecurringBody({
   isLoading: boolean;
   onToggle: (completed: boolean) => void;
 }) {
+  const [pulsing, setPulsing] = useState(false);
+
+  const handleToggle = () => {
+    onToggle(!done);
+    if (!done) {
+      setPulsing(true);
+      setTimeout(() => setPulsing(false), 260);
+    }
+  };
+
   return (
     <button
       type="button"
       disabled={isLoading}
-      onClick={() => onToggle(!done)}
-      className={`flex w-full items-center gap-3 border-[2px] px-4 py-3 transition-colors disabled:cursor-not-allowed ${
+      onClick={handleToggle}
+        className={`flex w-full items-center gap-3 border-[2px] px-4 py-3 transition-colors active:scale-[0.98] disabled:cursor-not-allowed ${
         done
           ? "border-accent/50 bg-accent/10"
           : "border-input-border bg-input-bg hover:border-input-border/80"
       }`}
     >
       <div
-        className={`flex h-6 w-6 shrink-0 items-center justify-center border-[2px] ${
+        className={`flex h-6 w-6 shrink-0 items-center justify-center border-[2px] transition-colors ${
           done ? "border-accent bg-accent" : "border-input-border bg-transparent"
-        }`}
+        } ${pulsing ? "check-pulse" : ""}`}
       >
         {done && <CheckMark className="h-full w-full p-[3px] text-background" />}
       </div>
@@ -299,7 +310,7 @@ function VolumeBody({
           type="button"
           onClick={() => addDelta(-1)}
           disabled={isLoading || current <= 0}
-          className="flex w-9 items-center justify-center border-[2px] border-input-border bg-input-bg text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-11 w-11 items-center justify-center border-[2px] border-input-border bg-input-bg text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Subtract 1"
         >
           <Minus className="h-3.5 w-3.5" />
@@ -314,13 +325,13 @@ function VolumeBody({
             if (e.key === "Enter") commit();
           }}
           placeholder="+ add"
-          className="w-24 border-[2px] border-input-border bg-input-bg px-2 py-2 text-center font-mono text-sm tabular-nums text-foreground placeholder:text-muted/60 focus:border-input-focus focus:outline-none"
+          className="w-24 border-[2px] border-input-border bg-input-bg px-2 py-2 text-center font-mono text-sm tabular-nums text-foreground placeholder:text-muted/60 focus:border-input-focus focus:ring-2 focus:ring-accent/50 focus:outline-none"
         />
         <button
           type="button"
           onClick={() => addDelta(1)}
           disabled={isLoading}
-          className="flex w-9 items-center justify-center border-[2px] border-input-border bg-input-bg text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-11 w-11 items-center justify-center border-[2px] border-input-border bg-input-bg text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Add 1"
         >
           <Plus className="h-3.5 w-3.5" />

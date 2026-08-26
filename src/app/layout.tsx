@@ -24,7 +24,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
     >
-      <body className="h-screen overflow-hidden bg-background text-foreground">
+      <body className="min-h-dvh overflow-hidden bg-background text-foreground noise-overlay">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:border-[2px] focus:border-accent focus:bg-card-bg focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:text-accent"
+        >
+          Skip to content
+        </a>
         <Providers>{children}</Providers>
       </body>
     </html>

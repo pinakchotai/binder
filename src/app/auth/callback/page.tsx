@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Loader2 } from "lucide-react";
+import { CircleNotch } from "@phosphor-icons/react";
 
 export default function AuthCallback() {
   const router = useRouter();
@@ -25,7 +25,7 @@ export default function AuthCallback() {
 
   return (
     <div className="flex h-screen items-center justify-center">
-      <Loader2 className="h-5 w-5 animate-spin text-muted" />
+      <CircleNotch className="h-5 w-5 animate-spin text-muted" />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { CaretRight } from "@phosphor-icons/react";
 import { DOMAIN_META, type DomainId } from "@/lib/domains";
 
 export const DOMAIN_HEX: Record<DomainId, string> = {
@@ -30,21 +30,21 @@ export default function DomainScoreCard({
   return (
     <Link
       href={`/domain/${domain}`}
-      className="group block border-[2px] border-card-border bg-card-bg p-4 transition-colors hover:border-white/20"
+      className="group block border-[2px] border-card-border bg-card-bg p-5 transition-colors hover:border-white/15"
     >
       <div className="mb-3 flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p
-            className="truncate font-mono text-[10px] font-bold uppercase tracking-wider"
+            className="truncate font-sans text-xs font-bold tracking-tight"
             style={{ color: hex }}
           >
             {meta.label}
           </p>
-          <p className="mt-0.5 truncate font-mono text-[9px] uppercase tracking-wider text-muted">
+          <p className="mt-0.5 truncate font-sans text-[10px] text-muted">
             {meta.subtitle}
           </p>
         </div>
-        <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-foreground/70" />
+        <CaretRight className="h-3.5 w-3.5 shrink-0 text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-foreground/70" />
       </div>
       <p className="font-mono text-2xl font-bold tabular-nums text-foreground">
         {score == null ? "--" : Math.round(score)}
@@ -56,7 +56,7 @@ export default function DomainScoreCard({
           style={{ width: `${pct}%`, backgroundColor: hex }}
         />
       </div>
-      <p className="mt-2 font-mono text-[9px] uppercase tracking-wider text-muted">
+      <p className="mt-2.5 font-sans text-[10px] text-muted">
         {completedCount}/{habitCount} done today
       </p>
     </Link>

@@ -1,15 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  AlertTriangle,
-  ChevronLeft,
-  Loader2,
-  LogIn,
+  Warning,
+  CaretLeft,
+  CircleNotch,
+  SignIn,
   Plus,
-  RotateCw,
-} from "lucide-react";
+  ArrowClockwise,
+} from "@phosphor-icons/react";
 import { supabase, getUserId, type Habit, type HabitLog } from "@/lib/supabase";
 import { DOMAIN_META, type DomainId } from "@/lib/domains";
 import CustomHabitModal, {
@@ -53,6 +53,21 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
   const [toast, setToast] = useState<string | null>(null);
   const [deletingHabit, setDeletingHabit] = useState<Habit | null>(null);
   const [deleteConfirming, setDeleteConfirming] = useState(false);
+  const deleteDialogRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!deletingHabit) return;
+    const el = deleteDialogRef.current;
+    if (!el) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !deleteConfirming) {
+        setDeletingHabit(null);
+      }
+    };
+    el.addEventListener("keydown", handleKey);
+    el.querySelector<HTMLElement>("button")?.focus();
+    return () => el.removeEventListener("keydown", handleKey);
+  }, [deletingHabit, deleteConfirming]);
 
   const setCardState = useCallback(
     (habitId: string, patch: Partial<CardUiState>) => {
@@ -310,7 +325,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
   const scorePct = Math.min(score ?? 0, 100);
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex min-h-dvh flex-col">
       {/* Top bar */}
       <div className="shrink-0 border-b-[2px] border-card-border bg-sidebar-bg px-6 py-3">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
@@ -318,7 +333,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
             href="/"
             className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted transition-colors hover:text-accent"
           >
-            <ChevronLeft className="h-3.5 w-3.5" />
+            <CaretLeft className="h-3.5 w-3.5" />
             Binder
           </Link>
           <button
@@ -326,24 +341,24 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
             onClick={refresh}
             className="inline-flex items-center gap-1.5 border-[2px] border-input-border px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted transition-colors hover:border-accent/40 hover:text-accent"
           >
-            <RotateCw className="h-3 w-3" />
+            <ArrowClockwise className="h-3 w-3" />
             Sync
           </button>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-3xl px-6 py-8">
+        <div className="mx-auto w-full max-w-3xl px-6 py-10" id="main-content">
         {/* Header: domain name + centered score */}
-        <div className="border-[2px] border-card-border bg-card-bg px-6 py-6 text-center">
+        <div className="border-[2px] border-card-border bg-card-bg px-6 py-6 text-center card-depth-lg">
           <span className="inline-flex items-center border-[2px] border-accent/40 bg-accent/10 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
             {meta.label}
           </span>
-          <div className="mt-3 flex items-baseline justify-center gap-1">
-            <span className="font-mono text-6xl font-bold tabular-nums text-foreground">
+          <div className="mt-4 flex items-baseline justify-center gap-1">
+            <span className="font-mono text-7xl font-bold tabular-nums text-foreground">
               {score === null ? "--" : score}
             </span>
-            <span className="font-mono text-xl text-muted">/100</span>
+            <span className="font-sans text-lg font-medium text-muted">/100</span>
           </div>
           <div className="mx-auto mt-3 h-2 w-full max-w-sm border border-input-border bg-input-bg">
             <div
@@ -351,7 +366,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
               style={{ width: `${scorePct}%` }}
             />
           </div>
-          <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+          <p className="mt-2.5 font-sans text-[11px] uppercase tracking-widest text-muted">
             {meta.subtitle}
           </p>
         </div>
@@ -360,30 +375,30 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
         <div className="mt-8">
           {loading ? (
             <div className="flex justify-center py-12">
-              <Loader2 className="h-5 w-5 animate-spin text-muted" />
+              <CircleNotch className="h-5 w-5 animate-spin text-muted" />
             </div>
           ) : loadError ? (
             <div className="flex flex-col items-center gap-4 border-[2px] border-red-500/40 bg-red-500/5 py-10">
-              <AlertTriangle className="h-5 w-5 text-red-400" />
+              <Warning className="h-5 w-5 text-red-400" />
               <p className="font-mono text-xs text-red-300">{loadError}</p>
               <button
                 type="button"
                 onClick={refresh}
-                className="inline-flex items-center gap-2 border-[2px] border-button-bg bg-button-bg px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover"
+                className="inline-flex items-center gap-2 border-[2px] border-button-bg bg-button-bg px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-button-text btn-primary disabled:cursor-not-allowed disabled:opacity-60"
               >
-                <RotateCw className="h-3.5 w-3.5" />
+                <ArrowClockwise className="h-3.5 w-3.5" />
                 Retry
               </button>
             </div>
           ) : !signedIn ? (
             <div className="flex flex-col items-center gap-4 border-[2px] border-card-border bg-card-bg py-10">
-              <LogIn className="h-5 w-5 text-muted" />
+              <SignIn className="h-5 w-5 text-muted" />
               <p className="font-mono text-xs uppercase tracking-wider text-muted">
                 Sign in to track this domain
               </p>
               <Link
                 href="/"
-                className="border-[2px] border-button-bg bg-button-bg px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover"
+                className="border-[2px] border-button-bg bg-button-bg px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-button-text btn-primary"
               >
                 Go to sign in
               </Link>
@@ -401,7 +416,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
                   setCreateError(null);
                   setModalOpen(true);
                 }}
-                className="inline-flex items-center gap-2 border-[2px] border-button-bg bg-button-bg px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover"
+                className="inline-flex items-center gap-2 border-[2px] border-button-bg bg-button-bg px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-button-text btn-primary"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Add habit
@@ -455,7 +470,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
               setCreateError(null);
               setModalOpen(true);
             }}
-            className="mt-6 flex w-full items-center justify-center gap-2 border-[2px] border-dashed border-input-border py-3 font-mono text-xs font-bold uppercase tracking-wider text-muted transition-colors hover:border-accent/40 hover:text-accent"
+              className="mt-6 flex w-full items-center justify-center gap-2 border-[2px] border-dashed border-input-border py-3 font-mono text-xs font-bold uppercase tracking-wider text-muted btn-ghost hover:border-accent/40 hover:text-accent"
           >
             <Plus className="h-3.5 w-3.5" />
             Add habit
@@ -476,7 +491,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
         />
       )}
       {toast && (
-        <div className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 border-[2px] border-accent/40 bg-card-bg px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-accent shadow-lg">
+        <div className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 border-[2px] border-accent/40 bg-card-bg px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-accent shadow-lg toast-animate">
           {toast}
         </div>
       )}
@@ -486,16 +501,18 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
           onClick={() => !deleteConfirming && setDeletingHabit(null)}
         >
           <div
-            className="w-full max-w-sm border-[2px] border-card-border bg-sidebar-bg"
+            ref={deleteDialogRef}
+            className="w-full max-w-sm border-[2px] border-card-border bg-sidebar-bg card-depth-lg"
             onClick={(e) => e.stopPropagation()}
+            tabIndex={-1}
           >
             <div className="border-b-[2px] border-card-border px-5 py-4">
-              <h2 className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-foreground">
+              <h2 className="font-sans text-sm font-bold tracking-tight text-foreground">
                 Delete Habit
               </h2>
             </div>
             <div className="px-5 py-5">
-              <p className="font-mono text-sm text-foreground">
+              <p className="font-sans text-sm text-foreground/80">
                 Delete <span className="font-bold text-red-400">{deletingHabit.name}</span>?
                 This removes all its logged history and can&apos;t be undone.
               </p>
@@ -515,7 +532,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
                 disabled={deleteConfirming}
                 className="flex flex-1 items-center justify-center gap-2 border-[2px] border-red-500/60 bg-red-500/10 px-4 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-red-400 transition-colors hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {deleteConfirming && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {deleteConfirming && <CircleNotch className="h-3.5 w-3.5 animate-spin" />}
                 Delete
               </button>
             </div>

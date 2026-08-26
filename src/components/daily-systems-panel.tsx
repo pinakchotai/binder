@@ -2,17 +2,17 @@
 
 import { useEffect, useState, useCallback } from "react";
 import {
-  Zap,
-  Loader2,
-  Sunrise,
-  Droplets,
+  Lightning,
+  CircleNotch,
+  SunHorizon,
+  Drop,
   Brain,
-  Dumbbell,
-  WifiOff,
+  Barbell,
+  WifiSlash,
   Moon,
-  Save,
+  FloppyDisk,
   Trophy,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { supabase, getUserId, type DailyNonNegotiable, type WaterIntake } from "@/lib/supabase";
 import { useSettings } from "@/lib/settings";
 
@@ -266,7 +266,7 @@ export default function DailySystemsPanel() {
         <div className="mx-auto max-w-5xl">
           {loading ? (
             <div className="flex justify-center py-12">
-              <Loader2 className="h-5 w-5 animate-spin text-muted" />
+              <CircleNotch className="h-5 w-5 animate-spin text-muted" />
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_340px]">
@@ -274,7 +274,7 @@ export default function DailySystemsPanel() {
               <div className="border-[2px] border-card-border bg-card-bg">
                 <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
                   <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
-                    <Zap className="h-3.5 w-3.5 text-accent" />
+                    <Lightning className="h-3.5 w-3.5 text-accent" />
                   </div>
                   <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
                     Today&apos;s Checklist
@@ -286,7 +286,7 @@ export default function DailySystemsPanel() {
 
                 <div className="space-y-2 p-5">
                   <HabitToggle
-                    icon={Sunrise}
+                    icon={SunHorizon}
                     label="Wake on time"
                     checked={form.wake_on_time}
                     onChange={toggle("wake_on_time")}
@@ -308,7 +308,7 @@ export default function DailySystemsPanel() {
                             : "border-input-border bg-transparent"
                         }`}
                       >
-                        <Droplets
+                        <Drop
                           className={`h-3.5 w-3.5 ${
                             autoHydrated ? "text-accent" : "text-muted"
                           }`}
@@ -367,14 +367,14 @@ export default function DailySystemsPanel() {
                     points={20}
                   />
                   <HabitToggle
-                    icon={Dumbbell}
+                    icon={Barbell}
                     label="Workout completed"
                     checked={form.workout_completed}
                     onChange={toggle("workout_completed")}
                     points={20}
                   />
                   <HabitToggle
-                    icon={WifiOff}
+                    icon={WifiSlash}
                     label="Screen disconnect"
                     checked={form.screen_disconnect}
                     onChange={toggle("screen_disconnect")}
@@ -432,7 +432,7 @@ export default function DailySystemsPanel() {
                             ),
                           }))
                         }
-                        className="w-16 border-[2px] border-input-border bg-input-bg px-2 py-1 text-center font-mono text-sm text-foreground focus:border-input-focus focus:outline-none"
+                        className="w-16 border-[2px] border-input-border bg-input-bg px-2 py-1 text-center font-mono text-sm text-foreground focus:border-input-focus focus:ring-2 focus:ring-accent/50 focus:outline-none"
                       />
                       <span className="font-mono text-[10px] text-muted">
                         min
@@ -469,9 +469,9 @@ export default function DailySystemsPanel() {
                     className="mt-2 flex w-full items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {saving ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      <CircleNotch className="h-3.5 w-3.5 animate-spin" />
                     ) : (
-                      <Save className="h-3.5 w-3.5" />
+                      <FloppyDisk className="h-3.5 w-3.5" />
                     )}
                     {saved ? "Saved!" : "Save Progress"}
                   </button>
@@ -514,7 +514,7 @@ export default function DailySystemsPanel() {
                 <div className="border-[2px] border-card-border bg-card-bg">
                   <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
                     <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
-                      <Zap className="h-3.5 w-3.5 text-accent" />
+                      <Lightning className="h-3.5 w-3.5 text-accent" />
                     </div>
                     <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
                       Player Attributes

@@ -5,10 +5,10 @@ import {
   BookOpen,
   Target,
   Clock,
-  PenLine,
-  Loader2,
+  Pen,
+  CircleNotch,
   Square,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import {
   supabase,
   getUserId,
@@ -27,7 +27,7 @@ const timerHeaders = [
 ];
 
 const inputClass =
-  "border-[2px] border-input-border bg-input-bg px-3 py-2.5 font-mono text-sm text-foreground placeholder:text-muted/60 focus:border-input-focus focus:outline-none transition-colors uppercase placeholder:lowercase";
+  "border-[2px] border-input-border bg-input-bg px-3 py-2.5 font-mono text-sm text-foreground placeholder:text-muted/60 focus:border-input-focus focus:ring-2 focus:ring-accent/50 focus:outline-none transition-colors uppercase placeholder:lowercase";
 
 function StudySessionsSection({
   sessions,
@@ -83,9 +83,9 @@ function StudySessionsSection({
             className="inline-flex items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
           >
             {submitting ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <CircleNotch className="h-3.5 w-3.5 animate-spin" />
             ) : (
-              <PenLine className="h-3.5 w-3.5" />
+              <Pen className="h-3.5 w-3.5" />
             )}
             Log Session
           </button>
@@ -116,7 +116,7 @@ function StudySessionsSection({
                     colSpan={sessionHeaders.length}
                     className="px-4 py-8 text-center font-mono text-xs text-muted"
                   >
-                    <Loader2 className="mx-auto h-4 w-4 animate-spin text-muted" />
+                    <CircleNotch className="mx-auto h-4 w-4 animate-spin text-muted" />
                   </td>
                 </tr>
               ) : sessions.length === 0 ? (
@@ -239,7 +239,7 @@ function TimedTasksSection({
               className="inline-flex items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {submittingStart ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <CircleNotch className="h-3.5 w-3.5 animate-spin" />
               ) : (
                 <Clock className="h-3.5 w-3.5" />
               )}
@@ -273,7 +273,7 @@ function TimedTasksSection({
                     colSpan={timerHeaders.length}
                     className="px-4 py-8 text-center font-mono text-xs text-muted"
                   >
-                    <Loader2 className="mx-auto h-4 w-4 animate-spin text-muted" />
+                    <CircleNotch className="mx-auto h-4 w-4 animate-spin text-muted" />
                   </td>
                 </tr>
               ) : questions.length === 0 ? (

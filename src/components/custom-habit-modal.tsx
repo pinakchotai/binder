@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Loader2, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { CircleNotch, X } from "@phosphor-icons/react";
 import { DOMAIN_META, type DomainId } from "@/lib/domains";
 
 export interface CustomHabitInput {
@@ -87,6 +87,26 @@ export default function CustomHabitModal({
     return EMPTY_FORM;
   });
   const [validationError, setValidationError] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const el = dialogRef.current;
+    if (!el) return;
+    const focusable = el.querySelector<HTMLElement>(
+      "input, button:not([disabled]), [tabindex]:not([tabindex='-1'])",
+    );
+    focusable?.focus();
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        onClose();
+      }
+    };
+    el.addEventListener("keydown", handleKey);
+    return () => el.removeEventListener("keydown", handleKey);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -131,23 +151,25 @@ export default function CustomHabitModal({
       onClick={onClose}
     >
       <div
-        className="max-h-[90vh] w-full max-w-md overflow-y-auto border-[2px] border-card-border bg-sidebar-bg"
+        ref={dialogRef}
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto border-[2px] border-card-border bg-sidebar-bg card-depth-lg"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b-[2px] border-card-border px-5 py-4">
           <div>
-            <h2 className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-foreground">
+            <h2 className="font-sans text-sm font-bold tracking-tight text-foreground">
               {isEditing ? "Edit Habit" : "New Habit"}
             </h2>
-            <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-muted">
+            <p className="mt-0.5 font-sans text-[11px] text-muted">
               {DOMAIN_META[domain].label}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center border-[2px] border-transparent text-muted transition-colors hover:border-red-500/40 hover:text-red-400"
+            className="flex h-10 w-10 items-center justify-center border-[2px] border-transparent text-muted transition-colors hover:border-red-500/40 hover:text-red-400"
+            aria-label="Close"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -166,7 +188,7 @@ export default function CustomHabitModal({
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               placeholder="e.g. Deep work block"
-              className="w-full border-[2px] border-input-border bg-input-bg px-3 py-2 font-mono text-sm text-foreground outline-none transition-colors placeholder:text-muted/50 focus:border-accent/50"
+              className="w-full border-[2px] border-input-border bg-input-bg px-3 py-2 font-mono text-sm text-foreground focus:border-accent/50 focus:ring-2 focus:ring-accent/50 outline-none transition-colors placeholder:text-muted/50"
             />
           </div>
 
@@ -274,7 +296,7 @@ export default function CustomHabitModal({
                   setForm((f) => ({ ...f, targetValue: e.target.value }))
                 }
                 placeholder="e.g. 3000"
-                className="w-full border-[2px] border-input-border bg-input-bg px-3 py-2 font-mono text-sm tabular-nums text-foreground outline-none transition-colors placeholder:text-muted/50 focus:border-accent/50"
+                className="w-full border-[2px] border-input-border bg-input-bg px-3 py-2 font-mono text-sm tabular-nums text-foreground focus:border-accent/50 focus:ring-2 focus:ring-accent/50 outline-none transition-colors placeholder:text-muted/50"
               />
             </div>
           )}
@@ -295,7 +317,7 @@ export default function CustomHabitModal({
                   setForm((f) => ({ ...f, checkpointCount: e.target.value }))
                 }
                 placeholder="e.g. 5"
-                className="w-full border-[2px] border-input-border bg-input-bg px-3 py-2 font-mono text-sm tabular-nums text-foreground outline-none transition-colors placeholder:text-muted/50 focus:border-accent/50"
+                className="w-full border-[2px] border-input-border bg-input-bg px-3 py-2 font-mono text-sm tabular-nums text-foreground focus:border-accent/50 focus:ring-2 focus:ring-accent/50 outline-none transition-colors placeholder:text-muted/50"
               />
             </div>
           )}
@@ -314,7 +336,7 @@ export default function CustomHabitModal({
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="flex-1 border-[2px] border-input-border px-4 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-muted transition-colors hover:text-foreground/80 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex-1 border-[2px] border-input-border px-4 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-muted btn-ghost hover:text-foreground/80 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Cancel
           </button>
@@ -322,9 +344,9 @@ export default function CustomHabitModal({
             type="button"
             onClick={() => void handleSubmit()}
             disabled={isLoading}
-            className="flex flex-1 items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-4 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex flex-1 items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-4 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-button-text btn-primary disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            {isLoading && <CircleNotch className="h-3.5 w-3.5 animate-spin" />}
             {isEditing ? "Save changes" : "Create"}
           </button>
         </div>

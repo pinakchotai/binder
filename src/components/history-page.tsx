@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { X } from "@phosphor-icons/react";
 import {
   computeStreaks,
   useHistoryData,
@@ -120,12 +120,12 @@ export default function HistoryPage() {
     : null;
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-8">
+    <div className="mx-auto max-w-5xl px-6 py-10" id="main-content">
       <div className="mb-6">
         <p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-muted">
           History
         </p>
-        <h1 className="mt-1 font-mono text-lg font-bold uppercase tracking-wider text-foreground">
+        <h1 className="mt-1 font-sans text-xl font-bold tracking-tight text-foreground">
           Last 90 Days
         </h1>
       </div>
@@ -158,18 +158,18 @@ export default function HistoryPage() {
 
       <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
         {statCells.map((cell) => (
-          <div key={cell.label} className="border-[2px] border-card-border bg-card-bg px-3 py-2.5">
+          <div key={cell.label} className="border-[2px] border-card-border bg-card-bg px-3.5 py-3 card-depth">
             <p className="font-mono text-[8px] font-bold uppercase tracking-wider text-muted">
               {cell.label}
             </p>
-            <p className="mt-1 font-mono text-base font-bold tabular-nums text-foreground">
+            <p className="mt-1 font-mono text-lg font-bold tabular-nums text-foreground">
               {cell.value}
             </p>
           </div>
         ))}
       </div>
 
-      <div className="mb-6 border-[2px] border-card-border bg-card-bg p-4">
+      <div className="mb-6 border-[2px] border-card-border bg-card-bg p-4 card-depth">
         <p className="mb-2 font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
           Daily Score Trend
         </p>
@@ -180,7 +180,7 @@ export default function HistoryPage() {
         )}
       </div>
 
-      <div className="mb-6 border-[2px] border-card-border bg-card-bg p-4">
+      <div className="mb-6 border-[2px] border-card-border bg-card-bg p-4 card-depth">
         <p className="mb-3 font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
           Daily Activity — click a day for detail
         </p>
@@ -195,11 +195,17 @@ export default function HistoryPage() {
       </div>
 
       {detail && (
+        <EscapeHandler onEscape={() => setSelectedDate(null)} />
+      )}
+
+      {detail && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
           onClick={() => setSelectedDate(null)}
         >
           <div
+            role="dialog"
+            aria-modal="true"
             className="w-full max-w-md border-[2px] border-card-border bg-card-bg p-5"
             onClick={(e) => e.stopPropagation()}
           >
@@ -208,14 +214,14 @@ export default function HistoryPage() {
                 <p className="font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
                   Day Detail
                 </p>
-                <h2 className="mt-0.5 font-mono text-sm font-bold uppercase tracking-wider text-foreground">
+                <h2 className="mt-0.5 font-sans text-sm font-bold tracking-tight text-foreground">
                   {detail.dateLabel}
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedDate(null)}
-                className="text-muted hover:text-foreground/80"
+                className="flex h-10 w-10 items-center justify-center text-muted hover:text-foreground/80"
                 aria-label="Close"
               >
                 <X className="h-4 w-4" />
@@ -261,4 +267,15 @@ export default function HistoryPage() {
       )}
     </div>
   );
+}
+
+function EscapeHandler({ onEscape }: { onEscape: () => void }) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onEscape();
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onEscape]);
+  return null;
 }

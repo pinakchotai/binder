@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Layers, Loader2, AlertTriangle, Mail, Lock, User } from "lucide-react";
+import { StackSimple, CircleNotch, Warning, Envelope, Lock, User } from "@phosphor-icons/react";
 import { useAuth } from "@/lib/auth";
 
 type Mode = "login" | "signup";
 
 const inputClass =
-  "w-full border-[2px] border-input-border bg-input-bg px-3 py-2.5 font-mono text-sm text-foreground placeholder:text-muted/60 focus:border-input-focus focus:outline-none transition-colors";
+  "w-full border-[2px] border-input-border bg-input-bg px-3 py-2.5 font-mono text-sm text-foreground placeholder:text-muted/60 focus:border-input-focus focus:ring-2 focus:ring-accent/50 focus:outline-none transition-colors";
 
 export default function AuthScreen() {
   const { signIn, signUp } = useAuth();
@@ -48,24 +48,24 @@ export default function AuthScreen() {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-dvh items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="mb-8 flex flex-col items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center border-[2px] border-accent/30 bg-accent/15">
-            <Layers className="h-6 w-6 text-accent" />
+            <StackSimple className="h-6 w-6 text-accent" />
           </div>
-          <h1 className="font-mono text-xl font-bold uppercase tracking-[0.3em] text-foreground">
+          <h1 className="font-sans text-2xl font-bold tracking-tight text-foreground">
             The Binder
           </h1>
-          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted">
+          <p className="font-sans text-[11px] text-muted">
             Performance Dashboard
           </p>
         </div>
 
         <div className="border-[2px] border-card-border bg-card-bg">
           <div className="border-b-[2px] border-card-border px-5 py-3">
-            <h2 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
+            <h2 className="font-sans text-sm font-bold tracking-tight text-foreground">
               {mode === "login" ? "Log In" : "Create Account"}
             </h2>
           </div>
@@ -73,7 +73,7 @@ export default function AuthScreen() {
           <div className="space-y-3 p-5">
             {error && (
               <div className="flex items-center gap-2 border-[2px] border-red-500/40 bg-red-500/10 px-3 py-2">
-                <AlertTriangle className="h-3 w-3 shrink-0 text-red-400" />
+                <Warning className="h-3 w-3 shrink-0 text-red-400" />
                 <span className="font-mono text-[11px] text-red-400">{error}</span>
               </div>
             )}
@@ -99,7 +99,7 @@ export default function AuthScreen() {
             )}
 
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
+                <Envelope className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
               <input
                 type="email"
                 placeholder="email"
@@ -127,9 +127,9 @@ export default function AuthScreen() {
             <button
               onClick={handleSubmit}
               disabled={busy || !email.trim() || !password}
-              className="flex w-full items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex w-full items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-button-text btn-primary disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              {busy && <CircleNotch className="h-3.5 w-3.5 animate-spin" />}
               {mode === "login" ? "Log In" : "Sign Up"}
             </button>
 

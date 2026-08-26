@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp, Loader2, RotateCw } from "lucide-react";
+import { CaretDown, CaretUp, CircleNotch, ArrowClockwise } from "@phosphor-icons/react";
 import type { Habit, HabitLog } from "@/lib/supabase";
 import { DOMAIN_META, type DomainId } from "@/lib/domains";
 
@@ -18,8 +18,8 @@ const DIFF_POINTS = { easy: 10, medium: 20, hard: 30 } as const;
 
 const GLYPH: Record<Habit["type"], string> = {
   recurring: "[ ]",
-  volume: "📊",
-  milestone: "🎯",
+  volume: "VOL",
+  milestone: "MST",
 };
 
 interface QuickLogRowProps {
@@ -43,6 +43,8 @@ export default function QuickLogRow({
 }: QuickLogRowProps) {
   const [expanded, setExpanded] = useState(false);
   const [draft, setDraft] = useState("");
+  const [pulsing, setPulsing] = useState(false);
+  const [flashAdd, setFlashAdd] = useState(false);
 
   const expandable = habit.type !== "recurring";
   const points = todayLog?.points_earned ?? null;
@@ -70,24 +72,32 @@ export default function QuickLogRow({
     const cur = Number(todayLog?.value ?? 0);
     onChange({ value: Math.max(0, cur + v) });
     setDraft("");
+    setFlashAdd(true);
+    setTimeout(() => setFlashAdd(false), 410);
   };
 
   const steps = habit.type === "milestone" ? Number(habit.checkpoint_count ?? 0) : 0;
   const doneSteps = Number(todayLog?.checkpoints_done ?? 0);
 
   return (
-    <div className="border-[2px] border-card-border bg-card-bg">
+      <div className="border-[2px] border-card-border bg-card-bg transition-colors hover:border-white/15">
       <div className="flex items-center gap-3 px-4 py-3">
         {habit.type === "recurring" ? (
           <button
             type="button"
             disabled={isLoading}
-            onClick={() => onChange({ completed: !(todayLog?.completed === true) })}
-            className={`flex h-5 w-5 shrink-0 items-center justify-center border-[2px] font-mono text-[10px] transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+            onClick={() => {
+              onChange({ completed: !(todayLog?.completed === true) });
+              if (!todayLog?.completed) {
+                setPulsing(true);
+                setTimeout(() => setPulsing(false), 260);
+              }
+            }}
+            className={`flex h-11 w-11 shrink-0 items-center justify-center border-[2px] font-mono text-[10px] transition-colors active:scale-[0.95] disabled:cursor-not-allowed disabled:opacity-50 ${
               todayLog?.completed
                 ? "border-accent bg-accent text-button-text"
                 : "border-input-border hover:border-accent/40"
-            }`}
+            } ${pulsing ? "check-pulse" : ""}`}
             aria-label="Toggle habit"
           >
             {todayLog?.completed ? "✓" : ""}
@@ -96,7 +106,7 @@ export default function QuickLogRow({
           <button
             type="button"
             onClick={() => setExpanded((e) => !e)}
-            className="shrink-0 font-mono text-sm"
+            className="flex h-10 w-10 shrink-0 items-center justify-center font-mono text-sm"
             aria-label="Expand habit"
           >
             {GLYPH[habit.type]}
@@ -108,7 +118,7 @@ export default function QuickLogRow({
           onClick={() => expandable && setExpanded((e) => !e)}
           className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden text-left"
         >
-          <span className="truncate font-mono text-xs font-bold uppercase tracking-wider text-foreground">
+          <span className="truncate font-sans text-sm font-bold tracking-tight text-foreground">
             {habit.name}
           </span>
           <span
@@ -141,10 +151,10 @@ export default function QuickLogRow({
             <button
               type="button"
               onClick={() => setExpanded((e) => !e)}
-              className="text-muted hover:text-foreground/70"
+              className="flex h-10 w-10 items-center justify-center text-muted hover:text-foreground/70"
               aria-label="Toggle expand"
             >
-              {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              {expanded ? <CaretUp className="h-3.5 w-3.5" /> : <CaretDown className="h-3.5 w-3.5" />}
             </button>
           )}
         </div>
@@ -166,15 +176,15 @@ export default function QuickLogRow({
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && commitValue()}
             placeholder={`+ add (target ${habit.target_value})`}
-            className="w-36 border-[2px] border-input-border bg-input-bg px-2 py-1.5 font-mono text-xs tabular-nums text-foreground placeholder:font-normal placeholder:text-muted/60 outline-none focus:border-accent/50"
+            className="w-36 border-[2px] border-input-border bg-input-bg px-2 py-1.5 font-mono text-xs tabular-nums text-foreground placeholder:font-normal placeholder:text-muted/60 focus:border-accent/50 focus:ring-2 focus:ring-accent/50 outline-none"
           />
           <button
             type="button"
             onClick={commitValue}
             disabled={isLoading}
-            className="inline-flex items-center gap-1.5 border-[2px] border-button-bg bg-button-bg px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover disabled:opacity-60"
+            className={`inline-flex items-center gap-1.5 border-[2px] border-button-bg bg-button-bg px-3 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover disabled:opacity-60 ${flashAdd ? "submit-flash" : ""}`}
           >
-            {isLoading && <Loader2 className="h-3 w-3 animate-spin" />}
+            {isLoading && <CircleNotch className="h-3 w-3 animate-spin" />}
             Add
           </button>
         </div>
@@ -229,7 +239,7 @@ export default function QuickLogRow({
             onClick={onRetry}
             className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase text-accent hover:underline"
           >
-            <RotateCw className="h-3 w-3" />
+            <ArrowClockwise className="h-3 w-3" />
             Retry
           </button>
         </div>
