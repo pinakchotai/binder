@@ -18,8 +18,8 @@ const DIFF_POINTS = { easy: 10, medium: 20, hard: 30 } as const;
 
 const GLYPH: Record<Habit["type"], string> = {
   recurring: "[ ]",
-  volume: "VOL",
-  milestone: "MST",
+  volume: "📊",
+  milestone: "🎯",
 };
 
 interface QuickLogRowProps {
@@ -93,7 +93,7 @@ export default function QuickLogRow({
                 setTimeout(() => setPulsing(false), 260);
               }
             }}
-            className={`flex h-11 w-11 shrink-0 items-center justify-center border-[2px] font-mono text-[10px] transition-colors active:scale-[0.95] disabled:cursor-not-allowed disabled:opacity-50 ${
+            className={`flex h-5 w-5 shrink-0 items-center justify-center border-[2px] font-mono text-[10px] transition-colors active:scale-[0.95] disabled:cursor-not-allowed disabled:opacity-50 ${
               todayLog?.completed
                 ? "border-accent bg-accent text-button-text"
                 : "border-input-border hover:border-accent/40"

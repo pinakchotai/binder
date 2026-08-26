@@ -127,8 +127,8 @@ export default function HabitCard({
           }`}
         >
           {complete ? "DONE " : ""}
-          {habit.type === "volume" ? "VOL " : ""}
-          {habit.type === "milestone" ? "MST " : ""}+{formatPoints(points)} PTS
+          {habit.type === "volume" ? "📊 " : ""}
+          {habit.type === "milestone" ? "🎯 " : ""}+{formatPoints(points)} PTS
         </span>
         <button
           type="button"
