@@ -1,16 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Loader2 } from "lucide-react";
 
 export default function AuthCallback() {
   const router = useRouter();
-  const params = useSearchParams();
-  const code = params.get("code");
 
   useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("code");
     if (!code) {
       router.replace("/");
       return;
@@ -22,7 +21,7 @@ export default function AuthCallback() {
         router.replace("/");
       }
     });
-  }, [code, router]);
+  }, [router]);
 
   return (
     <div className="flex h-screen items-center justify-center">
