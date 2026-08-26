@@ -72,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password,
       options: {
         data: fullName ? { full_name: fullName } : undefined,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
     if (error) return error.message;
@@ -82,6 +83,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = async (): Promise<string | null> => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
     return error ? error.message : null;
   };
