@@ -1,4 +1,4 @@
-# The Binder — Public
+# Binder
 
 Multi-tenant habit tracking system with 4 life domains, weighted scoring, streak multipliers, XP/levels, and badge gamification.
 
@@ -72,14 +72,12 @@ Scores are capped at 100.
 - **XP:** Earned from habit points (1 point = 1 XP). Level = floor(sqrt(xp/100)) + 1.
 - **Badges:** Awarded automatically for milestones (first habit, streak lengths, perfect days, domain mastery).
 
-## Known Limitations (v0.1.0-alpha.1)
+## Future Plans (v0.1.0-alpha.1)
 
-- No Android app (separate repo, not yet connected)
-- No streak freeze or vacation mode
-- No UI customization or theme toggle
-- No accountability-partner or social features
-- Email confirmation links may point to localhost (needs production redirect URL)
-- No `/auth/callback` route for email confirmation flow
+- Android app (separate repo, not yet connected)
+- Streak freeze or vacation mode
+- UI customization or theme toggle
+- Accountability-partner or social features
 
 ## License
 
