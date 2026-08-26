@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { IconRefreshBold, IconMinusCircleBold, IconPenBold, IconAddCircleBold, IconTrashBin2Bold } from "@ninzapp/solar-icons/bold";
+import { Card, Button } from '@/components/lithos';
 import type { Habit, HabitLog } from "@/lib/supabase";
 
 const DIFFICULTY_WEIGHT: Record<Habit["difficulty"], number> = {
@@ -89,9 +90,9 @@ export default function HabitCard({
       (todayLog?.checkpoints_done ?? 0) >= habit.checkpoint_count;
 
   return (
-    <div
-      className={`relative border-[2px] transition-colors ${
-        complete ? "border-accent/50 bg-accent/10" : "border-card-border bg-card-bg"
+    <Card
+      className={`relative transition-colors ${
+        complete ? "border-accent/50 bg-accent/10" : ""
       }`}
     >
       {isLoading && (
@@ -103,7 +104,7 @@ export default function HabitCard({
       {/* Header */}
       <div className="flex flex-wrap items-center gap-2 px-5 py-3">
         <h3
-          className={`font-sans text-sm font-bold tracking-tight ${
+          className={`font-mono text-sm font-bold tracking-tight ${
             complete ? "text-accent" : "text-foreground"
           }`}
         >
@@ -130,24 +131,24 @@ export default function HabitCard({
           {habit.type === "volume" ? "VOL " : ""}
           {habit.type === "milestone" ? "MST " : ""}+{formatPoints(points)} PTS
         </span>
-        <button
-          type="button"
+        <Button
+          variant="text"
           onClick={(e) => { e.stopPropagation(); onEdit(); }}
           disabled={isLoading}
           className="flex h-8 w-8 items-center justify-center border border-transparent p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Edit habit"
         >
           <IconPenBold className="h-3 w-3" />
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="text"
           onClick={(e) => { e.stopPropagation(); onDelete(); }}
           disabled={isLoading}
           className="flex h-8 w-8 items-center justify-center border border-transparent p-1 text-muted transition-colors hover:border-red-500/40 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Delete habit"
         >
           <IconTrashBin2Bold className="h-3 w-3" />
-        </button>
+        </Button>
       </div>
 
       <div className="px-5 pb-5">
@@ -177,29 +178,31 @@ export default function HabitCard({
 
         {/* Inline failed-save alert */}
         {error && (
-          <div className="mt-3 flex items-center gap-2.5 border-[2px] border-red-500/50 bg-red-500/10 px-3 py-2">
+          <div className="mt-3 flex items-center gap-2.5 border border-red-500/50 bg-red-500/10 px-3 py-2">
             <p className="flex-1 font-mono text-[10px] text-red-300">
               Failed to save — {error}
             </p>
-            <button
+            <Button
+              variant="text"
               type="button"
               onClick={onRetry}
               className="font-mono text-[10px] font-bold uppercase tracking-wider text-red-300 underline hover:text-red-100"
             >
               Retry
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="text"
               type="button"
               onClick={onDismissError}
               className="font-mono text-[10px] font-bold uppercase text-red-400 hover:text-red-200"
               aria-label="Dismiss error"
             >
               ✕
-            </button>
+            </Button>
           </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -227,14 +230,14 @@ function RecurringBody({
       type="button"
       disabled={isLoading}
       onClick={handleToggle}
-        className={`flex w-full items-center gap-3 border-[2px] px-4 py-3 transition-colors active:scale-[0.98] disabled:cursor-not-allowed ${
+        className={`flex w-full items-center gap-3 border px-4 py-3 transition-colors active:scale-[0.98] disabled:cursor-not-allowed ${
         done
           ? "border-accent/50 bg-accent/10"
           : "border-input-border bg-input-bg hover:border-input-border/80"
       }`}
     >
       <div
-        className={`flex h-6 w-6 shrink-0 items-center justify-center border-[2px] transition-colors ${
+        className={`flex h-6 w-6 shrink-0 items-center justify-center border transition-colors ${
           done ? "border-accent bg-accent" : "border-input-border bg-transparent"
         } ${pulsing ? "check-pulse" : ""}`}
       >
@@ -296,7 +299,7 @@ function VolumeBody({
             {current} / {target}
           </span>
         </div>
-        <div className="h-2 w-full border border-input-border bg-input-bg">
+        <div className="h-1.5 w-full border border-input-border bg-input-bg">
           <div
             className="h-full bg-accent transition-all duration-300"
             style={{ width: `${pct}%` }}
@@ -310,7 +313,7 @@ function VolumeBody({
           type="button"
           onClick={() => addDelta(-1)}
           disabled={isLoading || current <= 0}
-          className="flex h-11 w-11 items-center justify-center border-[2px] border-input-border bg-input-bg text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-11 w-11 items-center justify-center border border-input-border bg-input-bg text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Subtract 1"
         >
           <IconMinusCircleBold className="h-3.5 w-3.5" />
@@ -325,25 +328,26 @@ function VolumeBody({
             if (e.key === "Enter") commit();
           }}
           placeholder="+ add"
-          className="w-24 border-[2px] border-input-border bg-input-bg px-2 py-2 text-center font-mono text-sm tabular-nums text-foreground placeholder:text-muted/60 focus:border-input-focus focus:ring-2 focus:ring-accent/50 focus:outline-none"
+          className="w-24 border border-input-border bg-input-bg px-2 py-2 text-center font-mono text-sm tabular-nums text-foreground placeholder:text-muted/60 focus:border-input-focus focus:ring-2 focus:ring-accent/50 focus:outline-none"
         />
         <button
           type="button"
           onClick={() => addDelta(1)}
           disabled={isLoading}
-          className="flex h-11 w-11 items-center justify-center border-[2px] border-input-border bg-input-bg text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-11 w-11 items-center justify-center border border-input-border bg-input-bg text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Add 1"
         >
           <IconAddCircleBold className="h-3.5 w-3.5" />
         </button>
-        <button
+        <Button
+          variant="primary"
           type="button"
           onClick={commit}
           disabled={isLoading || dirty === "" || !Number.isFinite(parseFloat(dirty))}
-          className="flex flex-1 items-center justify-center border-[2px] border-button-bg bg-button-bg px-4 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex flex-1 items-center justify-center px-4 font-mono text-xs font-bold uppercase tracking-wider transition-colors hover:bg-button-hover active:translate-y-[1px]"
         >
           Add
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -389,7 +393,7 @@ function MilestoneBody({
             {done}/{count} · {pct}%
           </span>
         </div>
-        <div className="h-2 w-full border border-input-border bg-input-bg">
+        <div className="h-1.5 w-full border border-input-border bg-input-bg">
           <div
             className="h-full bg-accent transition-all duration-300"
             style={{ width: `${pct}%` }}
@@ -407,14 +411,14 @@ function MilestoneBody({
               type="button"
               disabled={isLoading}
               onClick={() => onChange(checked ? i : i + 1)}
-              className={`flex w-full items-center gap-3 border-[2px] px-3 py-2 transition-colors disabled:cursor-not-allowed ${
+              className={`flex w-full items-center gap-3 border px-3 py-2 transition-colors disabled:cursor-not-allowed ${
                 checked
                   ? "border-accent/40 bg-accent/10"
                   : "border-input-border bg-input-bg hover:border-input-border/80"
               }`}
             >
               <div
-                className={`flex h-5 w-5 shrink-0 items-center justify-center border-[2px] ${
+                className={`flex h-5 w-5 shrink-0 items-center justify-center border ${
                   checked
                     ? "border-accent bg-accent"
                     : "border-input-border bg-transparent"

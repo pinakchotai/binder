@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { IconRefreshBold, IconCloseSquareBold } from "@ninzapp/solar-icons/bold";
+import { useState } from "react";
+import { IconRefreshBold } from "@ninzapp/solar-icons/bold";
 import { DOMAIN_META, type DomainId } from "@/lib/domains";
+import { Button, Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter } from "@/components/lithos";
 
 export interface CustomHabitInput {
   name: string;
@@ -57,7 +58,7 @@ const EMPTY_FORM = {
 };
 
 const segBtn = (active: boolean) =>
-  `flex-1 border-[2px] px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-wider transition-colors ${
+  `flex-1 border px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-wider transition-colors ${
     active
       ? "border-accent/60 bg-accent/10 text-accent"
       : "border-input-border text-muted hover:text-foreground/70"
@@ -87,26 +88,6 @@ export default function CustomHabitModal({
     return EMPTY_FORM;
   });
   const [validationError, setValidationError] = useState<string | null>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const el = dialogRef.current;
-    if (!el) return;
-    const focusable = el.querySelector<HTMLElement>(
-      "input, button:not([disabled]), [tabindex]:not([tabindex='-1'])",
-    );
-    focusable?.focus();
-
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.stopPropagation();
-        onClose();
-      }
-    };
-    el.addEventListener("keydown", handleKey);
-    return () => el.removeEventListener("keydown", handleKey);
-  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -146,211 +127,183 @@ export default function CustomHabitModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
-      onClick={onClose}
-    >
-      <div
-        ref={dialogRef}
-        className="max-h-[90vh] w-full max-w-md overflow-y-auto border-[2px] border-card-border bg-sidebar-bg card-depth-lg"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b-[2px] border-card-border px-5 py-4">
-          <div>
-            <h2 className="font-sans text-sm font-bold tracking-tight text-foreground">
-              {isEditing ? "Edit Habit" : "New Habit"}
-            </h2>
-            <p className="mt-0.5 font-sans text-[11px] text-muted">
-              {DOMAIN_META[domain].label}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex h-10 w-10 items-center justify-center border-[2px] border-transparent text-muted transition-colors hover:border-red-500/40 hover:text-red-400"
-            aria-label="Close"
-          >
-            <IconCloseSquareBold className="h-3.5 w-3.5" />
-          </button>
+    <Dialog open={isOpen} onClose={onClose} className="max-w-md">
+      <DialogHeader hideClose>
+        <DialogTitle>{isEditing ? "Edit Habit" : "New Habit"}</DialogTitle>
+        <p className="mt-0.5 font-mono text-[11px] text-muted">
+          {DOMAIN_META[domain].label}
+        </p>
+      </DialogHeader>
+
+      <DialogBody className="space-y-5">
+        {/* Name */}
+        <div>
+          <label className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
+            Name
+          </label>
+          <input
+            type="text"
+            maxLength={100}
+            value={form.name}
+            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+            placeholder="e.g. Deep work block"
+            className="w-full border border-input-border bg-input-bg px-3 py-2 font-mono text-sm text-foreground focus:border-accent/50 focus:ring-2 focus:ring-accent/50 outline-none transition-colors placeholder:text-muted/50"
+          />
         </div>
 
-        {/* Body */}
-        <div className="space-y-5 px-5 py-5">
-          {/* Name */}
-          <div>
-            <label className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
-              Name
-            </label>
-            <input
-              type="text"
-              maxLength={100}
-              value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              placeholder="e.g. Deep work block"
-              className="w-full border-[2px] border-input-border bg-input-bg px-3 py-2 font-mono text-sm text-foreground focus:border-accent/50 focus:ring-2 focus:ring-accent/50 outline-none transition-colors placeholder:text-muted/50"
-            />
-          </div>
-
-          {/* Type */}
-          <div>
-            <label className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
-              Type
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {TYPE_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  disabled={isEditing}
-                  onClick={() => setForm((f) => ({ ...f, type: opt.value }))}
-                  className={`border-[2px] px-2 py-2.5 text-center transition-colors ${
+        {/* Type */}
+        <div>
+          <label className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
+            Type
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {TYPE_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                disabled={isEditing}
+                onClick={() => setForm((f) => ({ ...f, type: opt.value }))}
+                className={`border px-2 py-2.5 text-center transition-colors ${
+                  form.type === opt.value
+                    ? "border-accent/60 bg-accent/10"
+                    : "border-input-border hover:border-accent/30"
+                } ${isEditing ? "cursor-not-allowed opacity-60" : ""}`}
+              >
+                <span
+                  className={`block font-mono text-[10px] font-bold uppercase tracking-wider ${
                     form.type === opt.value
-                      ? "border-accent/60 bg-accent/10"
-                      : "border-input-border hover:border-accent/30"
-                  } ${isEditing ? "cursor-not-allowed opacity-60" : ""}`}
+                      ? "text-accent"
+                      : "text-foreground/80"
+                  }`}
                 >
-                  <span
-                    className={`block font-mono text-[10px] font-bold uppercase tracking-wider ${
-                      form.type === opt.value
-                        ? "text-accent"
-                        : "text-foreground/80"
-                    }`}
-                  >
-                    {opt.title}
-                  </span>
-                  <span className="mt-0.5 block font-mono text-[9px] text-muted">
-                    {opt.hint}
-                  </span>
-                </button>
-              ))}
-            </div>
-            {isEditing && (
-              <p className="mt-1.5 font-mono text-[9px] uppercase tracking-wider text-muted/70">
-                Habit type can&apos;t be changed after creation. Delete and recreate if you need a different type.
-              </p>
-            )}
+                  {opt.title}
+                </span>
+                <span className="mt-0.5 block font-mono text-[9px] text-muted">
+                  {opt.hint}
+                </span>
+              </button>
+            ))}
           </div>
-
-          {/* Frequency — recurring only */}
-          {form.type === "recurring" && (
-            <div>
-              <label className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
-                Frequency
-              </label>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setForm((f) => ({ ...f, frequency: "daily" }))
-                  }
-                  className={segBtn(form.frequency === "daily")}
-                >
-                  Daily
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setForm((f) => ({ ...f, frequency: "weekly" }))
-                  }
-                  className={segBtn(form.frequency === "weekly")}
-                >
-                  Weekly
-                </button>
-              </div>
-            </div>
+          {isEditing && (
+            <p className="mt-1.5 font-mono text-[9px] uppercase tracking-wider text-muted/70">
+              Habit type can&apos;t be changed after creation. Delete and recreate if you need a different type.
+            </p>
           )}
+        </div>
 
-          {/* Difficulty */}
+        {/* Frequency — recurring only */}
+        {form.type === "recurring" && (
           <div>
             <label className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
-              Difficulty
+              Frequency
             </label>
             <div className="flex gap-2">
-              {DIFFICULTIES.map((diff) => (
-                <button
-                  key={diff}
-                  type="button"
-                  onClick={() => setForm((f) => ({ ...f, difficulty: diff }))}
-                  className={segBtn(form.difficulty === diff)}
-                >
-                  {diff}
-                </button>
-              ))}
+              <button
+                type="button"
+                onClick={() =>
+                  setForm((f) => ({ ...f, frequency: "daily" }))
+                }
+                className={segBtn(form.frequency === "daily")}
+              >
+                Daily
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setForm((f) => ({ ...f, frequency: "weekly" }))
+                }
+                className={segBtn(form.frequency === "weekly")}
+              >
+                Weekly
+              </button>
             </div>
           </div>
+        )}
 
-          {/* Volume target */}
-          {form.type === "volume" && (
-            <div>
-              <label className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
-                Target value
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="any"
-                inputMode="decimal"
-                value={form.targetValue}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, targetValue: e.target.value }))
-                }
-                placeholder="e.g. 3000"
-                className="w-full border-[2px] border-input-border bg-input-bg px-3 py-2 font-mono text-sm tabular-nums text-foreground focus:border-accent/50 focus:ring-2 focus:ring-accent/50 outline-none transition-colors placeholder:text-muted/50"
-              />
-            </div>
-          )}
-
-          {/* Milestone checkpoints */}
-          {form.type === "milestone" && (
-            <div>
-              <label className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
-                Number of checkpoints
-              </label>
-              <input
-                type="number"
-                min="1"
-                step="1"
-                inputMode="numeric"
-                value={form.checkpointCount}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, checkpointCount: e.target.value }))
-                }
-                placeholder="e.g. 5"
-                className="w-full border-[2px] border-input-border bg-input-bg px-3 py-2 font-mono text-sm tabular-nums text-foreground focus:border-accent/50 focus:ring-2 focus:ring-accent/50 outline-none transition-colors placeholder:text-muted/50"
-              />
-            </div>
-          )}
-
-          {/* Errors */}
-          {(validationError || error) && (
-            <p className="border-l-[3px] border-red-500 bg-red-500/10 px-3 py-2 font-mono text-[11px] text-red-300">
-              {validationError ?? error}
-            </p>
-          )}
+        {/* Difficulty */}
+        <div>
+          <label className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
+            Difficulty
+          </label>
+          <div className="flex gap-2">
+            {DIFFICULTIES.map((diff) => (
+              <button
+                key={diff}
+                type="button"
+                onClick={() => setForm((f) => ({ ...f, difficulty: diff }))}
+                className={segBtn(form.difficulty === diff)}
+              >
+                {diff}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-3 border-t-[2px] border-card-border px-5 py-4">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isLoading}
-            className="flex-1 border-[2px] border-input-border px-4 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-muted btn-ghost hover:text-foreground/80 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={() => void handleSubmit()}
-            disabled={isLoading}
-            className="flex flex-1 items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-4 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-button-text btn-primary disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isLoading && <IconRefreshBold className="h-3.5 w-3.5 animate-spin" />}
-            {isEditing ? "Save changes" : "Create"}
-          </button>
-        </div>
-      </div>
-    </div>
+        {/* Volume target */}
+        {form.type === "volume" && (
+          <div>
+            <label className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
+              Target value
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="any"
+              inputMode="decimal"
+              value={form.targetValue}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, targetValue: e.target.value }))
+              }
+              placeholder="e.g. 3000"
+              className="w-full border border-input-border bg-input-bg px-3 py-2 font-mono text-sm tabular-nums text-foreground focus:border-accent/50 focus:ring-2 focus:ring-accent/50 outline-none transition-colors placeholder:text-muted/50"
+            />
+          </div>
+        )}
+
+        {/* Milestone checkpoints */}
+        {form.type === "milestone" && (
+          <div>
+            <label className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
+              Number of checkpoints
+            </label>
+            <input
+              type="number"
+              min="1"
+              step="1"
+              inputMode="numeric"
+              value={form.checkpointCount}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, checkpointCount: e.target.value }))
+              }
+              placeholder="e.g. 5"
+              className="w-full border border-input-border bg-input-bg px-3 py-2 font-mono text-sm tabular-nums text-foreground focus:border-accent/50 focus:ring-2 focus:ring-accent/50 outline-none transition-colors placeholder:text-muted/50"
+            />
+          </div>
+        )}
+
+        {/* Errors */}
+        {(validationError || error) && (
+          <p className="border-l-[3px] border-red-500 bg-red-500/10 px-3 py-2 font-mono text-[11px] text-red-300">
+            {validationError ?? error}
+          </p>
+        )}
+      </DialogBody>
+
+      <DialogFooter>
+        <Button variant="text" onClick={onClose} disabled={isLoading} className="mr-2">
+          Cancel
+        </Button>
+        <Button
+          variant="primary"
+          type="button"
+          onClick={() => void handleSubmit()}
+          disabled={isLoading}
+          className="flex items-center justify-center gap-2 border border-button-bg bg-button-bg px-4 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-button-text btn-primary disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isLoading && <IconRefreshBold className="h-3.5 w-3.5 animate-spin" />}
+          {isEditing ? "Save changes" : "Create"}
+        </Button>
+      </DialogFooter>
+    </Dialog>
   );
 }

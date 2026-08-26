@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { IconAltArrowDownBold, IconAltArrowUpBold, IconRefreshBold } from "@ninzapp/solar-icons/bold";
+import { Button } from '@/components/lithos';
 import type { Habit, HabitLog } from "@/lib/supabase";
 import { DOMAIN_META, type DomainId } from "@/lib/domains";
 
@@ -80,7 +81,7 @@ export default function QuickLogRow({
   const doneSteps = Number(todayLog?.checkpoints_done ?? 0);
 
   return (
-      <div className="border-[2px] border-card-border bg-card-bg transition-colors hover:border-white/15">
+      <div className="border border-card-border bg-card-bg transition-colors hover:border-white/15">
       <div className="flex items-center gap-3 px-4 py-3">
         {habit.type === "recurring" ? (
           <button
@@ -93,7 +94,7 @@ export default function QuickLogRow({
                 setTimeout(() => setPulsing(false), 260);
               }
             }}
-            className={`flex h-11 w-11 shrink-0 items-center justify-center border-[2px] font-mono text-[10px] transition-colors active:scale-[0.95] disabled:cursor-not-allowed disabled:opacity-50 ${
+            className={`flex h-11 w-11 shrink-0 items-center justify-center border font-mono text-[10px] transition-colors active:scale-[0.95] disabled:cursor-not-allowed disabled:opacity-50 ${
               todayLog?.completed
                 ? "border-accent bg-accent text-button-text"
                 : "border-input-border hover:border-accent/40"
@@ -167,7 +168,7 @@ export default function QuickLogRow({
       )}
 
       {expanded && habit.type === "volume" && (
-        <div className="flex items-center gap-2 border-t-[2px] border-card-border px-4 py-3">
+        <div className="flex items-center gap-2 border-t border-card-border px-4 py-3">
           <input
             type="number"
             step="any"
@@ -176,22 +177,23 @@ export default function QuickLogRow({
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && commitValue()}
             placeholder={`+ add (target ${habit.target_value})`}
-            className="w-36 border-[2px] border-input-border bg-input-bg px-2 py-1.5 font-mono text-xs tabular-nums text-foreground placeholder:font-normal placeholder:text-muted/60 focus:border-accent/50 focus:ring-2 focus:ring-accent/50 outline-none"
+            className="w-36 border border-input-border bg-input-bg px-2 py-1.5 font-mono text-xs tabular-nums text-foreground placeholder:font-normal placeholder:text-muted/60 focus:border-accent/50 focus:ring-2 focus:ring-accent/50 outline-none"
           />
-          <button
+          <Button
+            variant="primary"
             type="button"
             onClick={commitValue}
             disabled={isLoading}
-            className={`inline-flex items-center gap-1.5 border-[2px] border-button-bg bg-button-bg px-3 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover disabled:opacity-60 ${flashAdd ? "submit-flash" : ""}`}
+            className={`inline-flex items-center gap-1.5 px-3 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wider transition-colors hover:bg-button-hover ${flashAdd ? "submit-flash" : ""}`}
           >
             {isLoading && <IconRefreshBold className="h-3 w-3 animate-spin" />}
             Add
-          </button>
+          </Button>
         </div>
       )}
 
       {expanded && habit.type === "milestone" && (
-        <div className="space-y-1 border-t-[2px] border-card-border px-4 py-3">
+        <div className="space-y-1 border-t border-card-border px-4 py-3">
           {Array.from({ length: steps }, (_, i) => i + 1).map((step) => {
             const checked = step <= doneSteps;
             return (
@@ -209,7 +211,7 @@ export default function QuickLogRow({
                 } disabled:cursor-not-allowed`}
               >
                 <span
-                  className={`flex h-3.5 w-3.5 items-center justify-center border-[2px] text-[8px] ${
+                  className={`flex h-3.5 w-3.5 items-center justify-center border text-[8px] ${
                     checked ? "border-accent bg-accent text-button-text" : "border-input-border"
                   }`}
                 >
@@ -223,7 +225,7 @@ export default function QuickLogRow({
       )}
 
       {error && (
-        <div className="flex items-center gap-3 border-t-[2px] border-red-500/40 bg-red-500/[0.07] px-4 py-2">
+        <div className="flex items-center gap-3 border-t border-red-500/40 bg-red-500/[0.07] px-4 py-2">
           <p className="min-w-0 flex-1 truncate font-mono text-[10px] text-red-300">
             Failed to save — {error}
           </p>

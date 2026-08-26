@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { IconHamburgerMenuBold, IconCloseSquareBold } from "@ninzapp/solar-icons/bold";
 import Sidebar from "@/components/sidebar";
+import { Button } from '@/components/lithos';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -44,15 +45,16 @@ export default function AppShell({ children, header }: AppShellProps) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile top bar */}
-        <div className="sticky top-0 z-40 flex items-center border-b-[2px] border-card-border bg-sidebar-bg px-4 py-3 md:hidden">
-          <button
+        <div className="sticky top-0 z-40 flex items-center border-b border-card-border bg-sidebar-bg px-4 py-3 md:hidden">
+          <Button
             type="button"
             onClick={() => setMobileOpen(true)}
-            className="flex h-10 w-10 items-center justify-center border-[2px] border-transparent text-muted transition-colors hover:border-accent/40 hover:text-accent"
+            variant="text"
+            className="flex h-10 w-10 items-center justify-center border border-transparent text-muted transition-colors hover:border-accent/40 hover:text-accent"
             aria-label="Open menu"
           >
             <IconHamburgerMenuBold className="h-4 w-4" />
-          </button>
+          </Button>
           <span className="ml-3 font-sans text-sm font-bold tracking-tight text-foreground">
             The Binder
           </span>
@@ -60,7 +62,7 @@ export default function AppShell({ children, header }: AppShellProps) {
 
         {/* Desktop full-width header stripe */}
         {header && (
-          <div className="hidden md:block border-b-[2px] border-card-border bg-sidebar-bg">
+          <div className="hidden md:block border-b border-card-border bg-sidebar-bg">
             <div className="mx-auto max-w-5xl px-6 py-4">
               {header}
             </div>

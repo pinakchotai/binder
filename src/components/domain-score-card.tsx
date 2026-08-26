@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { IconAltArrowRightBold } from "@ninzapp/solar-icons/bold";
 import { DOMAIN_META, type DomainId } from "@/lib/domains";
+import { Card } from "@/components/lithos";
 
 export const DOMAIN_HEX: Record<DomainId, string> = {
   non_negotiables: "#f87171",
@@ -30,7 +31,7 @@ export default function DomainScoreCard({
   return (
     <Link
       href={`/domain/${domain}`}
-      className="group block border-[2px] border-card-border bg-card-bg p-5 transition-colors hover:border-white/15"
+      className="group block border border-card-border bg-card-bg p-4 transition-colors hover:border-accent"
     >
       <div className="mb-3 flex items-start justify-between gap-2">
         <div className="min-w-0">

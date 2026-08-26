@@ -21,7 +21,7 @@ export default async function DomainRoute({
             <p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-muted">
               Domain
             </p>
-            <h1 className="mt-1 font-sans text-xl font-bold tracking-tight text-foreground">
+            <h1 className="mt-1 font-mono text-xl font-bold tracking-tight text-foreground">
               {meta.label}
             </h1>
           </div>

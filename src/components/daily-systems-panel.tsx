@@ -15,6 +15,7 @@ import {
 } from "@ninzapp/solar-icons/bold";
 import { supabase, getUserId, type DailyNonNegotiable, type WaterIntake } from "@/lib/supabase";
 import { useSettings } from "@/lib/settings";
+import { Card, Button } from '@/components/lithos';
 
 function getTodayDateString(): string {
   const now = new Date();
@@ -49,14 +50,14 @@ function HabitToggle({
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={`flex items-center gap-3 border-[2px] px-4 py-3 transition-colors ${
+      className={`flex items-center gap-3 border px-4 py-3 transition-colors ${
         checked
           ? "border-accent/50 bg-accent/10"
           : "border-input-border bg-input-bg hover:border-input-border/80"
       }`}
     >
       <div
-        className={`flex h-7 w-7 shrink-0 items-center justify-center border-[2px] transition-colors ${
+        className={`flex h-7 w-7 shrink-0 items-center justify-center border transition-colors ${
           checked
             ? "border-accent/50 bg-accent/20"
             : "border-input-border bg-transparent"
@@ -75,7 +76,7 @@ function HabitToggle({
       </span>
       <span className="font-mono text-[10px] text-muted">+{points}</span>
       <div
-        className={`h-4 w-4 border-[2px] transition-colors ${
+        className={`h-4 w-4 border transition-colors ${
           checked ? "border-accent bg-accent" : "border-input-border bg-transparent"
         }`}
       >
@@ -115,7 +116,7 @@ function AttributeBar({ label, abbr, value, max, color }: AttributeBarProps) {
           {value}/{max}
         </span>
       </div>
-      <div className="h-2 w-full border border-input-border bg-input-bg">
+      <div className="h-1.5 w-full border border-input-border bg-input-bg">
         <div
           className="h-full transition-all duration-300"
           style={{ width: `${pct}%`, backgroundColor: color }}
@@ -247,9 +248,9 @@ export default function DailySystemsPanel() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       {/* Header */}
-      <div className="shrink-0 border-b-[2px] border-card-border bg-card-bg px-8 py-5">
+      <Card className="shrink-0 border-b border-card-border bg-card-bg px-8 py-5">
         <div className="mb-2 flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 border-[2px] border-accent/40 bg-accent/10 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
+          <span className="inline-flex items-center gap-1.5 border border-accent/40 bg-accent/10 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
             Daily Systems
           </span>
         </div>
@@ -259,7 +260,7 @@ export default function DailySystemsPanel() {
         <p className="mt-1 font-mono text-xs text-muted">
           Complete your 6 daily habits. Earn up to 100 points.
         </p>
-      </div>
+        </Card>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-8 py-6">
@@ -269,11 +270,11 @@ export default function DailySystemsPanel() {
               <IconRefreshBold className="h-5 w-5 animate-spin text-muted" />
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_340px]">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
               {/* Left: Checklist */}
-              <div className="border-[2px] border-card-border bg-card-bg">
-                <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
-                  <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
+              <Card className="border border-card-border bg-card-bg">
+                <div className="flex items-center gap-2.5 border-b border-card-border px-4 py-3">
+                  <div className="flex h-7 w-7 items-center justify-center border border-accent/30 bg-accent/10">
                     <IconBoltBold className="h-3.5 w-3.5 text-accent" />
                   </div>
                   <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
@@ -284,7 +285,7 @@ export default function DailySystemsPanel() {
                   </span>
                 </div>
 
-                <div className="space-y-2 p-5">
+                <div className="space-y-2 p-4">
                   <HabitToggle
                     icon={IconSunriseBold}
                     label="Wake on time"
@@ -294,7 +295,7 @@ export default function DailySystemsPanel() {
                   />
                   {/* Hydration (auto from water tracker) */}
                   <div
-                    className={`border-[2px] px-4 py-3 transition-colors ${
+                    className={`border px-4 py-3 transition-colors ${
                       autoHydrated
                         ? "border-accent/50 bg-accent/10"
                         : "border-input-border bg-input-bg"
@@ -302,7 +303,7 @@ export default function DailySystemsPanel() {
                   >
                     <div className="flex items-center gap-3">
                       <div
-                        className={`flex h-7 w-7 shrink-0 items-center justify-center border-[2px] transition-colors ${
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center border transition-colors ${
                           autoHydrated
                             ? "border-accent/50 bg-accent/20"
                             : "border-input-border bg-transparent"
@@ -328,7 +329,7 @@ export default function DailySystemsPanel() {
                       </div>
                       <span className="font-mono text-[10px] text-muted">+10</span>
                       <div
-                        className={`h-4 w-4 border-[2px] transition-colors ${
+                        className={`h-4 w-4 border transition-colors ${
                           autoHydrated
                             ? "border-accent bg-accent"
                             : "border-input-border bg-transparent"
@@ -383,7 +384,7 @@ export default function DailySystemsPanel() {
 
                   {/* Meditation (special: has number input) */}
                   <div
-                    className={`border-[2px] px-4 py-3 transition-colors ${
+                    className={`border px-4 py-3 transition-colors ${
                       form.meditation_minutes >= settings.meditationTargetMin
                         ? "border-accent/50 bg-accent/10"
                         : "border-input-border bg-input-bg"
@@ -391,7 +392,7 @@ export default function DailySystemsPanel() {
                   >
                     <div className="flex items-center gap-3">
                       <div
-                        className={`flex h-7 w-7 shrink-0 items-center justify-center border-[2px] transition-colors ${
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center border transition-colors ${
                           form.meditation_minutes >= settings.meditationTargetMin
                             ? "border-accent/50 bg-accent/20"
                             : "border-input-border bg-transparent"
@@ -432,7 +433,7 @@ export default function DailySystemsPanel() {
                             ),
                           }))
                         }
-                        className="w-16 border-[2px] border-input-border bg-input-bg px-2 py-1 text-center font-mono text-sm text-foreground focus:border-input-focus focus:ring-2 focus:ring-accent/50 focus:outline-none"
+                        className="w-16 border border-input-border bg-input-bg px-2 py-1 text-center font-mono text-sm text-foreground focus:border-input-focus focus:ring-2 focus:ring-accent/50 focus:outline-none"
                       />
                       <span className="font-mono text-[10px] text-muted">
                         min
@@ -441,7 +442,7 @@ export default function DailySystemsPanel() {
                         +20
                       </span>
                       <div
-                        className={`h-4 w-4 border-[2px] transition-colors ${
+                        className={`h-4 w-4 border transition-colors ${
                           form.meditation_minutes >= settings.meditationTargetMin
                             ? "border-accent bg-accent"
                             : "border-input-border bg-transparent"
@@ -463,10 +464,11 @@ export default function DailySystemsPanel() {
                   </div>
 
                   {/* Save button */}
-                  <button
+                  <Button
                     onClick={handleSave}
                     disabled={saving}
-                    className="mt-2 flex w-full items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
+                    variant="primary"
+                    className="mt-2 flex w-full items-center justify-center gap-2 border border-button-bg bg-button-bg px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {saving ? (
                       <IconRefreshBold className="h-3.5 w-3.5 animate-spin" />
@@ -474,23 +476,23 @@ export default function DailySystemsPanel() {
                       <IconDownloadBold className="h-3.5 w-3.5" />
                     )}
                     {saved ? "Saved!" : "Save Progress"}
-                  </button>
+                  </Button>
                 </div>
-              </div>
+              </Card>
 
               {/* Right: Score + Attributes */}
-              <div className="flex flex-col gap-5">
+              <div className="flex flex-col gap-6">
                 {/* Score */}
-                <div className="border-[2px] border-card-border bg-card-bg">
-                  <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
-                    <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
+                <Card className="border border-card-border bg-card-bg">
+                  <div className="flex items-center gap-2.5 border-b border-card-border px-4 py-3">
+                    <div className="flex h-7 w-7 items-center justify-center border border-accent/30 bg-accent/10">
                       <IconMedalStarBold className="h-3.5 w-3.5 text-accent" />
                     </div>
                     <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
                       Today&apos;s Score
                     </h3>
                   </div>
-                  <div className="p-5">
+                  <div className="p-4">
                     <div className="flex items-baseline justify-center gap-1">
                       <span className="font-mono text-5xl font-bold tabular-nums text-foreground">
                         {liveScore}
@@ -498,7 +500,7 @@ export default function DailySystemsPanel() {
                       <span className="font-mono text-lg text-muted">/100</span>
                     </div>
                     {/* Mini bar */}
-                    <div className="mt-4 h-2 w-full border border-input-border bg-input-bg">
+                    <div className="mt-4 h-1.5 w-full border border-input-border bg-input-bg">
                       <div
                         className="h-full bg-accent transition-all duration-300"
                         style={{ width: `${liveScore}%` }}
@@ -508,19 +510,19 @@ export default function DailySystemsPanel() {
                       {rpcScore?.message}
                     </p>
                   </div>
-                </div>
+                </Card>
 
                 {/* Player Attributes */}
-                <div className="border-[2px] border-card-border bg-card-bg">
-                  <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
-                    <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
+                <Card className="border border-card-border bg-card-bg">
+                  <div className="flex items-center gap-2.5 border-b border-card-border px-4 py-3">
+                    <div className="flex h-7 w-7 items-center justify-center border border-accent/30 bg-accent/10">
                       <IconBoltBold className="h-3.5 w-3.5 text-accent" />
                     </div>
                     <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
                       Player Attributes
                     </h3>
                   </div>
-                  <div className="space-y-4 p-5">
+                  <div className="space-y-4 p-4">
                     <AttributeBar
                       label="Wake + Sleep"
                       abbr="DIS (Discipline)"
@@ -550,7 +552,7 @@ export default function DailySystemsPanel() {
                       color="#f59e0b"
                     />
                   </div>
-                </div>
+                </Card>
               </div>
             </div>
           )}

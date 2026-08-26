@@ -5,6 +5,7 @@ import { IconWaterBold, IconRefreshBold, IconTrashBin2Bold, IconBookBold, IconPl
 import { supabase, getUserId, type WaterIntake } from "@/lib/supabase";
 import { useSettings } from "@/lib/settings";
 import HistoryPanel from "./history-panel";
+import { Card, Badge } from "@/components/lithos";
 
 const quickAmounts = [150, 250, 500, 750];
 
@@ -169,11 +170,11 @@ export default function HomeDashboard() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       {/* Header */}
-      <div className="shrink-0 border-b-[2px] border-card-border bg-card-bg px-8 py-5">
+      <div className="shrink-0 border-b border-card-border bg-card-bg px-8 py-5">
         <div className="mb-2 flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 border-[2px] border-blue-400/40 bg-blue-400/10 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400">
+          <Badge intent="info" size="lg" className="items-center gap-1.5 tracking-[0.2em]">
             Home
-          </span>
+          </Badge>
         </div>
         <h2 className="font-mono text-lg font-bold uppercase tracking-wide text-foreground">
           {getGreeting()}, {settings.userName}
@@ -186,10 +187,10 @@ export default function HomeDashboard() {
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-8 py-6">
         <div className="mx-auto max-w-3xl">
-          <div className="border-[2px] border-card-border bg-card-bg">
+          <Card>
             {/* Card header */}
-            <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
-              <div className="flex h-7 w-7 items-center justify-center border-[2px] border-blue-400/30 bg-blue-400/10">
+            <div className="flex items-center gap-2.5 border-b border-card-border px-4 py-3">
+              <div className="flex h-7 w-7 items-center justify-center border border-blue-400/30 bg-blue-400/10">
                 <IconWaterBold className="h-3.5 w-3.5 text-blue-400" />
               </div>
               <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
@@ -200,7 +201,7 @@ export default function HomeDashboard() {
               </span>
             </div>
 
-            <div className="p-5">
+            <div className="p-4">
               {/* Progress */}
               <div className="mb-6">
                 <div className="mb-3 flex items-baseline justify-between">
@@ -226,7 +227,7 @@ export default function HomeDashboard() {
                 </div>
 
                 {/* Progress bar */}
-                <div className="h-3 w-full border-[2px] border-blue-400/30 bg-input-bg">
+                <div className="h-3 w-full border border-blue-400/30 bg-input-bg">
                   <div
                     className="h-full bg-blue-400 transition-all duration-300"
                     style={{ width: `${progress}%` }}
@@ -248,7 +249,7 @@ export default function HomeDashboard() {
                       key={amt}
                       onClick={() => handleAdd(amt)}
                       disabled={submitting}
-                      className="border-[2px] border-blue-400/30 bg-blue-400/5 px-3 py-2.5 font-mono text-xs font-bold text-blue-400 transition-colors hover:bg-blue-400/10 hover:border-blue-400/50 active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
+                      className="border border-blue-400/30 bg-blue-400/5 px-3 py-2.5 font-mono text-xs font-bold text-blue-400 transition-colors hover:bg-blue-400/10 hover:border-blue-400/50 active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       {amt >= 1000 ? `${amt / 1000}L` : `${amt}ml`}
                     </button>
@@ -265,12 +266,12 @@ export default function HomeDashboard() {
                   value={customAmount}
                   onChange={(e) => setCustomAmount(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleCustomAdd()}
-                   className="flex-1 border-[2px] border-input-border bg-input-bg px-3 py-2.5 font-mono text-sm text-foreground placeholder:text-muted/60 focus:border-input-focus focus:ring-2 focus:ring-accent/50 focus:outline-none transition-colors"
+                   className="flex-1 border border-input-border bg-input-bg px-3 py-2.5 font-mono text-sm text-foreground placeholder:text-muted/60 focus:border-input-focus focus:ring-2 focus:ring-accent/50 focus:outline-none transition-colors"
                 />
                 <button
                   onClick={handleCustomAdd}
                   disabled={submitting || !customAmount}
-                  className="inline-flex items-center justify-center gap-2 border-[2px] border-blue-400/50 bg-blue-400/10 px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-blue-400 transition-colors hover:bg-blue-400/20 active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex items-center justify-center gap-2 border border-blue-400/50 bg-blue-400/10 px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-blue-400 transition-colors hover:bg-blue-400/20 active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {submitting ? (
                     <IconRefreshBold className="h-3.5 w-3.5 animate-spin" />
@@ -282,7 +283,7 @@ export default function HomeDashboard() {
 
               {/* Today's log */}
               {todayEntries.length > 0 && (
-                <div className="mt-5 border-t-[2px] border-card-border pt-4">
+                <div className="mt-5 border-t border-card-border pt-4">
                   <p className="mb-3 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
                     Today&apos;s Log ({todayEntries.length})
                   </p>
@@ -315,7 +316,7 @@ export default function HomeDashboard() {
 
               {/* Empty state */}
               {!loading && todayEntries.length === 0 && (
-                <div className="mt-5 border-t-[2px] border-card-border pt-4">
+                <div className="mt-5 border-t border-card-border pt-4">
                   <p className="font-mono text-xs text-muted text-center uppercase tracking-wider">
                     No water logged today. Start hydrating!
                   </p>
@@ -329,14 +330,14 @@ export default function HomeDashboard() {
                 </div>
               )}
             </div>
-          </div>
+          </Card>
 
           {/* History Toggle */}
           <button
             onClick={() => setShowHistory(!showHistory)}
-            className="w-full border-[2px] border-card-border bg-card-bg px-5 py-3 flex items-center gap-2.5 transition-colors hover:border-accent/40"
+            className="w-full border border-card-border bg-card-bg px-5 py-3 flex items-center gap-2.5 transition-colors hover:border-accent/40"
           >
-            <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
+            <div className="flex h-7 w-7 items-center justify-center border border-accent/30 bg-accent/10">
               <IconChartBold className="h-3.5 w-3.5 text-accent" />
             </div>
             <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
@@ -348,9 +349,9 @@ export default function HomeDashboard() {
           {showHistory && <HistoryPanel />}
 
           {/* Weekly Recommendations */}
-          <div className="border-[2px] border-card-border bg-card-bg">
-            <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
-              <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
+          <Card>
+            <div className="flex items-center gap-2.5 border-b border-card-border px-4 py-3">
+              <div className="flex h-7 w-7 items-center justify-center border border-accent/30 bg-accent/10">
                 <IconBookBold className="h-3.5 w-3.5 text-accent" />
               </div>
               <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
@@ -361,7 +362,7 @@ export default function HomeDashboard() {
               </span>
             </div>
 
-            <div className="p-5">
+            <div className="p-4">
               {/* Books */}
               <p className="mb-3 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
                 Recommended Reading
@@ -371,14 +372,14 @@ export default function HomeDashboard() {
                   <IconRefreshBold className="h-4 w-4 animate-spin text-muted" />
                 </div>
               ) : (
-                <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div className="mb-5 grid grid-cols-1 gap-6 sm:grid-cols-3">
                   {books.map((book) => (
                     <a
                       key={book.openLibraryUrl}
                       href={book.openLibraryUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group flex flex-col border-[2px] border-input-border bg-input-bg p-4 transition-colors hover:border-accent/40"
+                      className="group flex flex-col border border-input-border bg-input-bg p-4 transition-colors hover:border-accent/40"
                     >
                       {book.coverUrl ? (
                         <img
@@ -417,16 +418,16 @@ export default function HomeDashboard() {
               <p className="mb-3 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
                 Study Videos
               </p>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 {videos.map((video) => (
                   <a
                     key={video.searchQuery}
                     href={`https://www.youtube.com/results?search_query=${encodeURIComponent(video.searchQuery)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex items-start gap-3 border-[2px] border-input-border bg-input-bg p-4 transition-colors hover:border-accent/40"
+                    className="group flex items-start gap-3 border border-input-border bg-input-bg p-4 transition-colors hover:border-accent/40"
                   >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center border-[2px] border-red-500/30 bg-red-500/10">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-red-500/30 bg-red-500/10">
                       <IconPlayBold className="h-4 w-4 text-red-400" />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -444,7 +445,7 @@ export default function HomeDashboard() {
                 ))}
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

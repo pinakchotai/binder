@@ -13,6 +13,7 @@ import HistoryLineChart, {
   type HistoryRow,
 } from "@/components/history-line-chart";
 import HistoryHeatmap from "@/components/history-heatmap";
+import { Card } from "@/components/lithos";
 
 type Filter = DomainId | "all";
 
@@ -125,13 +126,13 @@ export default function HistoryPage() {
         <p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-muted">
           History
         </p>
-        <h1 className="mt-1 font-sans text-xl font-bold tracking-tight text-foreground">
+        <h1 className="mt-1 font-mono text-xl font-bold tracking-tight text-foreground">
           Last 90 Days
         </h1>
       </div>
 
       {error && (
-        <div className="mb-6 border-[2px] border-red-500/40 bg-red-500/[0.07] px-4 py-3">
+        <div className="mb-6 border border-red-500/40 bg-red-500/[0.07] px-4 py-3">
           <p className="font-mono text-[11px] text-red-300">{error}</p>
         </div>
       )}
@@ -144,7 +145,7 @@ export default function HistoryPage() {
               key={f}
               type="button"
               onClick={() => setFilter(f)}
-              className={`border-[2px] px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wider transition-colors ${
+              className={`border px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wider transition-colors ${
                 isActive
                   ? "border-accent/50 bg-accent/15 text-accent"
                   : "border-card-border text-muted hover:border-white/20 hover:text-foreground/70"
@@ -158,18 +159,18 @@ export default function HistoryPage() {
 
       <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
         {statCells.map((cell) => (
-          <div key={cell.label} className="border-[2px] border-card-border bg-card-bg px-3.5 py-3 card-depth">
+          <Card key={cell.label} className="px-3.5 py-3 card-depth">
             <p className="font-mono text-[8px] font-bold uppercase tracking-wider text-muted">
               {cell.label}
             </p>
             <p className="mt-1 font-mono text-lg font-bold tabular-nums text-foreground">
               {cell.value}
             </p>
-          </div>
+          </Card>
         ))}
       </div>
 
-      <div className="mb-6 border-[2px] border-card-border bg-card-bg p-4 card-depth">
+      <Card className="mb-6 p-4 card-depth">
         <p className="mb-2 font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
           Daily Score Trend
         </p>
@@ -178,9 +179,9 @@ export default function HistoryPage() {
         ) : (
           <HistoryLineChart rows={view.rows} filter={filter} />
         )}
-      </div>
+      </Card>
 
-      <div className="mb-6 border-[2px] border-card-border bg-card-bg p-4 card-depth">
+      <Card className="mb-6 p-4 card-depth">
         <p className="mb-3 font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
           Daily Activity — click a day for detail
         </p>
@@ -192,7 +193,7 @@ export default function HistoryPage() {
             onSelect={(ds) => setSelectedDate(ds)}
           />
         )}
-      </div>
+      </Card>
 
       {detail && (
         <EscapeHandler onEscape={() => setSelectedDate(null)} />
@@ -203,10 +204,10 @@ export default function HistoryPage() {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
           onClick={() => setSelectedDate(null)}
         >
-          <div
+          <Card
             role="dialog"
             aria-modal="true"
-            className="w-full max-w-md border-[2px] border-card-border bg-card-bg p-5"
+            className="w-full max-w-md p-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-start justify-between gap-3">
@@ -214,7 +215,7 @@ export default function HistoryPage() {
                 <p className="font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
                   Day Detail
                 </p>
-                <h2 className="mt-0.5 font-sans text-sm font-bold tracking-tight text-foreground">
+                <h2 className="mt-0.5 font-mono text-sm font-bold tracking-tight text-foreground">
                   {detail.dateLabel}
                 </h2>
               </div>
@@ -244,7 +245,7 @@ export default function HistoryPage() {
                 {detail.entries.map(({ habit, log }) => (
                   <li
                     key={log.id}
-                    className="flex items-center justify-between gap-3 border-[2px] border-input-border bg-input-bg px-3 py-2"
+                    className="flex items-center justify-between gap-3 border border-input-border bg-input-bg px-3 py-2"
                   >
                     <span className="truncate font-mono text-[11px] text-foreground/90">
                       {habit.name}
@@ -262,7 +263,7 @@ export default function HistoryPage() {
                 ))}
               </ul>
             )}
-          </div>
+          </Card>
         </div>
       )}
     </div>

@@ -16,6 +16,7 @@ import {
   useDashboardData,
 } from "@/lib/dashboard-data";
 import { DOMAIN_IDS, DOMAIN_META } from "@/lib/domains";
+import { Card, Badge, Button } from "@/components/lithos";
 
 type LogPatch = Partial<
   Pick<HabitLog, "completed" | "value" | "checkpoints_done">
@@ -164,21 +165,21 @@ export default function DashboardPage() {
   return (
     <div className="mx-auto max-w-5xl px-6 py-10" id="main-content">
       {error && (
-        <div className="mb-6 flex items-center justify-between gap-3 border-[2px] border-red-500/40 bg-red-500/[0.07] px-4 py-3">
+        <div className="mb-6 flex items-center justify-between gap-3 border border-red-500/40 bg-red-500/[0.07] px-4 py-3">
           <p className="min-w-0 truncate font-mono text-[11px] text-red-300">
             {error}
           </p>
-          <button
-            type="button"
+          <Button
+            variant="text"
             onClick={() => void reload()}
             className="shrink-0 font-mono text-[10px] font-bold uppercase text-accent hover:underline"
           >
             Retry
-          </button>
+          </Button>
         </div>
       )}
 
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mb-6 flex items-center justify-between gap-6">
         <div>
           <p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-muted">
             {new Date(today + "T00:00:00").toLocaleDateString("en-US", {
@@ -202,7 +203,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="mb-6 border-[2px] border-card-border bg-card-bg p-6 card-depth-lg">
+      <Card className="mb-6 border border-card-border bg-card-bg p-6 card-depth-lg">
         <p className="font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
           Total Score
         </p>
@@ -216,9 +217,9 @@ export default function DashboardPage() {
             style={{ width: `${Math.max(0, Math.min(100, totalScore ?? 0))}%` }}
           />
         </div>
-      </div>
+      </Card>
 
-      <div className="mb-6 border-[2px] border-card-border bg-card-bg p-6 card-depth">
+      <Card className="mb-6 border border-card-border bg-card-bg p-6 card-depth">
         <div className="flex items-center gap-2">
           <IconStarBold className="h-3.5 w-3.5 text-accent" />
           <p className="font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
@@ -242,18 +243,19 @@ export default function DashboardPage() {
             {nextLevelXp}
           </span>
         </div>
-      </div>
+      </Card>
 
       {bundle && bundle.earnedBadges.length > 0 && (
-        <div className="mb-6 border-[2px] border-card-border bg-card-bg p-5 card-depth">
+        <Card className="mb-6 border border-card-border bg-card-bg p-4 card-depth">
           <p className="mb-3 font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
             Badges
           </p>
           <div className="flex flex-wrap gap-3">
             {bundle.earnedBadges.map((ub, i) => (
-              <div
+              <Badge
                 key={ub.id}
-                className="flex items-center gap-2 border-[2px] border-accent/30 bg-accent/5 px-3 py-2 badge-enter"
+                intent="accent"
+                className="flex items-center gap-2 px-3 py-2 badge-enter"
                 style={{ animationDelay: `${i * 60}ms` }}
                 title={ub.badges?.description}
               >
@@ -266,10 +268,10 @@ export default function DashboardPage() {
                     {new Date(ub.earned_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </p>
                 </div>
-              </div>
+              </Badge>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
       {loading && !bundle ? (
@@ -280,7 +282,7 @@ export default function DashboardPage() {
         </div>
       ) : (
         <>
-          <div className="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
             {DOMAIN_IDS.map((d) => (
               <DomainScoreCard
                 key={d}
@@ -304,7 +306,7 @@ export default function DashboardPage() {
           </div>
 
           {habits.length === 0 ? (
-            <div className="border-[2px] border-dashed border-card-border px-6 py-10 text-center">
+            <div className="border border-dashed border-card-border px-6 py-10 text-center">
               <p className="font-mono text-[11px] uppercase tracking-wider text-muted">
                 No habits yet — add some from a domain page.
               </p>
@@ -351,7 +353,7 @@ export default function DashboardPage() {
         </>
       )}
       {levelUpToast && (
-        <div className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 border-[2px] border-accent/40 bg-card-bg px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-accent shadow-lg toast-animate">
+        <div className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 border border-accent/40 bg-card-bg px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-accent shadow-lg toast-animate">
           Level Up! You&apos;re now Level {levelUpToast}
         </div>
       )}

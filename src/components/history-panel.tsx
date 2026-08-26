@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { IconAltArrowLeftBold, IconAltArrowRightBold, IconWaterBold, IconCheckSquareBold, IconRefreshBold, IconBoltBold } from "@ninzapp/solar-icons/bold";
 import { supabase } from "@/lib/supabase";
 import { useSettings } from "@/lib/settings";
+import { Card } from "@/components/lithos";
 
 function getMonday(d: Date): Date {
   const date = new Date(d);
@@ -61,9 +62,9 @@ function ScoreStreak() {
   }, []);
 
   return (
-    <div className="border-[2px] border-card-border bg-card-bg">
-      <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
-        <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
+    <Card>
+      <div className="flex items-center gap-2.5 border-b border-card-border px-4 py-3">
+        <div className="flex h-7 w-7 items-center justify-center border border-accent/30 bg-accent/10">
           <IconBoltBold className="h-3.5 w-3.5 text-accent" />
         </div>
         <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
@@ -73,7 +74,7 @@ function ScoreStreak() {
           DAYS WITH SCORE &ge; 50
         </span>
       </div>
-      <div className="p-5">
+      <div className="p-4">
         {loading ? (
           <div className="flex justify-center py-2"><IconRefreshBold className="h-4 w-4 animate-spin text-muted" /></div>
         ) : (
@@ -87,7 +88,7 @@ function ScoreStreak() {
           </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -122,25 +123,25 @@ function WaterHistory() {
   const weekLabel = `${formatDate(weekStart)} — ${formatDate(weekEnd)}`;
 
   return (
-    <div className="border-[2px] border-card-border bg-card-bg">
-      <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
-        <div className="flex h-7 w-7 items-center justify-center border-[2px] border-blue-400/30 bg-blue-400/10">
+    <Card>
+      <div className="flex items-center gap-2.5 border-b border-card-border px-4 py-3">
+        <div className="flex h-7 w-7 items-center justify-center border border-blue-400/30 bg-blue-400/10">
           <IconWaterBold className="h-3.5 w-3.5 text-blue-400" />
         </div>
         <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
           Water History
         </h3>
         <div className="ml-auto flex items-center gap-1">
-          <button onClick={() => setWeekStart(addDays(weekStart, -7))} className="border-[2px] border-input-border bg-input-bg p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent">
+          <button onClick={() => setWeekStart(addDays(weekStart, -7))} className="border border-input-border bg-input-bg p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent">
             <IconAltArrowLeftBold className="h-3.5 w-3.5" />
           </button>
           <span className="font-mono text-[10px] text-muted px-2">{weekLabel}</span>
-          <button onClick={() => setWeekStart(addDays(weekStart, 7))} className="border-[2px] border-input-border bg-input-bg p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent">
+          <button onClick={() => setWeekStart(addDays(weekStart, 7))} className="border border-input-border bg-input-bg p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent">
             <IconAltArrowRightBold className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
-      <div className="p-5">
+      <div className="p-4">
         {loading ? (
           <div className="flex justify-center py-6"><IconRefreshBold className="h-4 w-4 animate-spin text-muted" /></div>
         ) : (
@@ -155,7 +156,7 @@ function WaterHistory() {
                       {ml >= 1000 ? `${(ml / 1000).toFixed(1)}L` : ml > 0 ? `${ml}` : ""}
                     </span>
                     <div className="relative w-full" style={{ height: 100 }}>
-                      <div className="absolute left-0 right-0 border-t-[2px] border-dashed border-accent/40" style={{ bottom: `${(settings.waterTargetMl / maxMl) * 100}%` }} />
+                      <div className="absolute left-0 right-0 border-t border-dashed border-accent/40" style={{ bottom: `${(settings.waterTargetMl / maxMl) * 100}%` }} />
                       <div className={`absolute bottom-0 w-full transition-all ${hit ? "bg-blue-400" : ml > 0 ? "bg-blue-400/40" : "bg-input-border"}`} style={{ height: `${pct}%` }} />
                     </div>
                   </div>
@@ -167,7 +168,7 @@ function WaterHistory() {
                 <div key={i} className="flex-1 text-center font-mono text-[9px] text-muted">{label}</div>
               ))}
             </div>
-            <div className="mt-3 flex items-center gap-4 border-t-[2px] border-card-border pt-3">
+            <div className="mt-3 flex items-center gap-4 border-t border-card-border pt-3">
               <div className="flex items-center gap-1.5">
                 <div className="h-2.5 w-2.5 bg-blue-400" />
                 <span className="font-mono text-[9px] text-muted">HIT TARGET</span>
@@ -177,14 +178,14 @@ function WaterHistory() {
                 <span className="font-mono text-[9px] text-muted">BELOW TARGET</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="h-[1px] w-4 border-t-[2px] border-dashed border-accent/40" />
+                <div className="h-[1px] w-4 border-t border-dashed border-accent/40" />
                 <span className="font-mono text-[9px] text-muted">TARGET ({settings.waterTargetMl}ml)</span>
               </div>
             </div>
           </>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -260,25 +261,25 @@ function HabitHeatmap() {
   const monthLabel = `${MONTHS[month]} ${year}`;
 
   return (
-    <div className="border-[2px] border-card-border bg-card-bg">
-      <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
-        <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
+    <Card>
+      <div className="flex items-center gap-2.5 border-b border-card-border px-4 py-3">
+        <div className="flex h-7 w-7 items-center justify-center border border-accent/30 bg-accent/10">
           <IconCheckSquareBold className="h-3.5 w-3.5 text-accent" />
         </div>
         <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
           Daily Systems
         </h3>
         <div className="ml-auto flex items-center gap-1">
-          <button onClick={() => setMonthStart(new Date(year, month - 1, 1))} className="border-[2px] border-input-border bg-input-bg p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent">
+          <button onClick={() => setMonthStart(new Date(year, month - 1, 1))} className="border border-input-border bg-input-bg p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent">
             <IconAltArrowLeftBold className="h-3.5 w-3.5" />
           </button>
           <span className="font-mono text-[10px] text-muted px-2">{monthLabel}</span>
-          <button onClick={() => setMonthStart(new Date(year, month + 1, 1))} className="border-[2px] border-input-border bg-input-bg p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent">
+          <button onClick={() => setMonthStart(new Date(year, month + 1, 1))} className="border border-input-border bg-input-bg p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent">
             <IconAltArrowRightBold className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
-      <div className="p-5">
+      <div className="p-4">
         {loading ? (
           <div className="flex justify-center py-6"><IconRefreshBold className="h-4 w-4 animate-spin text-muted" /></div>
         ) : (
@@ -323,7 +324,7 @@ function HabitHeatmap() {
           </>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
 

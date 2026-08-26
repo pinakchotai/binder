@@ -12,6 +12,7 @@ import {
   IconDownloadBold,
 } from "@ninzapp/solar-icons/bold";
 import { useSettings } from "@/lib/settings";
+import { Card, Button } from '@/components/lithos';
 
 function formatTime(h: number, m: number): string {
   const hh = String(h).padStart(2, "0");
@@ -37,8 +38,8 @@ interface SettingRowProps {
 
 function SettingRow({ icon: Icon, label, description, children }: SettingRowProps) {
   return (
-    <div className="flex items-center gap-4 border-[2px] border-input-border bg-input-bg px-4 py-4">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
+    <Card className="flex items-center gap-4 border-input-border bg-input-bg px-4 py-4">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center border border-accent/30 bg-accent/10">
         <Icon className="h-4 w-4 text-accent" />
       </div>
       <div className="flex-1 min-w-0">
@@ -48,12 +49,12 @@ function SettingRow({ icon: Icon, label, description, children }: SettingRowProp
         <p className="font-sans text-[10px] text-muted mt-0.5">{description}</p>
       </div>
       <div className="shrink-0">{children}</div>
-    </div>
+    </Card>
   );
 }
 
 const inputClass =
-  "border-[2px] border-input-border bg-card-bg px-3 py-2 font-mono text-sm text-foreground focus:border-input-focus focus:ring-2 focus:ring-accent/50 focus:outline-none transition-colors w-32 text-center";
+  "border border-input-border bg-card-bg px-3 py-2 font-mono text-sm text-foreground focus:border-input-focus focus:ring-2 focus:ring-accent/50 focus:outline-none transition-colors w-32 text-center";
 
 export default function SettingsPanel({ onBack }: { onBack: () => void }) {
   const { settings, updateSetting } = useSettings();
@@ -93,7 +94,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="shrink-0 border-b-[2px] border-card-border bg-card-bg px-8 py-5">
+      <Card className="shrink-0 border-b border-card-border bg-card-bg px-8 py-5">
           <button
             onClick={onBack}
             className="mb-3 inline-flex items-center gap-2 font-sans text-[11px] font-medium text-muted transition-colors hover:text-foreground"
@@ -102,17 +103,17 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
           Back
         </button>
         <div className="mb-2 flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 border-[2px] border-accent/40 bg-accent/10 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
+          <span className="inline-flex items-center gap-1.5 border border-accent/40 bg-accent/10 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
             Settings
           </span>
         </div>
-        <h2 className="font-sans text-xl font-bold tracking-tight text-foreground">
+        <h2 className="font-mono text-xl font-bold tracking-tight text-foreground">
           Configuration
         </h2>
         <p className="mt-1 font-sans text-xs text-muted">
           Customize your targets and preferences
         </p>
-      </div>
+      </Card>
 
       <div className="flex-1 overflow-y-auto px-8 py-6">
         <div className="mx-auto max-w-2xl">
@@ -214,12 +215,12 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
 
           {/* Saved indicator */}
           {saved && (
-            <div className="mt-4 flex items-center justify-center gap-2 border-[2px] border-green-500/30 bg-green-500/10 px-4 py-2">
+            <Card className="mt-4 flex items-center justify-center gap-2 border-green-500/30 bg-green-500/10 px-4 py-2">
               <IconDownloadBold className="h-3 w-3 text-green-400" />
               <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-green-400">
                 Saved
               </span>
-            </div>
+            </Card>
           )}
         </div>
       </div>

@@ -9,7 +9,7 @@ import { IconCpuBold, IconRefreshBold } from "@ninzapp/solar-icons/bold";
 function Splash() {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-background">
-      <div className="flex h-12 w-12 items-center justify-center border-[2px] border-accent/30 bg-accent/15">
+      <div className="flex h-12 w-12 items-center justify-center border border-accent/30 bg-accent/15">
         <IconCpuBold className="h-6 w-6 text-accent" />
       </div>
       <IconRefreshBold className="h-4 w-4 animate-spin text-muted" />

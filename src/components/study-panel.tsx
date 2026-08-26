@@ -17,6 +17,7 @@ import {
 } from "@/lib/supabase";
 import CumulativeHoursChart from "@/components/cumulative-hours-chart";
 import VarianceChart from "@/components/variance-chart";
+import { Card, Button } from '@/components/lithos';
 
 const sessionHeaders = ["Topic", "Hours", "Date"];
 const timerHeaders = [
@@ -27,7 +28,7 @@ const timerHeaders = [
 ];
 
 const inputClass =
-  "border-[2px] border-input-border bg-input-bg px-3 py-2.5 font-mono text-sm text-foreground placeholder:text-muted/60 focus:border-input-focus focus:ring-2 focus:ring-accent/50 focus:outline-none transition-colors uppercase placeholder:lowercase";
+  "border border-input-border bg-input-bg px-3 py-2.5 font-mono text-sm text-foreground placeholder:text-muted/60 focus:border-input-focus focus:ring-2 focus:ring-accent/50 focus:outline-none transition-colors uppercase placeholder:lowercase";
 
 function StudySessionsSection({
   sessions,
@@ -49,9 +50,9 @@ function StudySessionsSection({
   onSubmit: () => void;
 }) {
   return (
-    <div className="border-[2px] border-card-border bg-card-bg">
-      <div className="flex items-center gap-2.5 border-b-[2px] border-card-border bg-card-bg px-5 py-3">
-        <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
+    <Card className="border border-card-border bg-card-bg">
+      <div className="flex items-center gap-2.5 border-b border-card-border bg-card-bg px-4 py-3">
+        <div className="flex h-7 w-7 items-center justify-center border border-accent/30 bg-accent/10">
           <IconBookBold className="h-3.5 w-3.5 text-accent" />
         </div>
         <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
@@ -59,7 +60,7 @@ function StudySessionsSection({
         </h3>
       </div>
 
-      <div className="p-5">
+      <div className="p-4">
         <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-[1fr_120px_auto]">
           <input
             type="text"
@@ -77,10 +78,11 @@ function StudySessionsSection({
             onChange={(e) => onHoursSpentChange(e.target.value)}
             className={inputClass}
           />
-          <button
+          <Button
             onClick={onSubmit}
             disabled={submitting}
-            className="inline-flex items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
+            variant="primary"
+            className="inline-flex items-center justify-center gap-2 border border-button-bg bg-button-bg px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
           >
             {submitting ? (
               <IconRefreshBold className="h-3.5 w-3.5 animate-spin" />
@@ -88,17 +90,17 @@ function StudySessionsSection({
               <IconPenBold className="h-3.5 w-3.5" />
             )}
             Log Session
-          </button>
+          </Button>
         </div>
 
         {!loading && sessions.length > 0 && (
           <CumulativeHoursChart sessions={sessions} />
         )}
 
-        <div className="overflow-hidden border-[2px] border-table-border">
+        <div className="overflow-hidden border border-table-border">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b-[2px] border-table-border bg-table-header">
+              <tr className="border-b border-table-border bg-table-header">
                 {sessionHeaders.map((h) => (
                   <th
                     key={h}
@@ -150,7 +152,7 @@ function StudySessionsSection({
           </table>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -186,9 +188,9 @@ function TimedTasksSection({
   stopwatchSeconds: number;
 }) {
   return (
-    <div className="border-[2px] border-card-border bg-card-bg">
-      <div className="flex items-center gap-2.5 border-b-[2px] border-card-border bg-card-bg px-5 py-3">
-        <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
+    <Card className="border border-card-border bg-card-bg">
+      <div className="flex items-center gap-2.5 border-b border-card-border bg-card-bg px-4 py-3">
+        <div className="flex h-7 w-7 items-center justify-center border border-accent/30 bg-accent/10">
           <IconTargetBold className="h-3.5 w-3.5 text-accent" />
         </div>
         <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
@@ -196,22 +198,23 @@ function TimedTasksSection({
         </h3>
       </div>
 
-      <div className="p-5">
+      <div className="p-4">
         {stopwatchRunning ? (
-          <div className="mb-5 flex flex-col items-center gap-4 border-[2px] border-accent/40 bg-accent/5 p-8">
+          <div className="mb-5 flex flex-col items-center gap-6 border border-accent/40 bg-accent/5 p-8">
             <p className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-accent">
               Timer Running
             </p>
             <p className="font-mono text-6xl font-bold tabular-nums text-foreground">
               {formatStopwatch(stopwatchSeconds)}
             </p>
-            <button
+            <Button
               onClick={onFinish}
-              className="inline-flex items-center justify-center gap-2 border-[2px] border-red-500/60 bg-red-500/15 px-8 py-3 font-mono text-xs font-bold uppercase tracking-wider text-red-400 transition-colors hover:bg-red-500/25 active:translate-y-[1px]"
+              variant="primary"
+              className="inline-flex items-center justify-center gap-2 border border-red-500/60 bg-red-500/15 px-8 py-3 font-mono text-xs font-bold uppercase tracking-wider text-red-400 transition-colors hover:bg-red-500/25 active:translate-y-[1px]"
             >
               <IconAddSquareBold className="h-3.5 w-3.5" />
               Finish
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-[1fr_120px_auto]">
@@ -231,12 +234,13 @@ function TimedTasksSection({
               onChange={(e) => onTargetMinutesChange(e.target.value)}
               className={inputClass}
             />
-            <button
+            <Button
               onClick={onStart}
               disabled={
                 submittingStart || !taskName.trim() || !targetMinutesInput
               }
-              className="inline-flex items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
+              variant="primary"
+              className="inline-flex items-center justify-center gap-2 border border-button-bg bg-button-bg px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {submittingStart ? (
                 <IconRefreshBold className="h-3.5 w-3.5 animate-spin" />
@@ -244,7 +248,7 @@ function TimedTasksSection({
                 <IconClockCircleBold className="h-3.5 w-3.5" />
               )}
               Start
-            </button>
+            </Button>
           </div>
         )}
 
@@ -252,10 +256,10 @@ function TimedTasksSection({
           <VarianceChart questions={questions} />
         )}
 
-        <div className="overflow-hidden border-[2px] border-table-border">
+        <div className="overflow-hidden border border-table-border">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b-[2px] border-table-border bg-table-header">
+              <tr className="border-b border-table-border bg-table-header">
                 {timerHeaders.map((h) => (
                   <th
                     key={h}
@@ -325,7 +329,7 @@ function TimedTasksSection({
           </table>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -471,9 +475,9 @@ export default function StudyPanel() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="shrink-0 border-b-[2px] border-card-border bg-card-bg px-8 py-5">
+      <Card className="shrink-0 border-b border-card-border bg-card-bg px-8 py-5">
         <div className="mb-2 flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 border-[2px] border-accent/40 bg-accent/10 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
+          <span className="inline-flex items-center gap-1.5 border border-accent/40 bg-accent/10 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
             Study
           </span>
         </div>
@@ -483,10 +487,10 @@ export default function StudyPanel() {
         <p className="mt-1 font-mono text-xs text-muted">
           Log study sessions and time your practice against targets
         </p>
-      </div>
+      </Card>
 
       <div className="flex-1 overflow-y-auto px-8 py-6">
-        <div className="mx-auto flex max-w-5xl flex-col gap-5">
+        <div className="mx-auto flex max-w-5xl flex-col gap-6">
           <StudySessionsSection
             sessions={sessions}
             loading={loadingData}

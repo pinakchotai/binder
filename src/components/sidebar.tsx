@@ -19,6 +19,7 @@ import { usePathname } from "next/navigation";
 import { useSettings } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { DOMAIN_IDS, DOMAIN_META } from "@/lib/domains";
+import { Button } from '@/components/lithos';
 
 const DOMAIN_ICONS: Record<(typeof DOMAIN_IDS)[number], React.ComponentType<{ className?: string }>> = {
   non_negotiables: IconBoltBold,
@@ -39,16 +40,16 @@ export default function Sidebar({ onClose }: { onClose?: () => void } = {}) {
   const sidebarWidth = rail ? "w-16" : "w-64";
 
   return (
-    <aside className={`flex h-full ${sidebarWidth} shrink-0 flex-col border-r-[2px] border-sidebar-border bg-sidebar-bg transition-[width] duration-200`}>
+    <aside className={`flex h-full ${sidebarWidth} shrink-0 flex-col border-r border-sidebar-border bg-sidebar-bg transition-[width] duration-200`}>
       {/* Header */}
-      <div className={`flex items-center gap-3 border-b-[2px] border-sidebar-border py-5 ${rail ? "justify-center px-0" : "px-5"}`}>
+      <div className={`flex items-center gap-3 border-b border-sidebar-border py-5 ${rail ? "justify-center px-0" : "px-5"}`}>
         {!rail && (
           <>
-            <div className="flex h-9 w-9 items-center justify-center bg-accent/15 border-[2px] border-accent/30">
+            <div className="flex h-9 w-9 items-center justify-center bg-accent/15 border border-accent/30">
               <IconCheckSquareBold className="h-4 w-4 text-accent" />
             </div>
             <div className="flex-1 min-w-0">
-              <h1 className="font-sans text-sm font-bold tracking-tight text-foreground">
+              <h1 className="font-mono text-sm font-bold tracking-tight text-foreground">
                 The Binder
               </h1>
               <p className="font-mono text-[10px] uppercase tracking-widest text-muted">DASHBOARD</p>
@@ -56,15 +57,16 @@ export default function Sidebar({ onClose }: { onClose?: () => void } = {}) {
           </>
         )}
         {rail && (
-          <div className="flex h-9 w-9 items-center justify-center bg-accent/15 border-[2px] border-accent/30">
+          <div className="flex h-9 w-9 items-center justify-center bg-accent/15 border border-accent/30">
             <IconCheckSquareBold className="h-4 w-4 text-accent" />
           </div>
         )}
         {/* Desktop collapse toggle */}
-        <button
+        <Button
           type="button"
           onClick={() => setCollapsed(!collapsed)}
-          className={`hidden md:flex h-10 w-10 shrink-0 items-center justify-center border-[2px] border-transparent text-muted transition-colors hover:border-accent/40 hover:text-accent ${rail ? "absolute top-5 right-0 translate-x-[calc(100%+1px)] bg-sidebar-bg border-r-[2px] border-t-[2px] border-b-[2px] border-sidebar-border" : ""}`}
+          variant="text"
+          className={`hidden md:flex h-10 w-10 shrink-0 items-center justify-center border border-transparent text-muted transition-colors hover:border-accent/40 hover:text-accent ${rail ? "absolute top-5 right-0 translate-x-[calc(100%+1px)] bg-sidebar-bg border-r border-t border-b border-sidebar-border" : ""}`}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? (
@@ -72,22 +74,23 @@ export default function Sidebar({ onClose }: { onClose?: () => void } = {}) {
           ) : (
             <IconAltArrowLeftBold className="h-4 w-4" />
           )}
-        </button>
+        </Button>
         {/* Mobile close button */}
         {onClose && (
-          <button
+          <Button
             type="button"
             onClick={onClose}
-            className="flex h-10 w-10 shrink-0 items-center justify-center border-[2px] border-transparent text-muted transition-colors hover:border-red-500/40 hover:text-red-400 md:hidden"
+            variant="text"
+            className="flex h-10 w-10 shrink-0 items-center justify-center border border-transparent text-muted transition-colors hover:border-red-500/40 hover:text-red-400 md:hidden"
             aria-label="Close menu"
           >
             <IconCloseSquareBold className="h-4 w-4" />
-          </button>
+          </Button>
         )}
         {!rail && (
           <Link
             href="/settings"
-            className={`flex h-10 w-10 shrink-0 items-center justify-center border-[2px] transition-colors ${
+            className={`flex h-10 w-10 shrink-0 items-center justify-center border transition-colors ${
               pathname === "/settings"
                 ? "border-accent/50 bg-accent/15 text-accent"
                 : "border-transparent text-muted hover:text-foreground/60 hover:bg-white/[0.02]"
@@ -204,16 +207,16 @@ export default function Sidebar({ onClose }: { onClose?: () => void } = {}) {
       </nav>
 
       {/* User footer */}
-      <div className={`border-t-[2px] border-sidebar-border py-4 ${rail ? "px-2" : "px-5"}`}>
+      <div className={`border-t border-sidebar-border py-4 ${rail ? "px-2" : "px-5"}`}>
         {rail ? (
           <div className="flex justify-center">
-            <div className="flex h-8 w-8 items-center justify-center border-[2px] border-accent/30 bg-accent/10 font-mono text-xs font-bold text-accent">
+            <div className="flex h-8 w-8 items-center justify-center border border-accent/30 bg-accent/10 font-mono text-xs font-bold text-accent">
               {initial}
             </div>
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center border-[2px] border-accent/30 bg-accent/10 font-mono text-xs font-bold text-accent">
+            <div className="flex h-8 w-8 items-center justify-center border border-accent/30 bg-accent/10 font-mono text-xs font-bold text-accent">
               {initial}
             </div>
             <div className="flex-1 min-w-0">
@@ -224,14 +227,15 @@ export default function Sidebar({ onClose }: { onClose?: () => void } = {}) {
                 Goal Tracker
               </p>
             </div>
-            <button
+            <Button
               onClick={() => void signOut()}
               title="Sign out"
               aria-label="Sign out"
-              className="flex h-10 w-10 shrink-0 items-center justify-center border-[2px] border-transparent text-muted transition-colors hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400"
+              variant="text"
+              className="flex h-10 w-10 shrink-0 items-center justify-center border border-transparent text-muted transition-colors hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400"
             >
               <IconLogoutBold className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
         )}
       </div>

@@ -14,7 +14,7 @@ export default function SettingsRoute() {
             <p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-muted">
               Configuration
             </p>
-            <h1 className="mt-1 font-sans text-xl font-bold tracking-tight text-foreground">
+            <h1 className="mt-1 font-mono text-xl font-bold tracking-tight text-foreground">
               Settings
             </h1>
           </div>
