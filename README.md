@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# The Binder — Public
 
-## Getting Started
+Multi-tenant habit tracking system with 4 life domains, weighted scoring, streak multipliers, XP/levels, and badge gamification.
 
-First, run the development server:
+## Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Frontend:** Next.js 16 (App Router, Turbopack), React, TypeScript, Tailwind CSS, visx (charts)
+- **Backend:** Supabase (PostgreSQL, Auth, Row Level Security, REST API)
+- **Charts:** visx-based heatmap, line, area, and variance charts with custom animation system
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repo and install dependencies:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   git clone https://github.com/your-org/the-binder-public.git
+   cd the-binder-public
+   npm install
+   ```
 
-## Learn More
+2. Copy `.env.example` to `.env.local` and fill in your Supabase credentials:
 
-To learn more about Next.js, take a look at the following resources:
+   ```bash
+   cp .env.example .env.local
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Run the dev server:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```bash
+   npm run dev
+   ```
 
-## Deploy on Vercel
+4. Open [http://localhost:3000](http://localhost:3000).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## How It Works
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 4 Domains
+
+| Domain | Weight | Description |
+|---|---|---|
+| Non-Negotiables | 40% | Daily essentials (sleep, hydration, routines) |
+| Academia | 20% | Study and learning goals |
+| Physical | 20% | Exercise, steps, diet |
+| Personal Growth | 20% | Reading, journaling, new skills |
+
+### Habit Types
+
+- **Recurring** — binary complete/incomplete (e.g., "Worked out today")
+- **Volume** — tracked against a numeric target (e.g., "8 glasses of water")
+- **Milestone** — sequential checkpoints (e.g., "Read chapter 1 of 5")
+
+### Scoring
+
+Each habit type maps to a difficulty weight: Easy (10), Medium (20), Hard (30).
+
+**Domain score** = `(earned / max) x 100`, where earned = sum of `points_earned` for the day in that domain, and max = sum of difficulty weights for all active habits in that domain.
+
+**Total score** = average of all 4 domain scores, with a **streak multiplier** applied:
+
+| Streak | Multiplier |
+|---|---|
+| 1-2 days | 1.00x |
+| 3-6 days | 1.05x |
+| 7-13 days | 1.10x |
+| 14-29 days | 1.15x |
+| 30+ days | 1.25x |
+
+Scores are capped at 100.
+
+### Gamification
+
+- **XP:** Earned from habit points (1 point = 1 XP). Level = floor(sqrt(xp/100)) + 1.
+- **Badges:** Awarded automatically for milestones (first habit, streak lengths, perfect days, domain mastery).
+
+## Known Limitations (v0.1.0-alpha.1)
+
+- No Android app (separate repo, not yet connected)
+- No streak freeze or vacation mode
+- No UI customization or theme toggle
+- No accountability-partner or social features
+- Email confirmation links may point to localhost (needs production redirect URL)
+- No `/auth/callback` route for email confirmation flow
+
+## License
+
+MIT
