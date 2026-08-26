@@ -10,7 +10,7 @@ const inputClass =
   "w-full border-[2px] border-input-border bg-input-bg px-3 py-2.5 font-mono text-sm text-foreground placeholder:text-muted/60 focus:border-input-focus focus:outline-none transition-colors";
 
 export default function AuthScreen() {
-  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const { signIn, signUp } = useAuth();
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,12 +45,6 @@ export default function AuthScreen() {
       }
     }
     setBusy(false);
-  };
-
-  const handleGoogle = async () => {
-    setError(null);
-    const err = await signInWithGoogle();
-    if (err) setError(err);
   };
 
   return (
@@ -139,13 +133,6 @@ export default function AuthScreen() {
               {mode === "login" ? "Log In" : "Sign Up"}
             </button>
 
-            <button
-              onClick={handleGoogle}
-              disabled={busy}
-              className="flex w-full items-center justify-center gap-2 border-[2px] border-input-border bg-input-bg px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-foreground transition-colors hover:border-input-focus active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Continue With Google
-            </button>
           </div>
         </div>
 
