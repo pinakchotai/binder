@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CaretDown, CaretUp, CircleNotch, ArrowClockwise } from "@phosphor-icons/react";
+import { IconAltArrowDownBold, IconAltArrowUpBold, IconRefreshBold } from "@ninzapp/solar-icons/bold";
 import type { Habit, HabitLog } from "@/lib/supabase";
 import { DOMAIN_META, type DomainId } from "@/lib/domains";
 
@@ -154,7 +154,7 @@ export default function QuickLogRow({
               className="flex h-10 w-10 items-center justify-center text-muted hover:text-foreground/70"
               aria-label="Toggle expand"
             >
-              {expanded ? <CaretUp className="h-3.5 w-3.5" /> : <CaretDown className="h-3.5 w-3.5" />}
+              {expanded ? <IconAltArrowUpBold className="h-3.5 w-3.5" /> : <IconAltArrowDownBold className="h-3.5 w-3.5" />}
             </button>
           )}
         </div>
@@ -184,7 +184,7 @@ export default function QuickLogRow({
             disabled={isLoading}
             className={`inline-flex items-center gap-1.5 border-[2px] border-button-bg bg-button-bg px-3 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover disabled:opacity-60 ${flashAdd ? "submit-flash" : ""}`}
           >
-            {isLoading && <CircleNotch className="h-3 w-3 animate-spin" />}
+            {isLoading && <IconRefreshBold className="h-3 w-3 animate-spin" />}
             Add
           </button>
         </div>
@@ -239,7 +239,7 @@ export default function QuickLogRow({
             onClick={onRetry}
             className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase text-accent hover:underline"
           >
-            <ArrowClockwise className="h-3 w-3" />
+            <IconRefreshBold className="h-3 w-3" />
             Retry
           </button>
         </div>

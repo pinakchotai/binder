@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Flame, CircleNotch, Star } from "@phosphor-icons/react";
+import { IconBoltBold, IconRefreshBold, IconStarBold } from "@ninzapp/solar-icons/bold";
 import AuthScreen from "@/components/auth-screen";
 import DomainScoreCard, { DOMAIN_HEX } from "@/components/domain-score-card";
 import QuickLogRow from "@/components/quick-log-row";
@@ -24,7 +24,7 @@ type LogPatch = Partial<
 function Splash() {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4 py-24">
-      <CircleNotch className="h-4 w-4 animate-spin text-muted" />
+      <IconRefreshBold className="h-4 w-4 animate-spin text-muted" />
     </div>
   );
 }
@@ -162,7 +162,7 @@ export default function DashboardPage() {
     : 100;
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10" id="main-content">
+    <div className="mx-auto max-w-5xl px-6 py-10" id="main-content">
       {error && (
         <div className="mb-6 flex items-center justify-between gap-3 border-[2px] border-red-500/40 bg-red-500/[0.07] px-4 py-3">
           <p className="min-w-0 truncate font-mono text-[11px] text-red-300">
@@ -178,24 +178,21 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="mb-6 flex items-end justify-between gap-4">
+      <div className="mb-6 flex items-center justify-between gap-4">
         <div>
           <p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-muted">
-            Today
-          </p>
-          <h1 className="mt-1 font-sans text-xl font-bold tracking-tight text-foreground">
             {new Date(today + "T00:00:00").toLocaleDateString("en-US", {
               weekday: "long",
               month: "long",
               day: "numeric",
             })}
-          </h1>
+          </p>
         </div>
         <div className="flex items-center gap-2">
           {busyId && (
-            <CircleNotch className="h-3.5 w-3.5 animate-spin text-muted" />
+            <IconRefreshBold className="h-3.5 w-3.5 animate-spin text-muted" />
           )}
-          <Flame className="h-4 w-4 text-accent" />
+          <IconBoltBold className="h-4 w-4 text-accent" />
           <span className="font-mono text-xs font-bold tabular-nums text-foreground">
             {streaks.current}
           </span>
@@ -223,7 +220,7 @@ export default function DashboardPage() {
 
       <div className="mb-6 border-[2px] border-card-border bg-card-bg p-6 card-depth">
         <div className="flex items-center gap-2">
-          <Star className="h-3.5 w-3.5 text-accent" />
+          <IconStarBold className="h-3.5 w-3.5 text-accent" />
           <p className="font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
             Level {xpLevel}
           </p>

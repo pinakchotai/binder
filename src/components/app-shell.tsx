@@ -1,16 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { List, X } from "@phosphor-icons/react";
+import { IconHamburgerMenuBold, IconCloseSquareBold } from "@ninzapp/solar-icons/bold";
 import Sidebar from "@/components/sidebar";
 
 interface AppShellProps {
   children: React.ReactNode;
+  header?: React.ReactNode;
 }
 
-export default function AppShell({ children }: AppShellProps) {
+export default function AppShell({ children, header }: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-
   const close = useCallback(() => setMobileOpen(false), []);
 
   useEffect(() => {
@@ -51,12 +51,21 @@ export default function AppShell({ children }: AppShellProps) {
             className="flex h-10 w-10 items-center justify-center border-[2px] border-transparent text-muted transition-colors hover:border-accent/40 hover:text-accent"
             aria-label="Open menu"
           >
-            <List className="h-4 w-4" />
+            <IconHamburgerMenuBold className="h-4 w-4" />
           </button>
           <span className="ml-3 font-sans text-sm font-bold tracking-tight text-foreground">
             The Binder
           </span>
         </div>
+
+        {/* Desktop full-width header stripe */}
+        {header && (
+          <div className="hidden md:block border-b-[2px] border-card-border bg-sidebar-bg">
+            <div className="mx-auto max-w-5xl px-6 py-4">
+              {header}
+            </div>
+          </div>
+        )}
 
         <main className="min-w-0 flex-1 overflow-y-auto">{children}</main>
       </div>

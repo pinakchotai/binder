@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CircleNotch, X } from "@phosphor-icons/react";
+import { IconRefreshBold, IconCloseSquareBold } from "@ninzapp/solar-icons/bold";
 import { DOMAIN_META, type DomainId } from "@/lib/domains";
 
 export interface CustomHabitInput {
@@ -171,7 +171,7 @@ export default function CustomHabitModal({
             className="flex h-10 w-10 items-center justify-center border-[2px] border-transparent text-muted transition-colors hover:border-red-500/40 hover:text-red-400"
             aria-label="Close"
           >
-            <X className="h-3.5 w-3.5" />
+            <IconCloseSquareBold className="h-3.5 w-3.5" />
           </button>
         </div>
 
@@ -346,7 +346,7 @@ export default function CustomHabitModal({
             disabled={isLoading}
             className="flex flex-1 items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-4 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-button-text btn-primary disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isLoading && <CircleNotch className="h-3.5 w-3.5 animate-spin" />}
+            {isLoading && <IconRefreshBold className="h-3.5 w-3.5 animate-spin" />}
             {isEditing ? "Save changes" : "Create"}
           </button>
         </div>

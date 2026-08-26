@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import {
-  Brain,
-  SunHorizon,
-  Moon,
-  WifiSlash,
-  Drop,
-  User,
-  ArrowLeft,
-  FloppyDisk,
-} from "@phosphor-icons/react";
+  IconLightbulbBold,
+  IconSunriseBold,
+  IconMoonBold,
+  IconWiFiRouterBold,
+  IconWaterBold,
+  IconUserBold,
+  IconAltArrowLeftBold,
+  IconDownloadBold,
+} from "@ninzapp/solar-icons/bold";
 import { useSettings } from "@/lib/settings";
 
 function formatTime(h: number, m: number): string {
@@ -98,7 +98,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
             onClick={onBack}
             className="mb-3 inline-flex items-center gap-2 font-sans text-[11px] font-medium text-muted transition-colors hover:text-foreground"
           >
-          <ArrowLeft className="h-3 w-3" />
+          <IconAltArrowLeftBold className="h-3 w-3" />
           Back
         </button>
         <div className="mb-2 flex items-center gap-3">
@@ -119,7 +119,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
           <div className="space-y-3">
             {/* User Name */}
             <SettingRow
-              icon={User}
+              icon={IconUserBold}
               label="Your Name"
               description="Displayed in greeting and sidebar"
             >
@@ -134,7 +134,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
 
             {/* Meditation Target */}
             <SettingRow
-              icon={Brain}
+              icon={IconLightbulbBold}
               label="Meditation Target"
               description={`Minimum minutes per day (currently ${settings.meditationTargetMin} min). This sets your default target when you first add this habit. To change an existing habit's target later, you'll need habit editing — coming soon.`}
             >
@@ -149,7 +149,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
 
             {/* Wake-up Time */}
             <SettingRow
-              icon={SunHorizon}
+              icon={IconSunriseBold}
               label="Wake-up Time"
               description={`Target time to wake up (currently ${formatTime(settings.wakeUpHour, settings.wakeUpMinute)}). Reminders based on this time are coming in a future update — this doesn't affect anything yet.`}
             >
@@ -163,7 +163,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
 
             {/* Sleep Time */}
             <SettingRow
-              icon={Moon}
+              icon={IconMoonBold}
               label="Sleep Time"
               description={`Target time to sleep (currently ${formatTime(settings.sleepHour, settings.sleepMinute)}). Reminders based on this time are coming in a future update — this doesn't affect anything yet.`}
             >
@@ -177,7 +177,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
 
             {/* Screen Disconnect */}
             <SettingRow
-              icon={WifiSlash}
+              icon={IconWiFiRouterBold}
               label="Screen Disconnect"
               description={`Minutes before sleep without screens (currently ${settings.screenDisconnectMinutes} min)`}
             >
@@ -194,7 +194,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
 
             {/* Water Target */}
             <SettingRow
-              icon={Drop}
+              icon={IconWaterBold}
               label="Water Target"
               description={`Daily water intake goal (currently ${(settings.waterTargetMl / 1000).toFixed(1)}L). This sets your default target when you first add this habit. To change an existing habit's target later, you'll need habit editing — coming soon.`}
             >
@@ -215,7 +215,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
           {/* Saved indicator */}
           {saved && (
             <div className="mt-4 flex items-center justify-center gap-2 border-[2px] border-green-500/30 bg-green-500/10 px-4 py-2">
-              <FloppyDisk className="h-3 w-3 text-green-400" />
+              <IconDownloadBold className="h-3 w-3 text-green-400" />
               <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-green-400">
                 Saved
               </span>

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { Check, CaretRight, StackSimple, CircleNotch, Plus } from "@phosphor-icons/react";
+import { IconCheckSquareBold, IconAltArrowRightBold, IconCpuBold, IconRefreshBold, IconAddCircleBold } from "@ninzapp/solar-icons/bold";
 import { supabase, getUserId, type Habit } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 import { DOMAIN_IDS, DOMAIN_META, type DomainId } from "@/lib/domains";
@@ -177,7 +177,7 @@ export default function OnboardingWizard() {
     return (
       <Shell>
         <div className="flex justify-center py-20">
-          <CircleNotch className="h-5 w-5 animate-spin text-muted" />
+          <IconRefreshBold className="h-5 w-5 animate-spin text-muted" />
         </div>
       </Shell>
     );
@@ -189,7 +189,7 @@ export default function OnboardingWizard() {
       <Shell>
         <div className="flex flex-col items-center gap-6 border-[2px] border-card-border bg-card-bg px-8 py-14 text-center">
           <div className="flex h-12 w-12 items-center justify-center border-[2px] border-accent/30 bg-accent/15">
-            <StackSimple className="h-6 w-6 text-accent" />
+            <IconCpuBold className="h-6 w-6 text-accent" />
           </div>
           <div>
             <h1 className="font-sans text-3xl font-bold tracking-tight text-foreground">
@@ -253,7 +253,7 @@ export default function OnboardingWizard() {
             disabled={finishing}
             className="mt-8 inline-flex items-center gap-2 border-[2px] border-button-bg bg-button-bg px-8 py-3 font-mono text-xs font-bold uppercase tracking-[0.2em] text-button-text btn-primary disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {finishing && <CircleNotch className="h-3.5 w-3.5 animate-spin" />}
+            {finishing && <IconRefreshBold className="h-3.5 w-3.5 animate-spin" />}
             Start Tracking
           </button>
         </div>
@@ -328,7 +328,7 @@ export default function OnboardingWizard() {
                         : "border-input-border"
                     }`}
                   >
-                    {checked && <Check className="h-3 w-3" />}
+                    {checked && <IconCheckSquareBold className="h-3 w-3" />}
                   </span>
                   <span className="flex-1 font-mono text-xs font-bold uppercase tracking-wider text-foreground">
                     {tpl.name}
@@ -353,7 +353,7 @@ export default function OnboardingWizard() {
                 key={h.id}
                 className="flex w-full items-center gap-3 border-[2px] border-dashed border-accent/40 bg-accent/[0.04] px-4 py-3"
               >
-                <Check className="h-4 w-4 shrink-0 text-accent" />
+                <IconCheckSquareBold className="h-4 w-4 shrink-0 text-accent" />
                 <span className="flex-1 font-mono text-xs font-bold uppercase tracking-wider text-foreground">
                   {h.name}
                 </span>
@@ -380,7 +380,7 @@ export default function OnboardingWizard() {
               }}
               className="inline-flex items-center gap-1.5 border-[2px] border-input-border px-3 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wider text-muted transition-colors hover:border-accent/40 hover:text-accent"
             >
-              <Plus className="h-3 w-3" />
+              <IconAddCircleBold className="h-3 w-3" />
               Add custom habit
             </button>
             <button
@@ -389,7 +389,7 @@ export default function OnboardingWizard() {
               className="ml-auto inline-flex items-center gap-2 border-[2px] border-button-bg bg-button-bg px-6 py-3 font-mono text-xs font-bold uppercase tracking-[0.2em] text-button-text btn-primary"
             >
               {step === 3 ? "Review" : "Next"}
-              <CaretRight className="h-3.5 w-3.5" />
+              <IconAltArrowRightBold className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>

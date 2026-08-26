@@ -4,15 +4,15 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AuthScreen from "@/components/auth-screen";
 import { useAuth } from "@/lib/auth";
-import { StackSimple, CircleNotch } from "@phosphor-icons/react";
+import { IconCpuBold, IconRefreshBold } from "@ninzapp/solar-icons/bold";
 
 function Splash() {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-background">
       <div className="flex h-12 w-12 items-center justify-center border-[2px] border-accent/30 bg-accent/15">
-        <StackSimple className="h-6 w-6 text-accent" />
+        <IconCpuBold className="h-6 w-6 text-accent" />
       </div>
-      <CircleNotch className="h-4 w-4 animate-spin text-muted" />
+      <IconRefreshBold className="h-4 w-4 animate-spin text-muted" />
     </div>
   );
 }

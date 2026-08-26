@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CircleNotch, Minus, PencilSimple, Plus, Trash } from "@phosphor-icons/react";
+import { IconRefreshBold, IconMinusCircleBold, IconPenBold, IconAddCircleBold, IconTrashBin2Bold } from "@ninzapp/solar-icons/bold";
 import type { Habit, HabitLog } from "@/lib/supabase";
 
 const DIFFICULTY_WEIGHT: Record<Habit["difficulty"], number> = {
@@ -96,7 +96,7 @@ export default function HabitCard({
     >
       {isLoading && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60">
-          <CircleNotch className="h-4 w-4 animate-spin text-accent" />
+          <IconRefreshBold className="h-4 w-4 animate-spin text-accent" />
         </div>
       )}
 
@@ -137,7 +137,7 @@ export default function HabitCard({
           className="flex h-8 w-8 items-center justify-center border border-transparent p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Edit habit"
         >
-          <PencilSimple className="h-3 w-3" />
+          <IconPenBold className="h-3 w-3" />
         </button>
         <button
           type="button"
@@ -146,7 +146,7 @@ export default function HabitCard({
           className="flex h-8 w-8 items-center justify-center border border-transparent p-1 text-muted transition-colors hover:border-red-500/40 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Delete habit"
         >
-          <Trash className="h-3 w-3" />
+          <IconTrashBin2Bold className="h-3 w-3" />
         </button>
       </div>
 
@@ -313,7 +313,7 @@ function VolumeBody({
           className="flex h-11 w-11 items-center justify-center border-[2px] border-input-border bg-input-bg text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Subtract 1"
         >
-          <Minus className="h-3.5 w-3.5" />
+          <IconMinusCircleBold className="h-3.5 w-3.5" />
         </button>
         <input
           type="number"
@@ -334,7 +334,7 @@ function VolumeBody({
           className="flex h-11 w-11 items-center justify-center border-[2px] border-input-border bg-input-bg text-muted transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Add 1"
         >
-          <Plus className="h-3.5 w-3.5" />
+          <IconAddCircleBold className="h-3.5 w-3.5" />
         </button>
         <button
           type="button"

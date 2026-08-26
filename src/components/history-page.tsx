@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { X } from "@phosphor-icons/react";
+import { IconCloseSquareBold } from "@ninzapp/solar-icons/bold";
 import {
   computeStreaks,
   useHistoryData,
@@ -224,7 +224,7 @@ export default function HistoryPage() {
                 className="flex h-10 w-10 items-center justify-center text-muted hover:text-foreground/80"
                 aria-label="Close"
               >
-                <X className="h-4 w-4" />
+                <IconCloseSquareBold className="h-4 w-4" />
               </button>
             </div>
 

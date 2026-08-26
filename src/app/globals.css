@@ -3,27 +3,38 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #0c0c0e;
-  --foreground: #e8e8ec;
+  /* Lithos UI Tokens (Obsidian mode + Amber accent) */
+  --lithos-bg: #0c0c0e;
+  --lithos-text: #e8e6e3;
+  --lithos-border: #2a2a30;
+  --lithos-accent: #f59e0b;
+  --lithos-surface: #141418;
+  --lithos-muted: #888888;
+  --lithos-shadow: rgba(0, 0, 0, 1);
+  --lithos-radius: 0px;
+
+  /* App tokens (mapped from Lithos) */
+  --background: var(--lithos-bg);
+  --foreground: var(--lithos-text);
   --sidebar-bg: #111114;
-  --sidebar-border: #2a2a30;
-  --card-bg: #141418;
-  --card-border: #2a2a30;
-  --muted: #888894;
-  --accent: #f59e0b;
+  --sidebar-border: var(--lithos-border);
+  --card-bg: var(--lithos-surface);
+  --card-border: var(--lithos-border);
+  --muted: var(--lithos-muted);
+  --accent: var(--lithos-accent);
   --accent-hover: #fbbf24;
   --input-bg: #0e0e12;
   --input-border: #3a3a42;
-  --input-focus: #f59e0b;
+  --input-focus: var(--lithos-accent);
   --badge-bg: #1e293b;
   --badge-text: #94a3b8;
   --table-header: #1c1c22;
-  --table-row: #141418;
+  --table-row: var(--lithos-surface);
   --table-border: #3a3a42;
-  --button-bg: #f59e0b;
+  --button-bg: var(--lithos-accent);
   --button-hover: #d97706;
   --button-text: #1a1207;
-  --border-radius: 0px;
+  --border-radius: var(--lithos-radius);
   --chart-1: oklch(0.32 0 none);
   --chart-2: oklch(0.41 0 none);
   --chart-3: oklch(0.54 0 none);
@@ -73,6 +84,12 @@
   --color-button-bg: var(--button-bg);
   --color-button-hover: var(--button-hover);
   --color-button-text: var(--button-text);
+  --color-lithos-bg: var(--lithos-bg);
+  --color-lithos-text: var(--lithos-text);
+  --color-lithos-border: var(--lithos-border);
+  --color-lithos-accent: var(--lithos-accent);
+  --color-lithos-surface: var(--lithos-surface);
+  --color-lithos-muted: var(--lithos-muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --color-chart-scale-pattern-color: var(----chart-scale-pattern-color);

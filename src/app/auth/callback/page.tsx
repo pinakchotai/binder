@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { CircleNotch } from "@phosphor-icons/react";
+import { IconRefreshBold } from "@ninzapp/solar-icons/bold";
 
 export default function AuthCallback() {
   const router = useRouter();
@@ -25,7 +25,7 @@ export default function AuthCallback() {
 
   return (
     <div className="flex h-screen items-center justify-center">
-      <CircleNotch className="h-5 w-5 animate-spin text-muted" />
+      <IconRefreshBold className="h-5 w-5 animate-spin text-muted" />
     </div>
   );
 }

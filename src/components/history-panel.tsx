@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { CaretLeft, CaretRight, Drop, GridNine, CircleNotch, Flame } from "@phosphor-icons/react";
+import { IconAltArrowLeftBold, IconAltArrowRightBold, IconWaterBold, IconCheckSquareBold, IconRefreshBold, IconBoltBold } from "@ninzapp/solar-icons/bold";
 import { supabase } from "@/lib/supabase";
 import { useSettings } from "@/lib/settings";
 
@@ -64,7 +64,7 @@ function ScoreStreak() {
     <div className="border-[2px] border-card-border bg-card-bg">
       <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
         <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
-          <Flame className="h-3.5 w-3.5 text-accent" />
+          <IconBoltBold className="h-3.5 w-3.5 text-accent" />
         </div>
         <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
           Score Streak
@@ -75,7 +75,7 @@ function ScoreStreak() {
       </div>
       <div className="p-5">
         {loading ? (
-          <div className="flex justify-center py-2"><CircleNotch className="h-4 w-4 animate-spin text-muted" /></div>
+          <div className="flex justify-center py-2"><IconRefreshBold className="h-4 w-4 animate-spin text-muted" /></div>
         ) : (
           <div className="flex items-baseline justify-center gap-2">
             <span className={`font-mono text-4xl font-bold tabular-nums ${streak > 0 ? "text-accent" : "text-muted"}`}>
@@ -125,24 +125,24 @@ function WaterHistory() {
     <div className="border-[2px] border-card-border bg-card-bg">
       <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
         <div className="flex h-7 w-7 items-center justify-center border-[2px] border-blue-400/30 bg-blue-400/10">
-          <Drop className="h-3.5 w-3.5 text-blue-400" />
+          <IconWaterBold className="h-3.5 w-3.5 text-blue-400" />
         </div>
         <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
           Water History
         </h3>
         <div className="ml-auto flex items-center gap-1">
           <button onClick={() => setWeekStart(addDays(weekStart, -7))} className="border-[2px] border-input-border bg-input-bg p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent">
-            <CaretLeft className="h-3.5 w-3.5" />
+            <IconAltArrowLeftBold className="h-3.5 w-3.5" />
           </button>
           <span className="font-mono text-[10px] text-muted px-2">{weekLabel}</span>
           <button onClick={() => setWeekStart(addDays(weekStart, 7))} className="border-[2px] border-input-border bg-input-bg p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent">
-            <CaretRight className="h-3.5 w-3.5" />
+            <IconAltArrowRightBold className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
       <div className="p-5">
         {loading ? (
-          <div className="flex justify-center py-6"><CircleNotch className="h-4 w-4 animate-spin text-muted" /></div>
+          <div className="flex justify-center py-6"><IconRefreshBold className="h-4 w-4 animate-spin text-muted" /></div>
         ) : (
           <>
             <div className="flex items-end gap-2" style={{ height: 140 }}>
@@ -263,24 +263,24 @@ function HabitHeatmap() {
     <div className="border-[2px] border-card-border bg-card-bg">
       <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
         <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
-          <GridNine className="h-3.5 w-3.5 text-accent" />
+          <IconCheckSquareBold className="h-3.5 w-3.5 text-accent" />
         </div>
         <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
           Daily Systems
         </h3>
         <div className="ml-auto flex items-center gap-1">
           <button onClick={() => setMonthStart(new Date(year, month - 1, 1))} className="border-[2px] border-input-border bg-input-bg p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent">
-            <CaretLeft className="h-3.5 w-3.5" />
+            <IconAltArrowLeftBold className="h-3.5 w-3.5" />
           </button>
           <span className="font-mono text-[10px] text-muted px-2">{monthLabel}</span>
           <button onClick={() => setMonthStart(new Date(year, month + 1, 1))} className="border-[2px] border-input-border bg-input-bg p-1 text-muted transition-colors hover:border-accent/40 hover:text-accent">
-            <CaretRight className="h-3.5 w-3.5" />
+            <IconAltArrowRightBold className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
       <div className="p-5">
         {loading ? (
-          <div className="flex justify-center py-6"><CircleNotch className="h-4 w-4 animate-spin text-muted" /></div>
+          <div className="flex justify-center py-6"><IconRefreshBold className="h-4 w-4 animate-spin text-muted" /></div>
         ) : (
           <>
             <div className="flex items-start gap-1.5">

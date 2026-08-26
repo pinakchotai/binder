@@ -2,13 +2,13 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import {
-  BookOpen,
-  Target,
-  Clock,
-  Pen,
-  CircleNotch,
-  Square,
-} from "@phosphor-icons/react";
+  IconBookBold,
+  IconTargetBold,
+  IconClockCircleBold,
+  IconPenBold,
+  IconRefreshBold,
+  IconAddSquareBold,
+} from "@ninzapp/solar-icons/bold";
 import {
   supabase,
   getUserId,
@@ -52,7 +52,7 @@ function StudySessionsSection({
     <div className="border-[2px] border-card-border bg-card-bg">
       <div className="flex items-center gap-2.5 border-b-[2px] border-card-border bg-card-bg px-5 py-3">
         <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
-          <BookOpen className="h-3.5 w-3.5 text-accent" />
+          <IconBookBold className="h-3.5 w-3.5 text-accent" />
         </div>
         <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
           Study Sessions
@@ -83,9 +83,9 @@ function StudySessionsSection({
             className="inline-flex items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
           >
             {submitting ? (
-              <CircleNotch className="h-3.5 w-3.5 animate-spin" />
+              <IconRefreshBold className="h-3.5 w-3.5 animate-spin" />
             ) : (
-              <Pen className="h-3.5 w-3.5" />
+              <IconPenBold className="h-3.5 w-3.5" />
             )}
             Log Session
           </button>
@@ -116,7 +116,7 @@ function StudySessionsSection({
                     colSpan={sessionHeaders.length}
                     className="px-4 py-8 text-center font-mono text-xs text-muted"
                   >
-                    <CircleNotch className="mx-auto h-4 w-4 animate-spin text-muted" />
+                    <IconRefreshBold className="mx-auto h-4 w-4 animate-spin text-muted" />
                   </td>
                 </tr>
               ) : sessions.length === 0 ? (
@@ -189,7 +189,7 @@ function TimedTasksSection({
     <div className="border-[2px] border-card-border bg-card-bg">
       <div className="flex items-center gap-2.5 border-b-[2px] border-card-border bg-card-bg px-5 py-3">
         <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
-          <Target className="h-3.5 w-3.5 text-accent" />
+          <IconTargetBold className="h-3.5 w-3.5 text-accent" />
         </div>
         <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
           Timed Practice
@@ -209,7 +209,7 @@ function TimedTasksSection({
               onClick={onFinish}
               className="inline-flex items-center justify-center gap-2 border-[2px] border-red-500/60 bg-red-500/15 px-8 py-3 font-mono text-xs font-bold uppercase tracking-wider text-red-400 transition-colors hover:bg-red-500/25 active:translate-y-[1px]"
             >
-              <Square className="h-3.5 w-3.5" />
+              <IconAddSquareBold className="h-3.5 w-3.5" />
               Finish
             </button>
           </div>
@@ -239,9 +239,9 @@ function TimedTasksSection({
               className="inline-flex items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {submittingStart ? (
-                <CircleNotch className="h-3.5 w-3.5 animate-spin" />
+                <IconRefreshBold className="h-3.5 w-3.5 animate-spin" />
               ) : (
-                <Clock className="h-3.5 w-3.5" />
+                <IconClockCircleBold className="h-3.5 w-3.5" />
               )}
               Start
             </button>
@@ -273,7 +273,7 @@ function TimedTasksSection({
                     colSpan={timerHeaders.length}
                     className="px-4 py-8 text-center font-mono text-xs text-muted"
                   >
-                    <CircleNotch className="mx-auto h-4 w-4 animate-spin text-muted" />
+                    <IconRefreshBold className="mx-auto h-4 w-4 animate-spin text-muted" />
                   </td>
                 </tr>
               ) : questions.length === 0 ? (

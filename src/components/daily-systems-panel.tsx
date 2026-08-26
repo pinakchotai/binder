@@ -2,17 +2,17 @@
 
 import { useEffect, useState, useCallback } from "react";
 import {
-  Lightning,
-  CircleNotch,
-  SunHorizon,
-  Drop,
-  Brain,
-  Barbell,
-  WifiSlash,
-  Moon,
-  FloppyDisk,
-  Trophy,
-} from "@phosphor-icons/react";
+  IconBoltBold,
+  IconRefreshBold,
+  IconSunriseBold,
+  IconWaterBold,
+  IconLightbulbBold,
+  IconDumbbellBold,
+  IconWiFiRouterBold,
+  IconMoonBold,
+  IconDownloadBold,
+  IconMedalStarBold,
+} from "@ninzapp/solar-icons/bold";
 import { supabase, getUserId, type DailyNonNegotiable, type WaterIntake } from "@/lib/supabase";
 import { useSettings } from "@/lib/settings";
 
@@ -266,7 +266,7 @@ export default function DailySystemsPanel() {
         <div className="mx-auto max-w-5xl">
           {loading ? (
             <div className="flex justify-center py-12">
-              <CircleNotch className="h-5 w-5 animate-spin text-muted" />
+              <IconRefreshBold className="h-5 w-5 animate-spin text-muted" />
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_340px]">
@@ -274,7 +274,7 @@ export default function DailySystemsPanel() {
               <div className="border-[2px] border-card-border bg-card-bg">
                 <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
                   <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
-                    <Lightning className="h-3.5 w-3.5 text-accent" />
+                    <IconBoltBold className="h-3.5 w-3.5 text-accent" />
                   </div>
                   <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
                     Today&apos;s Checklist
@@ -286,7 +286,7 @@ export default function DailySystemsPanel() {
 
                 <div className="space-y-2 p-5">
                   <HabitToggle
-                    icon={SunHorizon}
+                    icon={IconSunriseBold}
                     label="Wake on time"
                     checked={form.wake_on_time}
                     onChange={toggle("wake_on_time")}
@@ -308,7 +308,7 @@ export default function DailySystemsPanel() {
                             : "border-input-border bg-transparent"
                         }`}
                       >
-                        <Drop
+                        <IconWaterBold
                           className={`h-3.5 w-3.5 ${
                             autoHydrated ? "text-accent" : "text-muted"
                           }`}
@@ -360,21 +360,21 @@ export default function DailySystemsPanel() {
                     )}
                   </div>
                   <HabitToggle
-                    icon={Moon}
+                    icon={IconMoonBold}
                     label="Sleep on time"
                     checked={form.sleep_on_time}
                     onChange={toggle("sleep_on_time")}
                     points={20}
                   />
                   <HabitToggle
-                    icon={Barbell}
+                    icon={IconDumbbellBold}
                     label="Workout completed"
                     checked={form.workout_completed}
                     onChange={toggle("workout_completed")}
                     points={20}
                   />
                   <HabitToggle
-                    icon={WifiSlash}
+                    icon={IconWiFiRouterBold}
                     label="Screen disconnect"
                     checked={form.screen_disconnect}
                     onChange={toggle("screen_disconnect")}
@@ -397,7 +397,7 @@ export default function DailySystemsPanel() {
                             : "border-input-border bg-transparent"
                         }`}
                       >
-                        <Brain
+                        <IconLightbulbBold
                           className={`h-3.5 w-3.5 ${
                             form.meditation_minutes >= settings.meditationTargetMin
                               ? "text-accent"
@@ -469,9 +469,9 @@ export default function DailySystemsPanel() {
                     className="mt-2 flex w-full items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-button-text transition-colors hover:bg-button-hover active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {saving ? (
-                      <CircleNotch className="h-3.5 w-3.5 animate-spin" />
+                      <IconRefreshBold className="h-3.5 w-3.5 animate-spin" />
                     ) : (
-                      <FloppyDisk className="h-3.5 w-3.5" />
+                      <IconDownloadBold className="h-3.5 w-3.5" />
                     )}
                     {saved ? "Saved!" : "Save Progress"}
                   </button>
@@ -484,7 +484,7 @@ export default function DailySystemsPanel() {
                 <div className="border-[2px] border-card-border bg-card-bg">
                   <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
                     <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
-                      <Trophy className="h-3.5 w-3.5 text-accent" />
+                      <IconMedalStarBold className="h-3.5 w-3.5 text-accent" />
                     </div>
                     <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
                       Today&apos;s Score
@@ -514,7 +514,7 @@ export default function DailySystemsPanel() {
                 <div className="border-[2px] border-card-border bg-card-bg">
                   <div className="flex items-center gap-2.5 border-b-[2px] border-card-border px-5 py-3">
                     <div className="flex h-7 w-7 items-center justify-center border-[2px] border-accent/30 bg-accent/10">
-                      <Lightning className="h-3.5 w-3.5 text-accent" />
+                      <IconBoltBold className="h-3.5 w-3.5 text-accent" />
                     </div>
                     <h3 className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-foreground">
                       Player Attributes

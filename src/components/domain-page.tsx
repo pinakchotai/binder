@@ -3,13 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  Warning,
-  CaretLeft,
-  CircleNotch,
-  SignIn,
-  Plus,
-  ArrowClockwise,
-} from "@phosphor-icons/react";
+  IconDangerTriangleBold,
+  IconAltArrowLeftBold,
+  IconRefreshBold,
+  IconLoginBold,
+  IconAddCircleBold,
+} from "@ninzapp/solar-icons/bold";
 import { supabase, getUserId, type Habit, type HabitLog } from "@/lib/supabase";
 import { DOMAIN_META, type DomainId } from "@/lib/domains";
 import CustomHabitModal, {
@@ -333,7 +332,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
             href="/"
             className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted transition-colors hover:text-accent"
           >
-            <CaretLeft className="h-3.5 w-3.5" />
+            <IconAltArrowLeftBold className="h-3.5 w-3.5" />
             Binder
           </Link>
           <button
@@ -341,7 +340,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
             onClick={refresh}
             className="inline-flex items-center gap-1.5 border-[2px] border-input-border px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted transition-colors hover:border-accent/40 hover:text-accent"
           >
-            <ArrowClockwise className="h-3 w-3" />
+            <IconRefreshBold className="h-3 w-3" />
             Sync
           </button>
         </div>
@@ -375,24 +374,24 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
         <div className="mt-8">
           {loading ? (
             <div className="flex justify-center py-12">
-              <CircleNotch className="h-5 w-5 animate-spin text-muted" />
+              <IconRefreshBold className="h-5 w-5 animate-spin text-muted" />
             </div>
           ) : loadError ? (
             <div className="flex flex-col items-center gap-4 border-[2px] border-red-500/40 bg-red-500/5 py-10">
-              <Warning className="h-5 w-5 text-red-400" />
+              <IconDangerTriangleBold className="h-5 w-5 text-red-400" />
               <p className="font-mono text-xs text-red-300">{loadError}</p>
               <button
                 type="button"
                 onClick={refresh}
                 className="inline-flex items-center gap-2 border-[2px] border-button-bg bg-button-bg px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-button-text btn-primary disabled:cursor-not-allowed disabled:opacity-60"
               >
-                <ArrowClockwise className="h-3.5 w-3.5" />
+                <IconRefreshBold className="h-3.5 w-3.5" />
                 Retry
               </button>
             </div>
           ) : !signedIn ? (
             <div className="flex flex-col items-center gap-4 border-[2px] border-card-border bg-card-bg py-10">
-              <SignIn className="h-5 w-5 text-muted" />
+              <IconLoginBold className="h-5 w-5 text-muted" />
               <p className="font-mono text-xs uppercase tracking-wider text-muted">
                 Sign in to track this domain
               </p>
@@ -418,7 +417,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
                 }}
                 className="inline-flex items-center gap-2 border-[2px] border-button-bg bg-button-bg px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-button-text btn-primary"
               >
-                <Plus className="h-3.5 w-3.5" />
+                <IconAddCircleBold className="h-3.5 w-3.5" />
                 Add habit
               </button>
             </div>
@@ -472,7 +471,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
             }}
               className="mt-6 flex w-full items-center justify-center gap-2 border-[2px] border-dashed border-input-border py-3 font-mono text-xs font-bold uppercase tracking-wider text-muted btn-ghost hover:border-accent/40 hover:text-accent"
           >
-            <Plus className="h-3.5 w-3.5" />
+            <IconAddCircleBold className="h-3.5 w-3.5" />
             Add habit
           </button>
         )}
@@ -532,7 +531,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
                 disabled={deleteConfirming}
                 className="flex flex-1 items-center justify-center gap-2 border-[2px] border-red-500/60 bg-red-500/10 px-4 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-red-400 transition-colors hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {deleteConfirming && <CircleNotch className="h-3.5 w-3.5 animate-spin" />}
+                {deleteConfirming && <IconRefreshBold className="h-3.5 w-3.5 animate-spin" />}
                 Delete
               </button>
             </div>

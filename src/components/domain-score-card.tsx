@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CaretRight } from "@phosphor-icons/react";
+import { IconAltArrowRightBold } from "@ninzapp/solar-icons/bold";
 import { DOMAIN_META, type DomainId } from "@/lib/domains";
 
 export const DOMAIN_HEX: Record<DomainId, string> = {
@@ -44,7 +44,7 @@ export default function DomainScoreCard({
             {meta.subtitle}
           </p>
         </div>
-        <CaretRight className="h-3.5 w-3.5 shrink-0 text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-foreground/70" />
+        <IconAltArrowRightBold className="h-3.5 w-3.5 shrink-0 text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-foreground/70" />
       </div>
       <p className="font-mono text-2xl font-bold tabular-nums text-foreground">
         {score == null ? "--" : Math.round(score)}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { StackSimple, CircleNotch, Warning, Envelope, Lock, User } from "@phosphor-icons/react";
+import { IconCpuBold, IconRefreshBold, IconDangerTriangleBold, IconLetterBold, IconLockBold, IconUserBold } from "@ninzapp/solar-icons/bold";
 import { useAuth } from "@/lib/auth";
 
 type Mode = "login" | "signup";
@@ -53,7 +53,7 @@ export default function AuthScreen() {
         {/* Logo */}
         <div className="mb-8 flex flex-col items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center border-[2px] border-accent/30 bg-accent/15">
-            <StackSimple className="h-6 w-6 text-accent" />
+            <IconCpuBold className="h-6 w-6 text-accent" />
           </div>
           <h1 className="font-sans text-2xl font-bold tracking-tight text-foreground">
             The Binder
@@ -73,7 +73,7 @@ export default function AuthScreen() {
           <div className="space-y-3 p-5">
             {error && (
               <div className="flex items-center gap-2 border-[2px] border-red-500/40 bg-red-500/10 px-3 py-2">
-                <Warning className="h-3 w-3 shrink-0 text-red-400" />
+                <IconDangerTriangleBold className="h-3 w-3 shrink-0 text-red-400" />
                 <span className="font-mono text-[11px] text-red-400">{error}</span>
               </div>
             )}
@@ -85,7 +85,7 @@ export default function AuthScreen() {
 
             {mode === "signup" && (
               <div className="relative">
-                <User className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
+                <IconUserBold className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
                 <input
                   type="text"
                   placeholder="your name"
@@ -99,7 +99,7 @@ export default function AuthScreen() {
             )}
 
             <div className="relative">
-                <Envelope className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
+                <IconLetterBold className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
               <input
                 type="email"
                 placeholder="email"
@@ -112,7 +112,7 @@ export default function AuthScreen() {
             </div>
 
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
+              <IconLockBold className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
               <input
                 type="password"
                 placeholder="password"
@@ -129,7 +129,7 @@ export default function AuthScreen() {
               disabled={busy || !email.trim() || !password}
               className="flex w-full items-center justify-center gap-2 border-[2px] border-button-bg bg-button-bg px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-button-text btn-primary disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {busy && <CircleNotch className="h-3.5 w-3.5 animate-spin" />}
+              {busy && <IconRefreshBold className="h-3.5 w-3.5 animate-spin" />}
               {mode === "login" ? "Log In" : "Sign Up"}
             </button>
 
