@@ -1,10 +1,10 @@
 {
   "appId": "com.thebinder.app",
   "appName": "The Binder",
-  "webDir": "out",
   "server": {
     "url": "https://binder-inky.vercel.app",
-    "cleartext": false
+    "cleartext": false,
+    "androidScheme": "https"
   },
   "android": {
     "allowMixedContent": false,
