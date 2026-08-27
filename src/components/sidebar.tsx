@@ -220,7 +220,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void } = {}) {
               {initial}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="truncate font-sans text-xs font-bold tracking-tight text-foreground">
+              <p className="truncate font-mono text-xs font-bold tracking-tight text-foreground">
                 {displayName}
               </p>
               <p className="truncate font-mono text-[10px] text-muted">

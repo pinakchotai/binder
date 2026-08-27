@@ -196,7 +196,7 @@ export default function OnboardingWizard() {
             <h1 className="font-mono text-3xl font-bold tracking-tight text-foreground">
               The Binder
             </h1>
-            <p className="mt-3 font-sans text-sm text-muted">
+            <p className="mt-3 font-mono text-sm text-muted">
               Track habits across 4 life domains and level up
             </p>
           </div>
@@ -303,7 +303,7 @@ export default function OnboardingWizard() {
           <h1 className="font-mono text-xl font-bold tracking-tight text-foreground">
             {meta.label}
           </h1>
-          <p className="mt-1 font-sans text-[11px] text-muted">
+          <p className="mt-1 font-mono text-[11px] text-muted">
             {meta.description}
           </p>
 

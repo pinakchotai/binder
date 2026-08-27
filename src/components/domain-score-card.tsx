@@ -36,12 +36,12 @@ export default function DomainScoreCard({
       <div className="mb-3 flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p
-            className="truncate font-sans text-xs font-bold tracking-tight"
+            className="truncate font-mono text-xs font-bold tracking-tight"
             style={{ color: hex }}
           >
             {meta.label}
           </p>
-          <p className="mt-0.5 truncate font-sans text-[10px] text-muted">
+          <p className="mt-0.5 truncate font-mono text-[10px] text-muted">
             {meta.subtitle}
           </p>
         </div>
@@ -57,7 +57,7 @@ export default function DomainScoreCard({
           style={{ width: `${pct}%`, backgroundColor: hex }}
         />
       </div>
-      <p className="mt-2.5 font-sans text-[10px] text-muted">
+      <p className="mt-2.5 font-mono text-[10px] text-muted">
         {completedCount}/{habitCount} done today
       </p>
     </Link>

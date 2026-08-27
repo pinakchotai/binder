@@ -1,0 +1,13 @@
+{
+  "appId": "com.thebinder.app",
+  "appName": "The Binder",
+  "webDir": "out",
+  "server": {
+    "url": "https://binder.bettersystem.com",
+    "cleartext": false
+  },
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#0c0c0e"
+  }
+}

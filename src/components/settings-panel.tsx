@@ -43,10 +43,10 @@ function SettingRow({ icon: Icon, label, description, children }: SettingRowProp
         <Icon className="h-4 w-4 text-accent" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-sans text-xs font-bold tracking-tight text-foreground">
+        <p className="font-mono text-xs font-bold tracking-tight text-foreground">
           {label}
         </p>
-        <p className="font-sans text-[10px] text-muted mt-0.5">{description}</p>
+        <p className="font-mono text-[10px] text-muted mt-0.5">{description}</p>
       </div>
       <div className="shrink-0">{children}</div>
     </Card>
@@ -97,7 +97,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
       <Card className="shrink-0 border-b border-card-border bg-card-bg px-8 py-5">
           <button
             onClick={onBack}
-            className="mb-3 inline-flex items-center gap-2 font-sans text-[11px] font-medium text-muted transition-colors hover:text-foreground"
+            className="mb-3 inline-flex items-center gap-2 font-mono text-[11px] font-medium text-muted transition-colors hover:text-foreground"
           >
           <IconAltArrowLeftBold className="h-3 w-3" />
           Back
@@ -110,7 +110,7 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
         <h2 className="font-mono text-xl font-bold tracking-tight text-foreground">
           Configuration
         </h2>
-        <p className="mt-1 font-sans text-xs text-muted">
+        <p className="mt-1 font-mono text-xs text-muted">
           Customize your targets and preferences
         </p>
       </Card>

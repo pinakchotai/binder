@@ -9,6 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
     "@ninzapp/solar-icons": "^1.0.5",
     "@number-flow/react": "^0.6.2",
     "@phosphor-icons/react": "^2.1.10",

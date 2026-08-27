@@ -15,7 +15,7 @@ import {
 } from "@ninzapp/solar-icons/bold";
 import { supabase, getUserId, type DailyNonNegotiable, type WaterIntake } from "@/lib/supabase";
 import { useSettings } from "@/lib/settings";
-import { Card, Button } from '@/components/lithos';
+import { Card, Button, Checkbox } from '@/components/lithos';
 
 function getTodayDateString(): string {
   const now = new Date();
@@ -47,26 +47,16 @@ function HabitToggle({
   points,
 }: HabitToggleProps) {
   return (
-    <button
-      type="button"
-      onClick={() => onChange(!checked)}
+    <div
       className={`flex items-center gap-3 border px-4 py-3 transition-colors ${
         checked
           ? "border-accent/50 bg-accent/10"
           : "border-input-border bg-input-bg hover:border-input-border/80"
       }`}
     >
-      <div
-        className={`flex h-7 w-7 shrink-0 items-center justify-center border transition-colors ${
-          checked
-            ? "border-accent/50 bg-accent/20"
-            : "border-input-border bg-transparent"
-        }`}
-      >
-        <Icon
-          className={`h-3.5 w-3.5 ${checked ? "text-accent" : "text-muted"}`}
-        />
-      </div>
+      <Icon
+        className={`h-4 w-4 shrink-0 ${checked ? "text-accent" : "text-muted"}`}
+      />
       <span
         className={`flex-1 text-left font-mono text-xs font-bold uppercase tracking-wider ${
           checked ? "text-accent" : "text-muted"
@@ -75,24 +65,11 @@ function HabitToggle({
         {label}
       </span>
       <span className="font-mono text-[10px] text-muted">+{points}</span>
-      <div
-        className={`h-4 w-4 border transition-colors ${
-          checked ? "border-accent bg-accent" : "border-input-border bg-transparent"
-        }`}
-      >
-        {checked && (
-          <svg
-            viewBox="0 0 16 16"
-            className="h-full w-full p-[2px] text-background"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2.5}
-          >
-            <path d="M3 8.5L6.5 12L13 4" />
-          </svg>
-        )}
-      </div>
-    </button>
+      <Checkbox
+        checked={checked}
+        onChange={() => onChange(!checked)}
+      />
+    </div>
   );
 }
 

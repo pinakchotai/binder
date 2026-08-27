@@ -59,7 +59,7 @@ export default function AuthScreen() {
           <h1 className="font-mono text-2xl font-bold tracking-tight text-foreground">
             The Binder
           </h1>
-          <p className="font-sans text-[11px] text-muted">
+          <p className="font-mono text-[11px] text-muted">
             Performance Dashboard
           </p>
         </div>

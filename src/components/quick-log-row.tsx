@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { IconAltArrowDownBold, IconAltArrowUpBold, IconRefreshBold } from "@ninzapp/solar-icons/bold";
-import { Button } from '@/components/lithos';
+import { Button, Checkbox } from '@/components/lithos';
 import type { Habit, HabitLog } from "@/lib/supabase";
 import { DOMAIN_META, type DomainId } from "@/lib/domains";
 
@@ -16,12 +16,6 @@ const DOMAIN_BADGE: Record<DomainId, string> = {
 };
 
 const DIFF_POINTS = { easy: 10, medium: 20, hard: 30 } as const;
-
-const GLYPH: Record<Habit["type"], string> = {
-  recurring: "[ ]",
-  volume: "VOL",
-  milestone: "MST",
-};
 
 interface QuickLogRowProps {
   habit: Habit;
@@ -84,34 +78,20 @@ export default function QuickLogRow({
       <div className="border border-card-border bg-card-bg transition-colors hover:border-white/15">
       <div className="flex items-center gap-3 px-4 py-3">
         {habit.type === "recurring" ? (
-          <button
-            type="button"
-            disabled={isLoading}
-            onClick={() => {
+          <Checkbox
+            checked={todayLog?.completed === true}
+            onChange={() => {
               onChange({ completed: !(todayLog?.completed === true) });
               if (!todayLog?.completed) {
                 setPulsing(true);
                 setTimeout(() => setPulsing(false), 260);
               }
             }}
-            className={`flex h-11 w-11 shrink-0 items-center justify-center border font-mono text-[10px] transition-colors active:scale-[0.95] disabled:cursor-not-allowed disabled:opacity-50 ${
-              todayLog?.completed
-                ? "border-accent bg-accent text-button-text"
-                : "border-input-border hover:border-accent/40"
-            } ${pulsing ? "check-pulse" : ""}`}
-            aria-label="Toggle habit"
-          >
-            {todayLog?.completed ? "✓" : ""}
-          </button>
+            disabled={isLoading}
+            className={pulsing ? "check-pulse" : ""}
+          />
         ) : (
-          <button
-            type="button"
-            onClick={() => setExpanded((e) => !e)}
-            className="flex h-10 w-10 shrink-0 items-center justify-center font-mono text-sm"
-            aria-label="Expand habit"
-          >
-            {GLYPH[habit.type]}
-          </button>
+          <div className="h-4 w-4 shrink-0" />
         )}
 
         <button
@@ -119,7 +99,7 @@ export default function QuickLogRow({
           onClick={() => expandable && setExpanded((e) => !e)}
           className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden text-left"
         >
-          <span className="truncate font-sans text-sm font-bold tracking-tight text-foreground">
+          <span className="truncate font-mono text-sm font-bold tracking-tight text-foreground">
             {habit.name}
           </span>
           <span
@@ -152,7 +132,7 @@ export default function QuickLogRow({
             <button
               type="button"
               onClick={() => setExpanded((e) => !e)}
-              className="flex h-10 w-10 items-center justify-center text-muted hover:text-foreground/70"
+              className="flex h-4 w-4 items-center justify-center text-muted hover:text-foreground/70"
               aria-label="Toggle expand"
             >
               {expanded ? <IconAltArrowUpBold className="h-3.5 w-3.5" /> : <IconAltArrowDownBold className="h-3.5 w-3.5" />}
@@ -161,66 +141,65 @@ export default function QuickLogRow({
         </div>
       </div>
 
-      {expandable && (
-        <div className="mx-4 mb-2 h-1 bg-input-bg">
-          <div className="h-full bg-accent/70 transition-all duration-300" style={{ width: `${pct}%` }} />
-        </div>
-      )}
-
       {expanded && habit.type === "volume" && (
-        <div className="flex items-center gap-2 border-t border-card-border px-4 py-3">
-          <input
-            type="number"
-            step="any"
-            inputMode="decimal"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && commitValue()}
-            placeholder={`+ add (target ${habit.target_value})`}
-            className="w-36 border border-input-border bg-input-bg px-2 py-1.5 font-mono text-xs tabular-nums text-foreground placeholder:font-normal placeholder:text-muted/60 focus:border-accent/50 focus:ring-2 focus:ring-accent/50 outline-none"
-          />
-          <Button
-            variant="primary"
-            type="button"
-            onClick={commitValue}
-            disabled={isLoading}
-            className={`inline-flex items-center gap-1.5 px-3 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wider transition-colors hover:bg-button-hover ${flashAdd ? "submit-flash" : ""}`}
-          >
-            {isLoading && <IconRefreshBold className="h-3 w-3 animate-spin" />}
-            Add
-          </Button>
+        <div className="border-t border-card-border px-4 py-3 space-y-3">
+          <div className="h-1 w-full bg-input-bg">
+            <div className="h-full bg-accent/70 transition-all duration-300" style={{ width: `${pct}%` }} />
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              step="any"
+              inputMode="decimal"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && commitValue()}
+              placeholder={`+ add (target ${habit.target_value})`}
+              className="w-36 border border-input-border bg-input-bg px-2 py-1.5 font-mono text-xs tabular-nums text-foreground placeholder:font-normal placeholder:text-muted/60 focus:border-accent/50 focus:ring-2 focus:ring-accent/50 outline-none"
+            />
+            <Button
+              variant="primary"
+              type="button"
+              onClick={commitValue}
+              disabled={isLoading}
+              className={`inline-flex items-center gap-1.5 px-3 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wider transition-colors hover:bg-button-hover ${flashAdd ? "submit-flash" : ""}`}
+            >
+              {isLoading && <IconRefreshBold className="h-3 w-3 animate-spin" />}
+              Add
+            </Button>
+          </div>
         </div>
       )}
 
       {expanded && habit.type === "milestone" && (
-        <div className="space-y-1 border-t border-card-border px-4 py-3">
+        <div className="border-t border-card-border px-4 py-3 space-y-3">
+          <div className="h-1 w-full bg-input-bg">
+            <div className="h-full bg-accent/70 transition-all duration-300" style={{ width: `${pct}%` }} />
+          </div>
+          <div className="space-y-1">
           {Array.from({ length: steps }, (_, i) => i + 1).map((step) => {
-            const checked = step <= doneSteps;
+            const isStepChecked = step <= doneSteps;
             return (
-              <button
+              <div
                 key={step}
-                type="button"
-                disabled={isLoading || (!checked && step !== doneSteps + 1)}
-                onClick={() => onChange({ checkpoints_done: step })}
                 className={`flex w-full items-center gap-2 px-2 py-1.5 text-left font-mono text-[10px] font-bold uppercase tracking-wider transition-colors ${
-                  checked
+                  isStepChecked
                     ? "text-accent"
                     : step === doneSteps + 1
                       ? "text-foreground/80 hover:bg-white/[0.03]"
                       : "text-muted/50"
-                } disabled:cursor-not-allowed`}
+                }`}
               >
-                <span
-                  className={`flex h-3.5 w-3.5 items-center justify-center border text-[8px] ${
-                    checked ? "border-accent bg-accent text-button-text" : "border-input-border"
-                  }`}
-                >
-                  {checked ? "✓" : ""}
-                </span>
+                <Checkbox
+                  checked={isStepChecked}
+                  onChange={() => onChange({ checkpoints_done: step })}
+                  disabled={isLoading || (!isStepChecked && step !== doneSteps + 1)}
+                />
                 Step {String(step).padStart(2, "0")}
-              </button>
+              </div>
             );
           })}
+          </div>
         </div>
       )}
 

@@ -55,7 +55,7 @@ export default function AppShell({ children, header }: AppShellProps) {
           >
             <IconHamburgerMenuBold className="h-4 w-4" />
           </Button>
-          <span className="ml-3 font-sans text-sm font-bold tracking-tight text-foreground">
+          <span className="ml-3 font-mono text-sm font-bold tracking-tight text-foreground">
             The Binder
           </span>
         </div>

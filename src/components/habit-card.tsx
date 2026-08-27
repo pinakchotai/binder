@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { IconRefreshBold, IconMinusCircleBold, IconPenBold, IconAddCircleBold, IconTrashBin2Bold } from "@ninzapp/solar-icons/bold";
-import { Card, Button } from '@/components/lithos';
+import { Card, Button, Checkbox } from '@/components/lithos';
 import type { Habit, HabitLog } from "@/lib/supabase";
 
 const DIFFICULTY_WEIGHT: Record<Habit["difficulty"], number> = {
@@ -33,20 +33,6 @@ export function sortHabits(habits: Habit[]): Habit[] {
 
 function formatPoints(n: number): string {
   return Number.isInteger(n) ? String(n) : n.toFixed(1);
-}
-
-function CheckMark({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 16 16"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2.5}
-    >
-      <path d="M3 8.5L6.5 12L13 4" />
-    </svg>
-  );
 }
 
 interface HabitCardProps {
@@ -127,9 +113,7 @@ export default function HabitCard({
               : "border-input-border bg-input-bg text-muted"
           }`}
         >
-          {complete ? "DONE " : ""}
-          {habit.type === "volume" ? "VOL " : ""}
-          {habit.type === "milestone" ? "MST " : ""}+{formatPoints(points)} PTS
+          {complete ? "DONE " : ""}+{formatPoints(points)} PTS
         </span>
         <Button
           variant="text"
@@ -226,23 +210,19 @@ function RecurringBody({
   };
 
   return (
-    <button
-      type="button"
-      disabled={isLoading}
-      onClick={handleToggle}
-        className={`flex w-full items-center gap-3 border px-4 py-3 transition-colors active:scale-[0.98] disabled:cursor-not-allowed ${
+    <div
+      className={`flex w-full items-center gap-3 border px-4 py-3 transition-colors ${
         done
           ? "border-accent/50 bg-accent/10"
           : "border-input-border bg-input-bg hover:border-input-border/80"
       }`}
     >
-      <div
-        className={`flex h-6 w-6 shrink-0 items-center justify-center border transition-colors ${
-          done ? "border-accent bg-accent" : "border-input-border bg-transparent"
-        } ${pulsing ? "check-pulse" : ""}`}
-      >
-        {done && <CheckMark className="h-full w-full p-[3px] text-background" />}
-      </div>
+      <Checkbox
+        checked={done}
+        onChange={handleToggle}
+        disabled={isLoading}
+        className={pulsing ? "check-pulse" : ""}
+      />
       <span
         className={`flex-1 text-left font-mono text-xs font-bold uppercase tracking-wider ${
           done ? "text-accent" : "text-muted"
@@ -250,7 +230,7 @@ function RecurringBody({
       >
         {done ? "Done today" : "Mark as done"}
       </span>
-    </button>
+    </div>
   );
 }
 
@@ -404,38 +384,29 @@ function MilestoneBody({
       {/* Checkpoint steps — sequential: checking a step completes all before it */}
       <div className="space-y-1.5">
         {Array.from({ length: count }, (_, i) => {
-          const checked = i < done;
+          const isChecked = i < done;
           return (
-            <button
+            <div
               key={i}
-              type="button"
-              disabled={isLoading}
-              onClick={() => onChange(checked ? i : i + 1)}
-              className={`flex w-full items-center gap-3 border px-3 py-2 transition-colors disabled:cursor-not-allowed ${
-                checked
+              className={`flex w-full items-center gap-3 border px-3 py-2 transition-colors ${
+                isChecked
                   ? "border-accent/40 bg-accent/10"
                   : "border-input-border bg-input-bg hover:border-input-border/80"
               }`}
             >
-              <div
-                className={`flex h-5 w-5 shrink-0 items-center justify-center border ${
-                  checked
-                    ? "border-accent bg-accent"
-                    : "border-input-border bg-transparent"
-                }`}
-              >
-                {checked && (
-                  <CheckMark className="h-full w-full p-[2px] text-background" />
-                )}
-              </div>
+              <Checkbox
+                checked={isChecked}
+                onChange={() => onChange(isChecked ? i : i + 1)}
+                disabled={isLoading}
+              />
               <span
                 className={`font-mono text-xs font-bold uppercase tracking-wider ${
-                  checked ? "text-accent" : "text-muted"
+                  isChecked ? "text-accent" : "text-muted"
                 }`}
               >
                 Step {String(i + 1).padStart(2, "0")}
               </span>
-            </button>
+            </div>
           );
         })}
       </div>

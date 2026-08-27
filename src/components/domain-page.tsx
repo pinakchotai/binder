@@ -344,7 +344,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
             <span className="font-mono text-7xl font-bold tabular-nums text-foreground">
               {score === null ? "--" : score}
             </span>
-            <span className="font-sans text-lg font-medium text-muted">/100</span>
+            <span className="font-mono text-lg font-medium text-muted">/100</span>
           </div>
           <div className="mx-auto mt-3 h-1.5 w-full max-w-sm border border-input-border bg-input-bg">
             <div
@@ -352,7 +352,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
               style={{ width: `${scorePct}%` }}
             />
           </div>
-          <p className="mt-2.5 font-sans text-[11px] uppercase tracking-widest text-muted">
+          <p className="mt-2.5 font-mono text-[11px] uppercase tracking-widest text-muted">
             {meta.subtitle}
           </p>
         </Card>
