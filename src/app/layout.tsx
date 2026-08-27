@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
-import ServiceWorkerRegistration from "@/components/service-worker-registration";
+import ServiceWorkerCleanup from "@/components/service-worker-cleanup";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,7 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
     >
       <body className="min-h-dvh bg-background text-foreground noise-overlay">
-        <ServiceWorkerRegistration />
+        <ServiceWorkerCleanup />
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:border focus:border-accent focus:bg-card-bg focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:text-accent"
