@@ -3,7 +3,7 @@
   "appName": "The Binder",
   "webDir": "out",
   "server": {
-    "url": "https://binder.bettersystem.com",
+    "url": "https://binder-inky.vercel.app",
     "cleartext": false
   },
   "android": {
