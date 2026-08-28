@@ -5,7 +5,8 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const apiDir = join(root, "src", "app", "api");
-const stagedDir = join(root, "src", "app", "_api-staged");
+const stagedDir = join(root, ".cap-api-staged");
+const routeFile = join(apiDir, "log", "route.ts");
 const npx = process.platform === "win32" ? "npx.cmd" : "npx";
 
 const env = {
@@ -41,8 +42,18 @@ try {
   console.log("cap sync android done");
 } finally {
   if (hadApi) {
-    rmSync(apiDir, { recursive: true, force: true });
-    renameSync(stagedDir, apiDir);
-    console.log("Restored api route");
+    try {
+      rmSync(apiDir, { recursive: true, force: true });
+      renameSync(stagedDir, apiDir);
+    } catch (err) {
+      console.error("FAILED to restore api route:", err);
+      process.exitCode = 1;
+    }
+    if (!existsSync(routeFile)) {
+      console.error(`FAILED to restore api route: missing ${routeFile}`);
+      process.exitCode = 1;
+    } else {
+      console.log("Restored api route");
+    }
   }
 }

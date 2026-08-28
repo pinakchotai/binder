@@ -5,6 +5,9 @@ node_modules/
 .next/
 out/
 
+# android export staging (scripts/build-android.mjs)
+.cap-api-staged/
+
 # production
 build/
 
