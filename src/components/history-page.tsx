@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { IconCloseSquareBold } from "@ninzapp/solar-icons/bold";
+import { buildInsights } from "@binder/engine";
 import {
   computeStreaks,
+  getTodayDateString,
   useHistoryData,
 } from "@/lib/dashboard-data";
 import { DOMAIN_IDS, DOMAIN_META, type DomainId } from "@/lib/domains";
@@ -112,6 +114,44 @@ export default function HistoryPage() {
     { label: "BEST STREAK", value: `${view.stats.bestStreak}d` },
   ];
 
+  const insights = useMemo(() => {
+    if (!bundle) return null;
+    return buildInsights({
+      totals: bundle.totals.map((t) => ({
+        scoreDate: t.score_date,
+        score: Number(t.score),
+      })),
+      domainScores: bundle.domainScores.map((r) => ({
+        scoreDate: r.score_date,
+        score: Number(r.score),
+        domain: r.domain,
+      })),
+      habits: bundle.habits.map((h) => ({ id: h.id, domain: h.domain, name: h.name })),
+      logs: bundle.logs.map((l) => ({
+        habit_id: l.habit_id,
+        log_date: l.log_date,
+        points_earned: Number(l.points_earned),
+        completed: l.completed,
+      })),
+      asOfDate: getTodayDateString(),
+    });
+  }, [bundle]);
+
+  const trendColor =
+    insights == null
+      ? "text-muted"
+      : insights.totalTrend.direction === "up"
+        ? "text-emerald-400"
+        : insights.totalTrend.direction === "down"
+          ? "text-red-300"
+          : "text-muted";
+
+  const trendLabel = insights == null
+    ? ""
+    : insights.totalTrend.direction === "flat"
+      ? `±${insights.totalTrend.delta} pts`
+      : `${insights.totalTrend.direction === "up" ? "+" : ""}${insights.totalTrend.delta} pts`;
+
   const detail = selectedDate
     ? {
         dateLabel: prettyDate(selectedDate),
@@ -169,6 +209,109 @@ export default function HistoryPage() {
           </Card>
         ))}
       </div>
+
+      {insights && (
+        <Card className="mb-6 p-4 card-depth">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <p className="font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
+              Insights
+            </p>
+            <span
+              className={`inline-flex items-center border px-1.5 py-0.5 font-mono text-[9px] font-bold tabular-nums ${
+                insights.totalTrend.direction === "up"
+                  ? "border-emerald-500/40 bg-emerald-500/10"
+                  : insights.totalTrend.direction === "down"
+                    ? "border-red-500/40 bg-red-500/10"
+                    : "border-card-border bg-input-bg"
+              } ${trendColor}`}
+              title="Last 7 days vs the 7 days before"
+            >
+              {trendLabel} vs prev week
+            </span>
+          </div>
+
+          <ul className="mb-4 space-y-1.5">
+            {insights.highlights.map((h, i) => (
+              <li
+                key={i}
+                className="flex items-start gap-2 font-mono text-[11px] leading-relaxed text-foreground/85"
+              >
+                <span className="mt-[7px] h-1 w-1 shrink-0 bg-accent" />
+                <span>{h}</span>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mb-4 h-[1px] bg-card-border" />
+
+          <div className="mb-4">
+            <p className="mb-2 font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
+              Domain momentum
+            </p>
+            {insights.domainTrends.length === 0 ? (
+              <p className="font-mono text-[10px] uppercase tracking-wider text-muted/70">
+                No domain scores in view yet
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {insights.domainTrends.map((d) => {
+                  const color =
+                    d.trend.direction === "up"
+                      ? "border-emerald-500/40 text-emerald-400"
+                      : d.trend.direction === "down"
+                        ? "border-red-500/40 text-red-300"
+                        : "border-card-border text-muted";
+                  return (
+                    <span
+                      key={d.domain}
+                      className={`inline-flex items-center gap-1.5 border bg-input-bg px-2 py-1 font-mono text-[9px] font-bold tabular-nums ${color}`}
+                    >
+                      {DOMAIN_META[d.domain as DomainId]?.label ?? d.domain}
+                      <span>
+                        {d.trend.direction === "up"
+                          ? `+${d.trend.delta}`
+                          : d.trend.direction === "down"
+                            ? `${d.trend.delta}`
+                            : "±0"}
+                      </span>
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <p className="mb-2 font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
+              Most consistent habits
+            </p>
+            {insights.mostConsistentHabits.length === 0 ? (
+              <p className="font-mono text-[10px] uppercase tracking-wider text-muted/70">
+                No habit logs in view yet
+              </p>
+            ) : (
+              <ul className="space-y-1.5">
+                {insights.mostConsistentHabits.map((h) => (
+                  <li
+                    key={h.habitId}
+                    className="flex items-center justify-between gap-3 border border-input-border bg-input-bg px-3 py-2"
+                  >
+                    <span className="min-w-0 truncate font-mono text-[11px] text-foreground/90">
+                      {h.name}
+                      <span className="ml-2 text-[9px] uppercase tracking-wider text-muted">
+                        {DOMAIN_META[h.domain as DomainId]?.label ?? h.domain}
+                      </span>
+                    </span>
+                    <span className="shrink-0 font-mono text-[9px] font-bold tabular-nums text-accent">
+                      {Math.round(h.completionRate * 100)}% · {h.daysLogged}d
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </Card>
+      )}
 
       <Card className="mb-6 p-4 card-depth">
         <p className="mb-2 font-mono text-[9px] font-bold uppercase tracking-wider text-muted">
