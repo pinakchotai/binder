@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { IconRefreshBold, IconMinusCircleBold, IconPenBold, IconAddCircleBold, IconTrashBin2Bold } from "@ninzapp/solar-icons/bold";
 import { Card, Button, Checkbox } from '@/components/lithos';
+import { computeHabitMaturity } from "@binder/engine";
 import type { Habit, HabitLog } from "@/lib/supabase";
 
 const DIFFICULTY_WEIGHT: Record<Habit["difficulty"], number> = {
@@ -35,8 +36,18 @@ function formatPoints(n: number): string {
   return Number.isInteger(n) ? String(n) : n.toFixed(1);
 }
 
+/** '13:05' -> '1:05 PM'; '07:00' -> '7:00 AM' */
+function formatIntendedTime(hhmm: string): string {
+  const [h, m] = hhmm.split(":").map((p) => parseInt(p, 10));
+  if (!Number.isFinite(h) || !Number.isFinite(m)) return hhmm;
+  const period = h >= 12 ? "PM" : "AM";
+  const hour12 = ((h + 11) % 12) + 1;
+  return `${hour12}:${String(m).padStart(2, "0")} ${period}`;
+}
+
 interface HabitCardProps {
   habit: Habit;
+  streak: number;
   todayLog: HabitLog | null;
   onLogChange: (
     patch: Partial<Pick<HabitLog, "completed" | "value" | "checkpoints_done">>,
@@ -51,6 +62,7 @@ interface HabitCardProps {
 
 export default function HabitCard({
   habit,
+  streak,
   todayLog,
   onLogChange,
   isLoading,
@@ -61,6 +73,15 @@ export default function HabitCard({
   onDelete,
 }: HabitCardProps) {
   const points = todayLog?.points_earned ?? 0;
+
+  const maturity = computeHabitMaturity({
+    habitCreatedAt: habit.created_at,
+    currentStreak: streak,
+  });
+
+  const intendedChunks: string[] = [];
+  if (habit.intended_time) intendedChunks.push(formatIntendedTime(habit.intended_time));
+  if (habit.intended_context) intendedChunks.push(habit.intended_context);
 
   let complete = false;
   if (habit.type === "recurring") complete = todayLog?.completed === true;
@@ -136,6 +157,52 @@ export default function HabitCard({
       </div>
 
       <div className="px-5 pb-5">
+        {intendedChunks.length > 0 && (
+          <div className="mb-3 border-l-[3px] border-accent/40 bg-input-bg px-3 py-1.5">
+            <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-accent">
+              {intendedChunks.join("  ·  ")}
+            </span>
+          </div>
+        )}
+
+        {/* Maturity indicator */}
+        <div className={`mb-3 ${maturity.isLikelyAutomatic ? "border border-emerald-500/40 bg-emerald-500/5" : ""} px-3 py-2`}>
+          <div className="mb-1 flex items-baseline justify-between gap-2">
+            <span
+              className={`font-mono text-[9px] font-bold uppercase tracking-[0.2em] ${
+                maturity.isLikelyAutomatic ? "text-emerald-400" : "text-muted"
+              }`}
+            >
+              {maturity.isLikelyAutomatic
+                ? "This habit is likely automatic now"
+                : maturity.daysToward > 0
+                  ? `Day ${maturity.daysToward} of ~${maturity.targetDays} toward automatic`
+                  : `Getting started — most habits click around day ${maturity.targetDays}`}
+            </span>
+            {!maturity.isLikelyAutomatic && (
+              <span className="font-mono text-[9px] tabular-nums text-muted">
+                {maturity.percentComplete}%
+              </span>
+            )}
+          </div>
+          <div
+            className={
+              maturity.isLikelyAutomatic
+                ? "h-1.5 w-full border border-emerald-500/40 bg-emerald-500/5"
+                : "h-1.5 w-full border border-input-border bg-input-bg"
+            }
+          >
+            <div
+              className={`h-full ${
+                maturity.isLikelyAutomatic
+                  ? "bg-emerald-500/70"
+                  : "bg-accent transition-all duration-300"
+              }`}
+              style={{ width: `${maturity.percentComplete}%` }}
+            />
+          </div>
+        </div>
+
         {habit.type === "recurring" && (
           <RecurringBody
             done={todayLog?.completed === true}

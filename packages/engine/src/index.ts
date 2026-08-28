@@ -6,3 +6,4 @@ export * from "./streak";
 export * from "./domainScore";
 export * from "./totalScore";
 export * from "./weights";
+export * from "./maturity";

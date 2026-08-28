@@ -37,6 +37,8 @@ export interface Habit {
   difficulty: "easy" | "medium" | "hard";
   target_value: number | null;
   checkpoint_count: number | null;
+  intended_time: string | null;
+  intended_context: string | null;
   is_template: boolean;
   created_at: string;
   updated_at: string;

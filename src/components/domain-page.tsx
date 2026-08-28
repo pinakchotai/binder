@@ -10,6 +10,7 @@ import {
   IconAddCircleBold,
 } from "@ninzapp/solar-icons/bold";
 import { getUserId, type Habit, type HabitLog } from "@/lib/supabase";
+import { computeUserStreak } from "@binder/engine";
 import { db } from "@/lib/storage";
 import { writeHabitLog } from "@/lib/api-log";
 import { DOMAIN_META, type DomainId } from "@/lib/domains";
@@ -41,6 +42,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [logsByHabit, setLogsByHabit] = useState<Record<string, HabitLog>>({});
   const [score, setScore] = useState<number | null>(null);
+  const [streak, setStreak] = useState(0);
 
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -88,7 +90,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
       if (!uid) return;
 
       const today = getTodayDateString();
-      const [habitsRes, logsRes] = await Promise.all([
+      const [habitsRes, logsRes, totalsRes] = await Promise.all([
         db
           .from("habits")
           .select("*")
@@ -101,13 +103,26 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
           .select("*")
           .eq("user_id", uid)
           .eq("log_date", today),
+        db
+          .from("total_scores")
+          .select("score_date, score")
+          .eq("user_id", uid),
       ]);
 
-      const firstError = habitsRes.error ?? logsRes.error;
+      const firstError = habitsRes.error ?? logsRes.error ?? totalsRes.error;
       if (firstError) {
         setLoadError(firstError.message);
         return;
       }
+
+      setStreak(
+        computeUserStreak({
+          totalScores: ((totalsRes.data ?? []) as { score_date: string; score: number }[]).map(
+            (row) => ({ scoreDate: row.score_date, score: Number(row.score) }),
+          ),
+          asOfDate: today,
+        }),
+      );
 
       const habitList = (habitsRes.data ?? []) as Habit[];
       const habitIds = new Set(habitList.map((h) => h.id));
@@ -249,7 +264,14 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
       setCreateError(null);
       const { data, error } = await db
         .from("habits")
-        .update({ name: input.name, difficulty: input.difficulty, target_value: input.target_value, checkpoint_count: input.checkpoint_count })
+        .update({
+          name: input.name,
+          difficulty: input.difficulty,
+          target_value: input.target_value,
+          checkpoint_count: input.checkpoint_count,
+          intended_time: input.intended_time,
+          intended_context: input.intended_context,
+        })
         .eq("id", editingHabit.id)
         .eq("user_id", uid)
         .select()
@@ -415,6 +437,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
                     <HabitCard
                       key={habit.id}
                       habit={habit}
+                      streak={streak}
                       todayLog={logsByHabit[habit.id] ?? null}
                       onLogChange={(patch) => void handleLogChange(habit, patch)}
                       isLoading={ui?.saving ?? false}
@@ -432,6 +455,8 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
                           difficulty: habit.difficulty,
                           target_value: habit.target_value,
                           checkpoint_count: habit.checkpoint_count,
+                          intended_time: habit.intended_time,
+                          intended_context: habit.intended_context,
                         });
                         setCreateError(null);
                         setModalOpen(true);

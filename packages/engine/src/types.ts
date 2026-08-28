@@ -13,6 +13,8 @@ export interface Habit {
   frequency: string;
   targetValue: number | null;
   checkpointCount: number | null;
+  intendedTime: string | null;
+  intendedContext: string | null;
   isTemplate: boolean;
   createdAt: string;
   updatedAt: string;

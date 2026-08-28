@@ -12,6 +12,8 @@ export interface CustomHabitInput {
   difficulty: "easy" | "medium" | "hard";
   target_value: number | null;
   checkpoint_count: number | null;
+  intended_time: string | null;
+  intended_context: string | null;
 }
 
 type HabitType = CustomHabitInput["type"];
@@ -24,6 +26,8 @@ export interface EditingHabit {
   difficulty: "easy" | "medium" | "hard";
   target_value: number | null;
   checkpoint_count: number | null;
+  intended_time: string | null;
+  intended_context: string | null;
 }
 
 interface CustomHabitModalProps {
@@ -55,6 +59,8 @@ const EMPTY_FORM = {
   difficulty: "medium" as CustomHabitInput["difficulty"],
   targetValue: "",
   checkpointCount: "",
+  intendedTime: "",
+  intendedContext: "",
 };
 
 const segBtn = (active: boolean) =>
@@ -83,11 +89,16 @@ export default function CustomHabitModal({
         difficulty: editingHabit.difficulty,
         targetValue: editingHabit.target_value != null ? String(editingHabit.target_value) : "",
         checkpointCount: editingHabit.checkpoint_count != null ? String(editingHabit.checkpoint_count) : "",
+        intendedTime: editingHabit.intended_time ?? "",
+        intendedContext: editingHabit.intended_context ?? "",
       };
     }
     return EMPTY_FORM;
   });
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(
+    Boolean(editingHabit?.intended_time || editingHabit?.intended_context),
+  );
 
   if (!isOpen) return null;
 
@@ -105,6 +116,10 @@ export default function CustomHabitModal({
       if (!form.checkpointCount || !Number.isInteger(c) || c <= 0)
         return "Checkpoints must be a whole number greater than 0.";
     }
+    if (form.intendedTime && !/^([01]\d|2[0-3]):[0-5]\d$/.test(form.intendedTime))
+      return "Time must be in 24h HH:MM format.";
+    if (form.intendedContext.trim().length > 120)
+      return "Max 120 characters for the context.";
     return null;
   };
 
@@ -123,6 +138,10 @@ export default function CustomHabitModal({
       target_value: form.type === "volume" ? Number(form.targetValue) : null,
       checkpoint_count:
         form.type === "milestone" ? Number(form.checkpointCount) : null,
+      intended_time: form.intendedTime ? form.intendedTime : null,
+      intended_context: form.intendedContext.trim()
+        ? form.intendedContext.trim()
+        : null,
     });
   };
 
@@ -280,6 +299,57 @@ export default function CustomHabitModal({
             />
           </div>
         )}
+
+        {/* Implementation intention (optional) */}
+        <div>
+          <button
+            type="button"
+            onClick={() => setDetailsOpen((v) => !v)}
+            className="flex w-full items-center justify-between border border-dashed border-input-border px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-wider text-muted transition-colors hover:border-accent/40 hover:text-accent"
+          >
+            <span>{detailsOpen ? "− Hide details" : "+ Add details"}</span>
+            <span className="normal-case tracking-normal text-muted/60">
+              when &amp; where (optional)
+            </span>
+          </button>
+
+          {detailsOpen && (
+            <div className="mt-3 space-y-3">
+              <div>
+                <label className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
+                  What time?
+                </label>
+                <input
+                  type="time"
+                  value={form.intendedTime}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, intendedTime: e.target.value }))
+                  }
+                  className="w-full border border-input-border bg-input-bg px-3 py-2 font-mono text-sm tabular-nums text-foreground focus:border-accent/50 focus:ring-2 focus:ring-accent/50 outline-none transition-colors placeholder:text-muted/50"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
+                  Where or in what context?
+                </label>
+                <input
+                  type="text"
+                  maxLength={120}
+                  value={form.intendedContext}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, intendedContext: e.target.value }))
+                  }
+                  placeholder="right after waking up · at my desk"
+                  className="w-full border border-input-border bg-input-bg px-3 py-2 font-mono text-sm text-foreground focus:border-accent/50 focus:ring-2 focus:ring-accent/50 outline-none transition-colors placeholder:text-muted/50"
+                />
+              </div>
+              <p className="font-mono text-[10px] text-muted">
+                Habits with a specific time and place are more likely to
+                stick.
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Errors */}
         {(validationError || error) && (
