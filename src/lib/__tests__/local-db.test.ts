@@ -236,6 +236,35 @@ describe("engine write-through", () => {
     expect(xp.data?.total_xp).toBe(0);
   });
 
+  it("updates only the habit matching the id filter", async () => {
+    const p = ensureLocalProfile();
+    await localFrom("habits", p).insert([
+      habit("h-a"),
+      habit("h-b", { name: "Meditate" }),
+    ]);
+    await localFrom("habits", p)
+      .update({ name: "Mock Exam" })
+      .eq("id", "h-a");
+
+    const rows = await localFrom("habits", p).select("*").order("id");
+    expect(rows.data).toHaveLength(2);
+    expect(rows.data[0].name).toBe("Mock Exam");
+    expect(rows.data[1].name).toBe("Meditate");
+  });
+
+  it("deletes only the habit matching the id filter", async () => {
+    const p = ensureLocalProfile();
+    await localFrom("habits", p).insert([
+      habit("h-a"),
+      habit("h-b", { name: "Meditate" }),
+    ]);
+    await localFrom("habits", p).delete().eq("id", "h-a");
+
+    const rows = await localFrom("habits", p).select("*");
+    expect(rows.data).toHaveLength(1);
+    expect(rows.data[0].name).toBe("Meditate");
+  });
+
   it("snapshot has the full row set for import", async () => {
     const p = ensureLocalProfile();
     await localFrom("habits", p).insert(habit("h5"));

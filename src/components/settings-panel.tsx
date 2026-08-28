@@ -12,6 +12,8 @@ import {
   IconDownloadBold,
 } from "@ninzapp/solar-icons/bold";
 import { useSettings } from "@/lib/settings";
+import { isLocalMode } from "@/lib/storage";
+import { clearLocalProfile } from "@/lib/local-db";
 import { Card, Button } from '@/components/lithos';
 
 function formatTime(h: number, m: number): string {
@@ -59,6 +61,17 @@ const inputClass =
 export default function SettingsPanel({ onBack }: { onBack: () => void }) {
   const { settings, updateSetting } = useSettings();
   const [saved, setSaved] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
+
+  const handleResetLocal = () => {
+    if (!confirmReset) {
+      setConfirmReset(true);
+      setTimeout(() => setConfirmReset(false), 3000);
+      return;
+    }
+    clearLocalProfile();
+    if (typeof window !== "undefined") window.location.reload();
+  };
 
   const handleTimeChange = (
     key: "wakeUp" | "sleep",
@@ -212,6 +225,31 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
               </div>
             </SettingRow>
           </div>
+
+          {/* Local-only reset */}
+          {isLocalMode() && (
+            <Card className="mt-4 flex items-center justify-between gap-4 border-red-500/30 bg-red-500/10 px-4 py-3">
+              <div className="min-w-0">
+                <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-red-300">
+                  Reset local data
+                </p>
+                <p className="mt-0.5 font-mono text-[10px] text-muted">
+                  Clears the offline profile on this device and restarts onboarding.
+                </p>
+              </div>
+              <Button
+                variant="text"
+                onClick={handleResetLocal}
+                className={`shrink-0 border px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wider ${
+                  confirmReset
+                    ? "border-red-400 bg-red-500/20 text-red-200"
+                    : "border-input-border text-muted hover:text-red-300"
+                }`}
+              >
+                {confirmReset ? "Tap again to confirm" : "Reset"}
+              </Button>
+            </Card>
+          )}
 
           {/* Saved indicator */}
           {saved && (

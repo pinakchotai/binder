@@ -144,6 +144,18 @@ export function hasLocalData(profileId?: string): boolean {
   return Boolean(doc && (doc.habits.length > 0 || doc.habit_logs.length > 0 || doc.user_settings.length > 0));
 }
 
+/** Wipe the local profile + all its data (recovery/uninstall path). */
+export function clearLocalProfile(): void {
+  try {
+    const id = getLocalProfileId();
+    if (!id) return;
+    localStorage.removeItem(docKey(id));
+    localStorage.removeItem("thebinder_local_profile_id");
+  } catch {
+    // silent
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* Engine write-through (mirrors POST /api/log)                         */
 /* ------------------------------------------------------------------ */
@@ -289,7 +301,7 @@ interface OrderClause {
 
 type WriteOp = "insert" | "upsert" | "update" | "delete";
 
-const IGNORED_COLUMNS = new Set(["user_id", "id"]);
+const IGNORED_COLUMNS = new Set(["user_id"]);
 
 function compareValues(a: unknown, b: unknown): number {
   if (a == null && b == null) return 0;
