@@ -98,6 +98,18 @@ export async function importLocalToCloud(): Promise<string | null> {
   const totals = snapshot.total_scores.map((r) => ({ ...r, user_id: uid }));
   const settings = snapshot.user_settings.map((r) => ({ ...r, user_id: uid }));
   const domainSettings = snapshot.user_domain_settings.map((r) => ({ ...r, user_id: uid }));
+  const freezes = snapshot.user_streak_freezes
+    ? [
+        {
+          user_id: uid,
+          available_count: Number(snapshot.user_streak_freezes.available_count ?? 0),
+          protected_dates: (snapshot.user_streak_freezes.protected_dates ?? []) as string[],
+          paid_milestones: Number(snapshot.user_streak_freezes.paid_milestones ?? 0),
+          last_earned_at: (snapshot.user_streak_freezes.last_earned_at ?? null) as string | null,
+          updated_at: now,
+        },
+      ]
+    : [];
 
   if (habits.length > 0 && guard((await supabase.from("habits").upsert(habits, { onConflict: "id" })).error)) return res.error;
   if (logs.length > 0 && guard((await supabase.from("habit_logs").upsert(logs, { onConflict: "habit_id,log_date" })).error)) return res.error;
@@ -105,6 +117,7 @@ export async function importLocalToCloud(): Promise<string | null> {
   if (totals.length > 0 && guard((await supabase.from("total_scores").upsert(totals, { onConflict: "user_id,score_date" })).error)) return res.error;
   if (settings.length > 0 && guard((await supabase.from("user_settings").upsert(settings, { onConflict: "user_id" })).error)) return res.error;
   if (domainSettings.length > 0 && guard((await supabase.from("user_domain_settings").upsert(domainSettings, { onConflict: "user_id,domain" })).error)) return res.error;
+  if (freezes.length > 0 && guard((await supabase.from("user_streak_freezes").upsert(freezes, { onConflict: "user_id" })).error)) return res.error;
 
   if (!res.error) setLocalImported(profileId, true);
   return res.error;

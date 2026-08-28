@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconBoltBold, IconRefreshBold, IconStarBold } from "@ninzapp/solar-icons/bold";
+import { IconBoltBold, IconRefreshBold, IconShieldBold, IconShieldCheckBold, IconStarBold } from "@ninzapp/solar-icons/bold";
 import AuthScreen from "@/components/auth-screen";
 import DomainScoreCard, { DOMAIN_HEX } from "@/components/domain-score-card";
 import QuickLogRow from "@/components/quick-log-row";
@@ -94,7 +94,11 @@ export default function DashboardPage() {
   };
 
   const streaks = useMemo(
-    () => computeStreaks(bundle?.trackedDates ?? new Set<string>()),
+    () =>
+      computeStreaks(
+        bundle?.trackedDates ?? new Set<string>(),
+        new Set(bundle?.freezeRow?.protected_dates ?? []),
+      ),
     [bundle],
   );
 
@@ -267,6 +271,24 @@ export default function DashboardPage() {
           <span className="font-mono text-[10px] uppercase tracking-wider text-muted">
             day streak
           </span>
+          {bundle?.freezeRow && bundle.freezeRow.available_count > 0 && (
+            <span
+              className="inline-flex items-center gap-1 border border-accent/40 bg-accent/10 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-accent"
+              title="Streak freezes protect a missed day from breaking your streak"
+            >
+              <IconShieldBold className="h-3 w-3" />
+              ×{bundle.freezeRow.available_count}
+            </span>
+          )}
+          {streaks.protectedNow && streaks.current > 0 && (
+            <span
+              className="inline-flex items-center gap-1 border border-emerald-500/40 bg-emerald-500/10 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-emerald-400"
+              title="A freeze saved your streak today"
+            >
+              <IconShieldCheckBold className="h-3 w-3" />
+              protected
+            </span>
+          )}
         </div>
       </div>
 

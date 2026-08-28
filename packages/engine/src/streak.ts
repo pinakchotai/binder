@@ -4,6 +4,8 @@ import { addDays } from "./date";
 export interface ComputeUserStreakInput {
   totalScores: Array<{ scoreDate: string; score: number }>;
   asOfDate: string;
+  /** Dates a streak freeze rescued; counted as scored days. */
+  protectedFreezeDates?: string[];
 }
 
 export function computeUserStreak(input: ComputeUserStreakInput): number {
@@ -11,13 +13,15 @@ export function computeUserStreak(input: ComputeUserStreakInput): number {
   for (const entry of input.totalScores) {
     scoresByDate.set(entry.scoreDate, entry.score);
   }
+  const protectedSet = new Set(input.protectedFreezeDates ?? []);
+  const isScoredDay = (date: string): boolean =>
+    (scoresByDate.get(date) ?? 0) > 0 || protectedSet.has(date);
 
   let streak = 0;
   let check = addDays(input.asOfDate, -1);
 
   while (streak < MAX_STREAK) {
-    const score = scoresByDate.get(check);
-    if (score !== undefined && score > 0) {
+    if (isScoredDay(check)) {
       streak += 1;
       check = addDays(check, -1);
     } else {

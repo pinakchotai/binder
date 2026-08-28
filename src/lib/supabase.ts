@@ -56,3 +56,12 @@ export interface HabitLog {
   created_at: string;
   updated_at: string;
 }
+
+export interface StreakFreezeRow {
+  user_id: string;
+  available_count: number;
+  protected_dates: string[];
+  paid_milestones: number;
+  last_earned_at: string | null;
+  updated_at: string;
+}

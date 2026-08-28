@@ -90,7 +90,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
       if (!uid) return;
 
       const today = getTodayDateString();
-      const [habitsRes, logsRes, totalsRes] = await Promise.all([
+      const [habitsRes, logsRes, totalsRes, freezeRes] = await Promise.all([
         db
           .from("habits")
           .select("*")
@@ -107,9 +107,15 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
           .from("total_scores")
           .select("score_date, score")
           .eq("user_id", uid),
+        db
+          .from("user_streak_freezes")
+          .select("available_count, protected_dates")
+          .eq("user_id", uid)
+          .maybeSingle(),
       ]);
 
-      const firstError = habitsRes.error ?? logsRes.error ?? totalsRes.error;
+      const firstError =
+        habitsRes.error ?? logsRes.error ?? totalsRes.error ?? freezeRes.error;
       if (firstError) {
         setLoadError(firstError.message);
         return;
@@ -121,6 +127,8 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
             (row) => ({ scoreDate: row.score_date, score: Number(row.score) }),
           ),
           asOfDate: today,
+          protectedFreezeDates: ((freezeRes.data as { protected_dates?: unknown } | null)
+            ?.protected_dates ?? []) as string[],
         }),
       );
 

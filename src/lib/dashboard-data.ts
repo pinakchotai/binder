@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getUserId } from "@/lib/supabase";
 import { db } from "@/lib/storage";
-import type { Habit, HabitLog } from "@/lib/supabase";
+import type { Habit, HabitLog, StreakFreezeRow } from "@/lib/supabase";
 import { isDomainId, type DomainId } from "@/lib/domains";
 
 export interface DomainScoreRow {
@@ -72,15 +72,23 @@ export function isCompleted(
 export interface StreakInfo {
   current: number;
   best: number;
+  /** True when the running streak includes a freeze-bridged day. */
+  protectedNow: boolean;
 }
 
 /**
  * A "tracked day" is any date with a total_scores row (i.e. at least one
  * habit was logged that day). Current streak stays alive if today OR
- * yesterday is tracked (same convention as activity trackers).
+ * yesterday is tracked (same convention as activity trackers). Protected
+ * freeze dates count as tracked so a rescued streak keeps counting.
  */
-export function computeStreaks(trackedDates: Set<string>): StreakInfo {
-  if (trackedDates.size === 0) return { current: 0, best: 0 };
+export function computeStreaks(
+  trackedDates: Set<string>,
+  protectedDates?: Set<string>,
+): StreakInfo {
+  if (trackedDates.size === 0 && (protectedDates?.size ?? 0) === 0) {
+    return { current: 0, best: 0, protectedNow: false };
+  }
   const sorted = [...trackedDates].sort();
   let best = 1;
   let run = 1;
@@ -90,19 +98,23 @@ export function computeStreaks(trackedDates: Set<string>): StreakInfo {
   }
   const today = getTodayDateString();
   const yesterday = getDaysAgoDateString(1);
+  const isTracked = (d: string) => trackedDates.has(d) || (protectedDates?.has(d) ?? false);
   let current = 0;
-  if (trackedDates.has(today) || trackedDates.has(yesterday)) {
+  let protectedNow = false;
+  if (isTracked(today) || isTracked(yesterday)) {
     current = 1;
+    protectedNow = !trackedDates.has(today) || !trackedDates.has(yesterday);
     let cursor = trackedDates.has(today) ? today : yesterday;
     for (;;) {
       const d = new Date(cursor + "T00:00:00");
       d.setDate(d.getDate() - 1);
       cursor = formatDate(d);
-      if (!trackedDates.has(cursor)) break;
+      if (!isTracked(cursor)) break;
+      if (!trackedDates.has(cursor)) protectedNow = true;
       current++;
     }
   }
-  return { current, best };
+  return { current, best, protectedNow };
 }
 
 export interface UserXpRow {
@@ -135,6 +147,7 @@ export interface DashboardDataBundle {
   trackedDates: Set<string>;
   userXp: UserXpRow | null;
   earnedBadges: UserBadgeRow[];
+  freezeRow: StreakFreezeRow | null;
 }
 
 function buildLogsByHabit(logs: HabitLog[]): Map<string, Map<string, HabitLog>> {
@@ -160,7 +173,7 @@ export function useDashboardData() {
       const userId = await getUserId();
       if (!userId) throw new Error("Not signed in");
       const today = getTodayDateString();
-      const [habitsRes, logsRes, dsRes, tsRes, xpRes, ubRes, badgeCatRes] = await Promise.all([
+      const [habitsRes, logsRes, dsRes, tsRes, xpRes, ubRes, badgeCatRes, freezeRes] = await Promise.all([
         db.from("habits").select("*").order("created_at", { ascending: true }),
         db.from("habit_logs").select("*").gte("log_date", today),
         db.from("domain_scores").select("*").eq("score_date", today),
@@ -168,6 +181,7 @@ export function useDashboardData() {
         db.from("user_xp").select("*").maybeSingle(),
         db.from("user_badges").select("id, user_id, badge_id, earned_at").order("earned_at", { ascending: false }),
         db.from("badges").select("id, key, name, description, icon"),
+        db.from("user_streak_freezes").select("*").maybeSingle(),
       ]);
       if (habitsRes.error) throw new Error(habitsRes.error.message);
       if (logsRes.error) throw new Error(logsRes.error.message);
@@ -190,7 +204,16 @@ export function useDashboardData() {
       for (const b of (badgeCatRes.data ?? []) as BadgeRow[]) badgeCatMap.set(b.id, b);
       const earnedBadges: UserBadgeRow[] = ((ubRes.data ?? []) as UserBadgeRow[]).map((ub) => ({ ...ub, badges: badgeCatMap.get(ub.badge_id)! })).filter((ub) => ub.badges);
 
-      return { habits, logsByHabit, todayScores, latestTotal, trackedDates, userXp: (xpRes.data as UserXpRow) ?? null, earnedBadges };
+      return {
+        habits,
+        logsByHabit,
+        todayScores,
+        latestTotal,
+        trackedDates,
+        userXp: (xpRes.data as UserXpRow) ?? null,
+        earnedBadges,
+        freezeRow: (freezeRes.data as StreakFreezeRow | null) ?? null,
+      };
     }, []);
 
   useEffect(() => {

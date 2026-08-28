@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { computeUserStreak } from "@binder/engine";
 import {
   ensureLocalProfile,
   getLocalProfileId,
@@ -286,5 +287,89 @@ describe("engine write-through", () => {
     expect(snap.total_scores).toHaveLength(1);
     expect(snap.domain_scores.filter((r) => r.domain === "physical")).toHaveLength(1);
     expect(snap.user_settings[0].user_name).toBe("Champion");
+  });
+});
+
+describe("streak freezes (Phase D)", () => {
+  const logDay = (p: string, habitId: string, date: string) =>
+    localFrom("habit_logs", p).upsert(
+      {
+        habit_id: habitId,
+        user_id: p,
+        log_date: date,
+        completed: true,
+        value: null,
+        checkpoints_done: null,
+      },
+      { onConflict: "habit_id,log_date" },
+    );
+
+  it("earns a freeze after a 7-day run and spends it on a missed day", async () => {
+    const p = ensureLocalProfile();
+    await localFrom("habits", p).insert(habit("h-f", { difficulty: "medium" }));
+
+    for (let day = 1; day <= 7; day++) {
+      await logDay(p, "h-f", `2026-08-0${day}`);
+    }
+
+    const earned = await localFrom("user_streak_freezes", p).select("*").maybeSingle();
+    expect(earned.data?.available_count).toBe(1);
+    expect(earned.data?.paid_milestones).toBe(1);
+    expect(earned.data?.protected_dates ?? []).toEqual([]);
+    expect(earned.data?.user_id).toBe(p);
+
+    // Skip 08-08, log again on 08-09 → freeze bridges the miss.
+    await logDay(p, "h-f", "2026-08-09");
+
+    const spent = await localFrom("user_streak_freezes", p).select("*").maybeSingle();
+    expect(spent.data?.available_count).toBe(0);
+    expect(spent.data?.paid_milestones).toBe(1);
+    expect(spent.data?.protected_dates).toEqual(["2026-08-08"]);
+
+    // The rescued streak counts 8 days (08-01 → 08-08; 08-09 is the asOfDate
+    // and per get_user_streak contract is not counted yet).
+    const snap = getLocalSnapshot(p);
+    const tsRow = snap.total_scores
+      .filter((r) => r.score > 0)
+      .map((r) => ({ scoreDate: r.score_date as string, score: Number(r.score) }));
+    const freezes = snap.user_streak_freezes as Record<string, unknown>;
+    const streak = computeUserStreak({
+      totalScores: tsRow,
+      asOfDate: "2026-08-09",
+      protectedFreezeDates: (freezes.protected_dates as string[]) ?? [],
+    });
+    expect(streak).toBe(8);
+  });
+
+  it("is idempotent: re-logging the same day does not re-spend freezes", async () => {
+    const p = ensureLocalProfile();
+    await localFrom("habits", p).insert(habit("h-g", { difficulty: "medium" }));
+
+    for (let day = 1; day <= 7; day++) {
+      await logDay(p, "h-g", `2026-08-1${day}`);
+    }
+    await logDay(p, "h-g", "2026-08-19");
+
+    const first = await localFrom("user_streak_freezes", p).select("*").maybeSingle();
+    await logDay(p, "h-g", "2026-08-19");
+    const second = await localFrom("user_streak_freezes", p).select("*").maybeSingle();
+
+    expect(second.data?.available_count).toBe(first.data?.available_count);
+    expect(second.data?.protected_dates).toEqual(first.data?.protected_dates);
+    expect(second.data?.paid_milestones).toBe(first.data?.paid_milestones);
+  });
+
+  it("caps the bank at 3 freezes", async () => {
+    const p = ensureLocalProfile();
+    await localFrom("habits", p).insert(habit("h-k", { difficulty: "medium" }));
+
+    for (let day = 1; day <= 28; day++) {
+      const date = `2026-08-${String(day).padStart(2, "0")}`;
+      await logDay(p, "h-k", date);
+    }
+
+    const row = await localFrom("user_streak_freezes", p).select("*").maybeSingle();
+    expect(row.data?.available_count).toBe(3);
+    expect(row.data?.paid_milestones).toBe(4);
   });
 });

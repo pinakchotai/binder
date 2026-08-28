@@ -10,6 +10,7 @@ import {
   IconUserBold,
   IconAltArrowLeftBold,
   IconDownloadBold,
+  IconShieldBold,
 } from "@ninzapp/solar-icons/bold";
 import { useSettings } from "@/lib/settings";
 import { isLocalMode } from "@/lib/storage";
@@ -223,6 +224,17 @@ export default function SettingsPanel({ onBack }: { onBack: () => void }) {
                 />
                 <span className="font-mono text-[10px] text-muted">ml</span>
               </div>
+            </SettingRow>
+
+            {/* Streak Freezes */}
+            <SettingRow
+              icon={IconShieldBold}
+              label="Streak Freezes"
+              description="Complete a 7-day streak to earn 1 freeze (up to 3 held). A freeze protects your streak from a missed day — missed days stay in your history, your streak simply never breaks."
+            >
+              <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-accent">
+                Auto-earned
+              </span>
             </SettingRow>
           </div>
 

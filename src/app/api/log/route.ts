@@ -2,7 +2,10 @@ import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import {
   DOMAINS,
+  applyStreakFreezes,
+  computeBestStreak,
   computeDomainScore,
+  computeFreezeGrant,
   computeLogPoints,
   computeTotalScore,
   computeUserStreak,
@@ -132,12 +135,53 @@ export async function POST(request: NextRequest): Promise<Response> {
     .from("total_scores")
     .select("score_date, score")
     .eq("user_id", user.id);
-  const priorStreak = computeUserStreak({
-    totalScores: (totalHistory ?? []).map((r) => ({
-      scoreDate: r.score_date,
-      score: Number(r.score),
-    })),
+  const history = (totalHistory ?? []).map((r) => ({
+    scoreDate: r.score_date,
+    score: Number(r.score),
+  }));
+
+  // Phase D: bridge the live streak boundary with held freezes first so the
+  // day's own scoring sees the rescued streak. Milestone grants happen after
+  // today's total exists (see below) so a 7-day run pays out the same write.
+  const { data: freezeRow } = await supabase
+    .from("user_streak_freezes")
+    .select("available_count, protected_dates, paid_milestones, last_earned_at")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const freezeAvailable = Number(freezeRow?.available_count ?? 0);
+  const freezePaidMilestones = Number(freezeRow?.paid_milestones ?? 0);
+  const existingProtected = ((freezeRow?.protected_dates as unknown[]) ?? []).map((d) =>
+    String(d).slice(0, 10),
+  );
+
+  const appliedFreezes = applyStreakFreezes({
+    totalScores: history,
     asOfDate: log_date,
+    availableCount: freezeAvailable,
+    protectedDates: existingProtected,
+  });
+  const remainingFreezes = Math.max(0, freezeAvailable - appliedFreezes.consumed);
+
+  const { error: freezeErr } = await supabase
+    .from("user_streak_freezes")
+    .upsert(
+      {
+        user_id: user.id,
+        available_count: remainingFreezes,
+        protected_dates: appliedFreezes.protectedDates,
+        paid_milestones: freezePaidMilestones,
+        last_earned_at: (freezeRow?.last_earned_at as string | null) ?? null,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" },
+    );
+  if (freezeErr) return json({ error: freezeErr.message }, 500);
+
+  const priorStreak = computeUserStreak({
+    totalScores: history,
+    asOfDate: log_date,
+    protectedFreezeDates: appliedFreezes.protectedDates,
   });
 
   const { data: settingsRows } = await supabase
@@ -202,6 +246,36 @@ export async function POST(request: NextRequest): Promise<Response> {
       { onConflict: "user_id,score_date" },
     );
   if (totalErr) return json({ error: totalErr.message }, 500);
+
+  // Phase D grant: completed 7-day run rewards a freeze this same write
+  // (today's total is now part of the run being counted).
+  const freezeGrant = computeFreezeGrant({
+    bestStreak: computeBestStreak([
+      ...history,
+      { scoreDate: log_date, score: totalScore },
+    ]),
+    paidMilestones: freezePaidMilestones,
+    availableCount: remainingFreezes,
+  });
+  if (freezeGrant.added > 0 || freezeGrant.paidMilestones > freezePaidMilestones) {
+    const { error: grantErr } = await supabase
+      .from("user_streak_freezes")
+      .upsert(
+        {
+          user_id: user.id,
+          available_count: remainingFreezes + freezeGrant.added,
+          protected_dates: appliedFreezes.protectedDates,
+          paid_milestones: freezeGrant.paidMilestones,
+          last_earned_at:
+            freezeGrant.added > 0
+              ? log_date
+              : ((freezeRow?.last_earned_at as string | null) ?? null),
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id" },
+      );
+    if (grantErr) return json({ error: grantErr.message }, 500);
+  }
 
   return json({ data: logRow });
 }

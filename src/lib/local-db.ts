@@ -3,7 +3,10 @@
 import {
   DEFAULT_DOMAIN_WEIGHTS,
   DOMAINS,
+  applyStreakFreezes,
+  computeBestStreak,
   computeDomainScore,
+  computeFreezeGrant,
   computeLogPoints,
   computeTotalScore,
   computeUserStreak,
@@ -36,6 +39,7 @@ interface LocalDoc {
   user_settings: Record<string, unknown>[];
   user_domain_settings: Record<string, unknown>[];
   user_xp: Record<string, unknown> | null;
+  user_streak_freezes: Record<string, unknown> | null;
   user_badges: Record<string, unknown>[];
   badges: Record<string, unknown>[];
 }
@@ -52,6 +56,7 @@ function emptyDoc(profile: LocalProfileInfo): LocalDoc {
     user_settings: [],
     user_domain_settings: [],
     user_xp: null,
+    user_streak_freezes: null,
     user_badges: [],
     badges: [],
   };
@@ -171,13 +176,76 @@ function weightSettingsFromDoc(doc: LocalDoc): UserDomainSetting[] {
   }));
 }
 
+function applyDailyFreezes(doc: LocalDoc, userId: string, dateStr: string): void {
+  const history = doc.total_scores.map((row) => ({
+    scoreDate: row.score_date as string,
+    score: Number(row.score),
+  }));
+
+  const prev = (doc.user_streak_freezes as Record<string, unknown> | null) ?? {
+    user_id: userId,
+    available_count: 0,
+    protected_dates: [],
+    paid_milestones: 0,
+    last_earned_at: null,
+    updated_at: new Date().toISOString(),
+  };
+  const availableCount = Number(prev.available_count ?? 0);
+  const protectedDates = ((prev.protected_dates as unknown[]) ?? []).map((d) =>
+    String(d).slice(0, 10),
+  );
+
+  const applied = applyStreakFreezes({
+    totalScores: history,
+    asOfDate: dateStr,
+    availableCount,
+    protectedDates,
+  });
+
+  doc.user_streak_freezes = {
+    ...prev,
+    available_count: Math.max(0, availableCount - applied.consumed),
+    protected_dates: applied.protectedDates,
+    updated_at: new Date().toISOString(),
+  };
+}
+
+/** Earn freezes for completed 7-day runs (runs total_scores includes today). */
+function grantFreezeMilestones(doc: LocalDoc, userId: string, dateStr: string): void {
+  const prev = doc.user_streak_freezes as Record<string, unknown> | null;
+  if (!prev) return;
+  const grant = computeFreezeGrant({
+    bestStreak: computeBestStreak(
+      doc.total_scores.map((row) => ({
+        scoreDate: row.score_date as string,
+        score: Number(row.score),
+      })),
+    ),
+    paidMilestones: Number(prev.paid_milestones ?? 0),
+    availableCount: Number(prev.available_count ?? 0),
+  });
+  if (grant.added <= 0 && grant.paidMilestones <= Number(prev.paid_milestones ?? 0)) return;
+  doc.user_streak_freezes = {
+    ...prev,
+    available_count: Number(prev.available_count ?? 0) + grant.added,
+    paid_milestones: grant.paidMilestones,
+    last_earned_at:
+      grant.added > 0 ? dateStr : ((prev.last_earned_at as string | null) ?? null),
+    updated_at: new Date().toISOString(),
+  };
+}
+
 function recomputeDay(doc: LocalDoc, dateStr: string, userId: string): void {
+  const freezes = doc.user_streak_freezes as Record<string, unknown> | null;
   const priorStreak = computeUserStreak({
     totalScores: doc.total_scores.map((row) => ({
       scoreDate: row.score_date as string,
       score: Number(row.score),
     })),
     asOfDate: dateStr,
+    protectedFreezeDates: ((freezes?.protected_dates as unknown[]) ?? []).map((d) =>
+      String(d).slice(0, 10),
+    ),
   });
 
   let weights: Record<Domain, number>;
@@ -267,7 +335,9 @@ function recomputeXp(doc: LocalDoc, userId: string): void {
 }
 
 function recomputeAfterLogWrite(doc: LocalDoc, userId: string, dateStr: string): void {
+  applyDailyFreezes(doc, userId, dateStr);
   recomputeDay(doc, dateStr, userId);
+  grantFreezeMilestones(doc, userId, dateStr);
   recomputeXp(doc, userId);
 }
 
@@ -281,6 +351,7 @@ type TableKey =
   | "domain_scores"
   | "total_scores"
   | "user_xp"
+  | "user_streak_freezes"
   | "user_badges"
   | "badges"
   | "user_settings"
@@ -428,6 +499,9 @@ export class LocalQuery {
 
     const tableBase = (): Record<string, unknown>[] => {
       if (this.table === "user_xp") return doc.user_xp ? [doc.user_xp] : [];
+      if (this.table === "user_streak_freezes") {
+        return doc.user_streak_freezes ? [doc.user_streak_freezes] : [];
+      }
       return (doc[this.table] as Record<string, unknown>[]) ?? [];
     };
 
@@ -488,8 +562,14 @@ export class LocalQuery {
         };
         if ("created_at" in row === false || row.created_at == null) row.created_at = nowIso;
         row.updated_at = nowIso;
+        if (this.table === "user_streak_freezes") {
+          delete row.id;
+          delete row.created_at;
+        }
         if (this.table === "user_xp") {
           doc.user_xp = row;
+        } else if (this.table === "user_streak_freezes") {
+          doc.user_streak_freezes = row;
         } else {
           const list = doc[this.table] as Record<string, unknown>[];
           list.push(row);
@@ -540,8 +620,14 @@ export class LocalQuery {
           });
           merged.points_earned = points;
         }
+        if (this.table === "user_streak_freezes") {
+          delete merged.id;
+          delete merged.created_at;
+        }
         if (this.table === "user_xp") {
           doc.user_xp = merged;
+        } else if (this.table === "user_streak_freezes") {
+          doc.user_streak_freezes = merged;
         } else {
           const list = doc[this.table] as Record<string, unknown>[];
           const duplicate = list.findIndex(
@@ -565,7 +651,12 @@ export class LocalQuery {
         const row = base[i];
         if (matchesAll(row)) {
           const merged: Record<string, unknown> = { ...row, ...updateData, updated_at: nowIso };
+          if (this.table === "user_streak_freezes") {
+            delete merged.id;
+            delete merged.created_at;
+          }
           if (this.table === "user_xp") doc.user_xp = merged;
+          else if (this.table === "user_streak_freezes") doc.user_streak_freezes = merged;
           else (doc[this.table] as Record<string, unknown>[])[i] = merged;
           returnRows.push(merged);
         }
@@ -573,10 +664,11 @@ export class LocalQuery {
     } else if (this.op === "delete") {
       const list = doc[this.table] as Record<string, unknown>[];
       const kept = list.filter((row, i) => {
-        if (this.table === "user_xp" && i === 0) return false;
+        if ((this.table === "user_xp" || this.table === "user_streak_freezes") && i === 0) return false;
         return !matchesAll(row);
       });
       if (this.table === "user_xp") doc.user_xp = null;
+      else if (this.table === "user_streak_freezes") doc.user_streak_freezes = null;
       else (doc[this.table] as Record<string, unknown>[]) = kept;
       if (this.table === "habits") {
         const deletedIds = new Set(
@@ -630,6 +722,7 @@ export interface LocalSnapshot {
   total_scores: Record<string, unknown>[];
   user_settings: Record<string, unknown>[];
   user_domain_settings: Record<string, unknown>[];
+  user_streak_freezes: Record<string, unknown> | null;
 }
 
 export function getLocalSnapshot(profileId?: string): LocalSnapshot | null {
@@ -644,5 +737,6 @@ export function getLocalSnapshot(profileId?: string): LocalSnapshot | null {
     total_scores: doc.total_scores,
     user_settings: doc.user_settings,
     user_domain_settings: doc.user_domain_settings,
+    user_streak_freezes: doc.user_streak_freezes,
   };
 }
