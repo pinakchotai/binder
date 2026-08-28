@@ -30,7 +30,7 @@ export default function DomainScoreCard({
   const pct = score == null ? 0 : Math.max(0, Math.min(100, score));
   return (
     <Link
-      href={`/domain/${domain}`}
+      href={`/domain?id=${encodeURIComponent(domain)}`}
       className="group block border border-card-border bg-card-bg p-4 transition-colors hover:border-accent"
     >
       <div className="mb-3 flex items-start justify-between gap-2">

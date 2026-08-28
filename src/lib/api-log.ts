@@ -12,6 +12,13 @@ export interface WriteHabitLogPayload {
 }
 
 /**
+ * Base URL for the cloud /api/log endpoint. Empty = same origin (web). The
+ * bundled Android export inlines https://binder-inky.vercel.app so signed-in
+ * writes on-device reach the deployed scoring route.
+ */
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "";
+
+/**
  * Write a habit log and get the authoritative row back.
  * Cloud: POST /api/log (server-side engine compute).
  * Local (native/offline): on-device engine write-through.
@@ -44,7 +51,7 @@ export async function writeHabitLog(
   if (!session) return { data: null, error: { message: "Not signed in" } };
 
   try {
-    const res = await fetch("/api/log", {
+    const res = await fetch(`${API_BASE}/api/log`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

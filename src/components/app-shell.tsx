@@ -37,7 +37,7 @@ export default function AppShell({ children, header }: AppShellProps) {
             className="absolute inset-0 bg-black/60 fade-in"
             onClick={close}
           />
-          <div className="relative h-full w-64">
+          <div className="relative h-full w-64 pt-safe">
             <Sidebar onClose={close} />
           </div>
         </div>
@@ -45,7 +45,7 @@ export default function AppShell({ children, header }: AppShellProps) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile top bar */}
-        <div className="sticky top-0 z-40 flex items-center border-b border-card-border bg-sidebar-bg px-4 py-3 md:hidden">
+        <div className="sticky top-0 z-40 flex items-center border-b border-card-border bg-sidebar-bg px-4 py-3 pt-safe md:hidden">
           <Button
             type="button"
             onClick={() => setMobileOpen(true)}
@@ -69,7 +69,7 @@ export default function AppShell({ children, header }: AppShellProps) {
           </div>
         )}
 
-        <main className="min-w-0 flex-1 overflow-y-auto">{children}</main>
+        <main className="min-w-0 flex-1 overflow-y-auto pb-safe">{children}</main>
       </div>
     </div>
   );

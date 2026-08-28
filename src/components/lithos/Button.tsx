@@ -43,6 +43,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   }: ButtonProps) => {
     const classes = [
       'lithos-click',
+      'font-mono',
       'rounded-(--lithos-radius)',
       variantClass[variant],
       fullWidth && 'w-full',

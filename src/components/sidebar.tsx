@@ -35,6 +35,10 @@ export default function Sidebar({ onClose }: { onClose?: () => void } = {}) {
   const displayName = settings.userName;
   const initial = displayName.charAt(0).toUpperCase();
   const [collapsed, setCollapsed] = useState(false);
+  const activeDomainId =
+    typeof window === "undefined"
+      ? null
+      : new URLSearchParams(window.location.search).get("id");
 
   const rail = collapsed;
   const sidebarWidth = rail ? "w-16" : "w-64";
@@ -164,11 +168,11 @@ export default function Sidebar({ onClose }: { onClose?: () => void } = {}) {
         {rail && <div className="my-2 border-t border-sidebar-border mx-4" />}
         {DOMAIN_IDS.map((id) => {
           const Icon = DOMAIN_ICONS[id];
-          const isActive = pathname === `/domain/${id}`;
+          const isActive = pathname === "/domain" && activeDomainId === id;
           return (
             <Link
               key={id}
-              href={`/domain/${id}`}
+              href={`/domain?id=${encodeURIComponent(id)}`}
               onClick={onClose}
               title={rail ? DOMAIN_META[id].label : undefined}
               className={`group relative flex items-center transition-colors duration-100 ${

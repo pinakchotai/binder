@@ -10,12 +10,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "build:android": "node scripts/build-android.mjs",
     "test:engine": "npm run test --workspace @binder/engine",
     "typecheck:engine": "npm run typecheck --workspace @binder/engine"
   },
   "dependencies": {
     "@binder/engine": "*",
     "@capacitor/android": "^8.5.0",
+    "@capacitor/app": "^8.1.1",
     "@capacitor/cli": "^8.5.0",
     "@capacitor/core": "^8.5.0",
     "@ninzapp/solar-icons": "^1.0.5",
