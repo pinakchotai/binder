@@ -4,7 +4,10 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { useRouter } from "next/navigation";
 import { IconCheckSquareBold, IconAltArrowRightBold, IconCpuBold, IconRefreshBold, IconAddCircleBold } from "@ninzapp/solar-icons/bold";
 import { supabase, getUserId, type Habit } from "@/lib/supabase";
-import { useAuth } from "@/lib/auth";
+import { db } from "@/lib/storage";
+import { useAuth, notifyLocalAuthChanged } from "@/lib/auth";
+import { setLocalOnboarded } from "@/lib/local-db";
+import { useSettings } from "@/lib/settings";
 import { DOMAIN_IDS, DOMAIN_META, type DomainId } from "@/lib/domains";
 import { HABIT_TEMPLATES, type HabitTemplate } from "@/lib/habit-templates";
 import CustomHabitModal, {
@@ -21,11 +24,22 @@ interface TemplateInsertRow extends HabitTemplate {
   is_template: boolean;
 }
 
+type BasicsState = "pending" | "done" | "skipped";
+
+const HOURS = Array.from({ length: 24 }, (_, i) => i);
+const MINUTES = [0, 15, 30, 45];
+
 export default function OnboardingWizard() {
   const router = useRouter();
   const { user, loading } = useAuth();
+  const { settings, updateSetting, saveAll } = useSettings();
 
-  const [step, setStep] = useState(-1); // -1 welcome · 0–3 domains · 4 summary
+  // Offline (native, no account): the profile is synthetic and starts
+  // without sign-in. Offline users get a short "basics" step first.
+  const offline = user?.user_metadata?.is_local_profile === true;
+
+  const [step, setStep] = useState(-1); // -1 welcome · basics(offline) · 4 domains · summary
+  const [basics, setBasics] = useState<BasicsState>("pending");
   const [selected, setSelected] = useState<Selections>(() => {
     const init = {} as Selections;
     for (const d of DOMAIN_IDS)
@@ -45,8 +59,13 @@ export default function OnboardingWizard() {
 
   const [finishing, setFinishing] = useState(false);
   const [finishError, setFinishError] = useState<string | null>(null);
+  const [savingBasics, setSavingBasics] = useState(false);
 
-  /* Guards: kick logged-out users home; skip if already onboarded. */
+  // Step offsets: offline flows insert the basics step before the domains.
+  const top = offline ? 1 : 0;
+  const summaryStep = top + 4;
+
+  /* Guards: kick logged-out/no-profile users home; skip if already onboarded. */
   useEffect(() => {
     if (loading) return;
     if (!user) {
@@ -62,6 +81,20 @@ export default function OnboardingWizard() {
     const id = setTimeout(() => setToast(null), 2500);
     return () => clearTimeout(id);
   }, [toast]);
+
+  const setBasicsDone = useCallback(
+    async (skip: boolean) => {
+      setSavingBasics(true);
+      try {
+        if (!skip) await saveAll();
+        setBasics(skip ? "skipped" : "done");
+        setStep(top + 1);
+      } finally {
+        setSavingBasics(false);
+      }
+    },
+    [saveAll, top],
+  );
 
   const totalHabits = useMemo(
     () =>
@@ -91,7 +124,7 @@ export default function OnboardingWizard() {
       }
       setCreating(true);
       setCreateError(null);
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("habits")
         .insert({
           user_id: uid,
@@ -122,12 +155,11 @@ export default function OnboardingWizard() {
     setFinishError(null);
     try {
       const uid = await getUserId();
-      if (!uid) throw new Error("Not signed in");
+      if (!uid) throw new Error(offline ? "Local profile missing" : "Not signed in");
 
-      // Settings-based defaults for the volume templates (Sprint 6):
-      // Hydration/Meditation inherit the user's water/meditation targets
-      // from user_settings; every other template keeps its hardcoded default.
-      const { data: srow } = await supabase
+      // Volume templates inherit the user's water/meditation targets from
+      // user_settings (set during the basics step when offline).
+      const { data: srow } = await db
         .from("user_settings")
         .select("water_target_ml, meditation_target_min")
         .eq("user_id", uid)
@@ -155,14 +187,20 @@ export default function OnboardingWizard() {
         }
       }
       if (rows.length > 0) {
-        const { error } = await supabase.from("habits").insert(rows);
+        const { error } = await db.from("habits").insert(rows);
         if (error) throw new Error(error.message);
       }
 
-      const { error: updateError } = await supabase.auth.updateUser({
-        data: { onboarding_completed: true },
-      });
-      if (updateError) throw new Error(updateError.message);
+      if (offline) {
+        // Local-only finish: mark the on-device profile completed.
+        setLocalOnboarded(uid, true);
+        notifyLocalAuthChanged();
+      } else {
+        const { error: updateError } = await supabase.auth.updateUser({
+          data: { onboarding_completed: true },
+        });
+        if (updateError) throw new Error(updateError.message);
+      }
 
       router.replace("/");
     } catch (err) {
@@ -172,7 +210,7 @@ export default function OnboardingWizard() {
     } finally {
       setFinishing(false);
     }
-  }, [customs, selected, router]);
+  }, [customs, selected, offline, router]);
 
   if (loading || !user) {
     return (
@@ -199,10 +237,15 @@ export default function OnboardingWizard() {
             <p className="mt-3 font-mono text-sm text-muted">
               Track habits across 4 life domains and level up
             </p>
+            {offline && (
+              <p className="mt-4 border border-accent/30 bg-accent/[0.06] px-4 py-2 font-mono text-[10px] uppercase tracking-wider text-accent">
+                Offline mode — everything stays on this phone
+              </p>
+            )}
           </div>
           <Button
             type="button"
-            onClick={() => setStep(0)}
+            onClick={() => setStep(top)}
             className="mt-2 px-8 py-3 font-mono text-xs font-bold uppercase tracking-[0.2em] btn-primary"
           >
             Get Started
@@ -212,8 +255,150 @@ export default function OnboardingWizard() {
     );
   }
 
+  /* ---------------- Basics (offline only) ---------------- */
+  if (offline && basics === "pending" && step === top) {
+    return (
+      <Shell>
+        <Card className="px-8 py-10">
+          <h1 className="font-mono text-xl font-bold tracking-tight text-foreground">
+            Quick setup
+          </h1>
+          <p className="mt-1 font-mono text-[11px] text-muted">
+            A few details make your habits smarter. You can skip and change
+            these later.
+          </p>
+
+          <div className="mt-6 space-y-5">
+            <label className="block">
+              <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-muted">
+                Your name
+              </span>
+              <input
+                type="text"
+                value={settings.userName}
+                onChange={(e) => updateSetting("userName", e.target.value)}
+                className="mt-1 w-full border border-input-border bg-input-bg px-3 py-2 font-mono text-sm text-foreground focus:border-input-focus focus:outline-none"
+                placeholder="Champion"
+              />
+            </label>
+
+            <label className="block">
+              <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-muted">
+                Water target · ml / day
+              </span>
+              <input
+                type="number"
+                value={settings.waterTargetMl}
+                onChange={(e) =>
+                  updateSetting("waterTargetMl", Number(e.target.value) || 0)
+                }
+                className="mt-1 w-full border border-input-border bg-input-bg px-3 py-2 font-mono text-sm text-foreground focus:border-input-focus focus:outline-none"
+              />
+            </label>
+
+            <label className="block">
+              <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-muted">
+                Meditation target · minutes / day
+              </span>
+              <input
+                type="number"
+                value={settings.meditationTargetMin}
+                onChange={(e) =>
+                  updateSetting("meditationTargetMin", Number(e.target.value) || 0)
+                }
+                className="mt-1 w-full border border-input-border bg-input-bg px-3 py-2 font-mono text-sm text-foreground focus:border-input-focus focus:outline-none"
+              />
+            </label>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-muted">
+                  Wake up
+                </span>
+                <div className="mt-1 flex gap-2">
+                  <select
+                    value={settings.wakeUpHour}
+                    onChange={(e) => updateSetting("wakeUpHour", Number(e.target.value))}
+                    className="flex-1 border border-input-border bg-input-bg px-2 py-2 font-mono text-sm text-foreground focus:border-input-focus focus:outline-none"
+                  >
+                    {HOURS.map((h) => (
+                      <option key={h} value={h}>
+                        {String(h).padStart(2, "0")}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={settings.wakeUpMinute}
+                    onChange={(e) => updateSetting("wakeUpMinute", Number(e.target.value))}
+                    className="flex-1 border border-input-border bg-input-bg px-2 py-2 font-mono text-sm text-foreground focus:border-input-focus focus:outline-none"
+                  >
+                    {MINUTES.map((m) => (
+                      <option key={m} value={m}>
+                        {String(m).padStart(2, "0")}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-muted">
+                  Sleep
+                </span>
+                <div className="mt-1 flex gap-2">
+                  <select
+                    value={settings.sleepHour}
+                    onChange={(e) => updateSetting("sleepHour", Number(e.target.value))}
+                    className="flex-1 border border-input-border bg-input-bg px-2 py-2 font-mono text-sm text-foreground focus:border-input-focus focus:outline-none"
+                  >
+                    {HOURS.map((h) => (
+                      <option key={h} value={h}>
+                        {String(h).padStart(2, "0")}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={settings.sleepMinute}
+                    onChange={(e) => updateSetting("sleepMinute", Number(e.target.value))}
+                    className="flex-1 border border-input-border bg-input-bg px-2 py-2 font-mono text-sm text-foreground focus:border-input-focus focus:outline-none"
+                  >
+                    {MINUTES.map((m) => (
+                      <option key={m} value={m}>
+                        {String(m).padStart(2, "0")}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 flex items-center gap-3">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => void setBasicsDone(true)}
+              disabled={savingBasics}
+            >
+              Skip
+            </Button>
+            <Button
+              type="button"
+              onClick={() => void setBasicsDone(false)}
+              disabled={savingBasics}
+              className="ml-auto inline-flex items-center gap-2 px-6 py-3 font-mono text-xs font-bold uppercase tracking-[0.2em] btn-primary disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {savingBasics && <IconRefreshBold className="h-3.5 w-3.5 animate-spin" />}
+              Save &amp; continue
+              <IconAltArrowRightBold className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </Card>
+      </Shell>
+    );
+  }
+
   /* ---------------- Summary ---------------- */
-  if (step === 4) {
+  if (step === summaryStep) {
     return (
       <Shell>
         {toast && <Toast msg={toast} />}
@@ -262,8 +447,16 @@ export default function OnboardingWizard() {
     );
   }
 
-  /* ---------------- Domain screens (0–3) ---------------- */
-  const d = DOMAIN_IDS[step];
+  /* ---------------- Domain screens ---------------- */
+  const domainIndex = step - top;
+  if (domainIndex < 0 || domainIndex >= DOMAIN_IDS.length) {
+    return (
+      <Shell>
+        <div />
+      </Shell>
+    );
+  }
+  const d = DOMAIN_IDS[domainIndex];
   const meta = DOMAIN_META[d];
   const templates = HABIT_TEMPLATES[d];
   const domainCustoms = customs[d];
@@ -287,13 +480,13 @@ export default function OnboardingWizard() {
         {/* Progress header */}
         <div className="flex items-center justify-between border-b border-card-border px-6 py-4">
           <span className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-muted">
-            Domain {step + 1} of 4
+            Domain {domainIndex + 1} of 4
           </span>
           <div className="flex gap-1.5">
             {DOMAIN_IDS.map((_, i) => (
               <span
                 key={i}
-                className={`h-1.5 w-6 ${i <= step ? "bg-accent" : "bg-input-border"}`}
+                className={`h-1.5 w-6 ${i <= domainIndex ? "bg-accent" : "bg-input-border"}`}
               />
             ))}
           </div>
@@ -389,7 +582,7 @@ export default function OnboardingWizard() {
                 onClick={() => setStep(step + 1)}
                 className="ml-auto inline-flex items-center gap-2 px-6 py-3 font-mono text-xs font-bold uppercase tracking-[0.2em] btn-primary"
               >
-              {step === 3 ? "Review" : "Next"}
+              {step === summaryStep - 1 ? "Review" : "Next"}
               <IconAltArrowRightBold className="h-3.5 w-3.5" />
             </Button>
           </div>

@@ -8,7 +8,45 @@ import {
   type ReactNode,
 } from "react";
 import { supabase } from "@/lib/supabase";
-import type { User } from "@supabase/supabase-js";
+import { isNativePlatform } from "@/lib/platform";
+import {
+  getLocalProfileId,
+  isLocalOnboarded,
+} from "@/lib/local-db";
+import { setSessionPresent, hasCloudSession } from "@/lib/storage";
+import type { User, Session } from "@supabase/supabase-js";
+
+export const LOCAL_AUTH_CHANGED = "thebinder:local-auth-changed";
+
+/** Tell AuthProvider to re-read local profile state (onboarding finished, etc.). */
+export function notifyLocalAuthChanged(): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(LOCAL_AUTH_CHANGED));
+}
+
+/**
+ * Native offline mode has no Supabase session, but the app needs an identity.
+ * Synthesize a pseudo user only once a local profile has been created
+ * ("continue offline"), so the sign-in landing stays reachable before that.
+ */
+function localUser(): User | null {
+  const profileId = getLocalProfileId();
+  if (!profileId) return null;
+  return {
+    id: profileId,
+    aud: "authenticated",
+    role: "authenticated",
+    email: null,
+    app_metadata: {},
+    user_metadata: {
+      onboarding_completed: isLocalOnboarded(profileId),
+      is_local_profile: true,
+    },
+    identities: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  } as unknown as User;
+}
 
 interface AuthContextValue {
   user: User | null;
@@ -37,18 +75,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const applySession = (session: Session | null) => {
+      setSessionPresent(Boolean(session));
+      if (session?.user) {
+        setUser(session.user);
+      } else if (isNativePlatform()) {
+        setUser(localUser());
+      } else {
+        setUser(null);
+      }
+    };
+
     supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null);
+      applySession(data.session);
       setLoading(false);
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      applySession(session);
     });
 
-    return () => subscription.unsubscribe();
+    const onLocalChanged = () => {
+      if (!hasCloudSession()) setUser(localUser());
+    };
+    window.addEventListener(LOCAL_AUTH_CHANGED, onLocalChanged);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener(LOCAL_AUTH_CHANGED, onLocalChanged);
+    };
   }, []);
 
   const signIn = async (
@@ -76,7 +133,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
     if (error) return error.message;
-    // If email confirmation is required, session may be null until confirmed.
     return null;
   };
 
@@ -92,7 +148,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    setUser(null);
+    setSessionPresent(false);
+    if (isNativePlatform()) setUser(localUser());
+    else setUser(null);
   };
 
   return (

@@ -2,13 +2,19 @@
   "name": "the-binder",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:engine": "npm run test --workspace @binder/engine",
+    "typecheck:engine": "npm run typecheck --workspace @binder/engine"
   },
   "dependencies": {
+    "@binder/engine": "*",
     "@capacitor/android": "^8.5.0",
     "@capacitor/cli": "^8.5.0",
     "@capacitor/core": "^8.5.0",

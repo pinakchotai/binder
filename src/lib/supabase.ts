@@ -1,4 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
+import { isNativePlatform } from "@/lib/platform";
+import { ensureLocalProfile } from "@/lib/local-db";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -14,9 +16,15 @@ export const supabase = createClient(
   supabaseAnonKey ?? "",
 );
 
+/**
+ * Active identity: the Supabase user when signed in, otherwise the on-device
+ * local profile id (native/offline mode). Always non-null inside the app.
+ */
 export async function getUserId(): Promise<string | null> {
   const { data } = await supabase.auth.getSession();
-  return data.session?.user.id ?? null;
+  if (data.session?.user.id) return data.session.user.id;
+  if (isNativePlatform()) return ensureLocalProfile();
+  return null;
 }
 
 export interface Habit {

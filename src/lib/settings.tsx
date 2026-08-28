@@ -8,7 +8,7 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-import { supabase } from "@/lib/supabase";
+import { db } from "@/lib/storage";
 import { useAuth } from "@/lib/auth";
 
 export interface BinderSettings {
@@ -116,7 +116,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       // Seed with the local cache, then overlay the remote per-user row.
       const local = loadLocal(userId!);
       try {
-        const { data } = await supabase
+        const { data } = await db
           .from("user_settings")
           .select(SYNCED_COLUMNS.join(", "))
           .eq("user_id", userId!)
@@ -144,7 +144,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     async (next: BinderSettings) => {
       if (!userId) return;
       try {
-        await supabase.from("user_settings").upsert(
+        await db.from("user_settings").upsert(
           { user_id: userId, ...toRow(next), updated_at: new Date().toISOString() },
           { onConflict: "user_id" },
         );

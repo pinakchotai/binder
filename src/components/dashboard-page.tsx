@@ -6,9 +6,10 @@ import { IconBoltBold, IconRefreshBold, IconStarBold } from "@ninzapp/solar-icon
 import AuthScreen from "@/components/auth-screen";
 import DomainScoreCard, { DOMAIN_HEX } from "@/components/domain-score-card";
 import QuickLogRow from "@/components/quick-log-row";
-import { supabase, getUserId } from "@/lib/supabase";
+import { writeHabitLog } from "@/lib/api-log";
 import type { Habit, HabitLog } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
+import { hasPendingLocalImport, importLocalToCloud } from "@/lib/storage";
 import {
   computeStreaks,
   getTodayDateString,
@@ -45,6 +46,9 @@ export default function DashboardPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [rowErrors, setRowErrors] = useState<Record<string, string>>({});
   const [levelUpToast, setLevelUpToast] = useState<number | null>(null);
+  const [importState, setImportState] = useState<
+    "idle" | "prompt" | "busy" | "done" | "error"
+  >("idle");
   const prevLevelRef = useRef<number | null>(null);
   const lastPatchRef = useRef<Record<string, LogPatch>>({});
 
@@ -64,6 +68,31 @@ export default function DashboardPage() {
   }, [levelUpToast]);
 
   const today = getTodayDateString();
+
+  const isCloudUser = user?.user_metadata?.is_local_profile !== true;
+  useEffect(() => {
+    if (isCloudUser && hasPendingLocalImport() && importState === "idle") {
+      setImportState("prompt");
+    }
+  }, [isCloudUser, importState]);
+
+  useEffect(() => {
+    if (importState !== "done") return;
+    const id = setTimeout(() => setImportState("idle"), 3500);
+    return () => clearTimeout(id);
+  }, [importState]);
+
+  const runImport = async () => {
+    if (importState !== "prompt" && importState !== "error") return;
+    setImportState("busy");
+    const err = await importLocalToCloud();
+    if (err) setImportState("error");
+    else {
+      setImportState("done");
+      await reload();
+    }
+  };
+
   const streaks = useMemo(
     () => computeStreaks(bundle?.trackedDates ?? new Set<string>()),
     [bundle],
@@ -105,23 +134,13 @@ export default function DashboardPage() {
     patchLogLocal(habit.id, optimistic);
     setBusyId(habit.id);
     try {
-      const userId = await getUserId();
-      if (!userId) throw new Error("Not signed in");
-      const { data, error: upsertError } = await supabase
-        .from("habit_logs")
-        .upsert(
-          {
-            habit_id: habit.id,
-            user_id: userId,
-            log_date: today,
-            value: optimistic.value,
-            completed: optimistic.completed,
-            checkpoints_done: optimistic.checkpoints_done,
-          },
-          { onConflict: "habit_id,log_date" },
-        )
-        .select("*")
-        .single();
+      const { data, error: upsertError } = await writeHabitLog({
+        habit_id: habit.id,
+        log_date: today,
+        value: optimistic.value,
+        completed: optimistic.completed,
+        checkpoints_done: optimistic.checkpoints_done,
+      });
       if (upsertError) throw new Error(upsertError.message);
       patchLogLocal(habit.id, data as HabitLog);
       await reload();
@@ -164,6 +183,54 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-10" id="main-content">
+      {importState === "prompt" && (
+        <div className="mb-6 flex items-center justify-between gap-3 border border-accent/40 bg-accent/[0.06] px-4 py-3">
+          <p className="min-w-0 font-mono text-[11px] text-accent">
+            This device has offline data — import it into this account?
+          </p>
+          <div className="flex shrink-0 items-center gap-2">
+            <Button
+              variant="text"
+              onClick={() => setImportState("idle")}
+              className="shrink-0 font-mono text-[10px] font-bold uppercase text-muted hover:text-foreground"
+            >
+              Dismiss
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => void runImport()}
+              className="shrink-0 border border-button-bg bg-button-bg px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wider text-button-text btn-primary"
+            >
+              Import
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {importState === "busy" && (
+        <div className="mb-6 flex items-center gap-3 border border-accent/40 bg-accent/[0.06] px-4 py-3">
+          <IconRefreshBold className="h-3.5 w-3.5 animate-spin text-accent" />
+          <p className="font-mono text-[11px] text-accent">
+            Importing offline data…
+          </p>
+        </div>
+      )}
+
+      {importState === "error" && (
+        <div className="mb-6 flex items-center justify-between gap-3 border border-red-500/40 bg-red-500/[0.07] px-4 py-3">
+          <p className="min-w-0 truncate font-mono text-[11px] text-red-300">
+            Import failed — check your connection and try again.
+          </p>
+          <Button
+            variant="text"
+            onClick={() => void runImport()}
+            className="shrink-0 font-mono text-[10px] font-bold uppercase text-accent hover:underline"
+          >
+            Retry
+          </Button>
+        </div>
+      )}
+
       {error && (
         <div className="mb-6 flex items-center justify-between gap-3 border border-red-500/40 bg-red-500/[0.07] px-4 py-3">
           <p className="min-w-0 truncate font-mono text-[11px] text-red-300">

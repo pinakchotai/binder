@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { supabase, getUserId } from "@/lib/supabase";
+import { getUserId } from "@/lib/supabase";
+import { db } from "@/lib/storage";
 import type { Habit, HabitLog } from "@/lib/supabase";
 import { isDomainId, type DomainId } from "@/lib/domains";
 
@@ -160,13 +161,13 @@ export function useDashboardData() {
       if (!userId) throw new Error("Not signed in");
       const today = getTodayDateString();
       const [habitsRes, logsRes, dsRes, tsRes, xpRes, ubRes, badgeCatRes] = await Promise.all([
-        supabase.from("habits").select("*").order("created_at", { ascending: true }),
-        supabase.from("habit_logs").select("*").gte("log_date", today),
-        supabase.from("domain_scores").select("*").eq("score_date", today),
-        supabase.from("total_scores").select("*").order("score_date", { ascending: true }),
-        supabase.from("user_xp").select("*").maybeSingle(),
-        supabase.from("user_badges").select("id, user_id, badge_id, earned_at").order("earned_at", { ascending: false }),
-        supabase.from("badges").select("id, key, name, description, icon"),
+        db.from("habits").select("*").order("created_at", { ascending: true }),
+        db.from("habit_logs").select("*").gte("log_date", today),
+        db.from("domain_scores").select("*").eq("score_date", today),
+        db.from("total_scores").select("*").order("score_date", { ascending: true }),
+        db.from("user_xp").select("*").maybeSingle(),
+        db.from("user_badges").select("id, user_id, badge_id, earned_at").order("earned_at", { ascending: false }),
+        db.from("badges").select("id, key, name, description, icon"),
       ]);
       if (habitsRes.error) throw new Error(habitsRes.error.message);
       if (logsRes.error) throw new Error(logsRes.error.message);
@@ -267,10 +268,10 @@ export function useHistoryData() {
         setError(null);
         const cutoff = getDaysAgoDateString(89);
         const [habitsRes, logsRes, dsRes, tsRes] = await Promise.all([
-          supabase.from("habits").select("*").order("created_at", { ascending: true }),
-          supabase.from("habit_logs").select("*").gte("log_date", cutoff).order("log_date", { ascending: true }),
-          supabase.from("domain_scores").select("*").gte("score_date", cutoff).order("score_date", { ascending: true }),
-          supabase.from("total_scores").select("*").gte("score_date", cutoff).order("score_date", { ascending: true }),
+          db.from("habits").select("*").order("created_at", { ascending: true }),
+          db.from("habit_logs").select("*").gte("log_date", cutoff).order("log_date", { ascending: true }),
+          db.from("domain_scores").select("*").gte("score_date", cutoff).order("score_date", { ascending: true }),
+          db.from("total_scores").select("*").gte("score_date", cutoff).order("score_date", { ascending: true }),
         ]);
         if (habitsRes.error) throw new Error(habitsRes.error.message);
         if (logsRes.error) throw new Error(logsRes.error.message);

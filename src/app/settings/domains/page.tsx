@@ -2,9 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/app-shell";
-import SettingsPanel from "@/components/settings-panel";
+import DomainSettingsPanel from "@/components/domain-settings-panel";
 
-export default function SettingsRoute() {
+export default function DomainSettingsRoute() {
   const router = useRouter();
   return (
     <AppShell
@@ -15,19 +15,13 @@ export default function SettingsRoute() {
               Configuration
             </p>
             <h1 className="mt-1 font-mono text-xl font-bold tracking-tight text-foreground">
-              Settings
+              Domain Weights
             </h1>
           </div>
-          <button
-            onClick={() => router.push("/settings/domains")}
-            className="border border-accent/40 bg-accent/10 px-3 py-2 font-mono text-[11px] font-bold uppercase tracking-wider text-accent transition-colors hover:bg-accent/20"
-          >
-            Domains
-          </button>
         </div>
       }
     >
-      <SettingsPanel onBack={() => router.push("/dashboard")} />
+      <DomainSettingsPanel onBack={() => router.push("/settings")} />
     </AppShell>
   );
 }

@@ -9,7 +9,9 @@ import {
   IconLoginBold,
   IconAddCircleBold,
 } from "@ninzapp/solar-icons/bold";
-import { supabase, getUserId, type Habit, type HabitLog } from "@/lib/supabase";
+import { getUserId, type Habit, type HabitLog } from "@/lib/supabase";
+import { db } from "@/lib/storage";
+import { writeHabitLog } from "@/lib/api-log";
 import { DOMAIN_META, type DomainId } from "@/lib/domains";
 import CustomHabitModal, {
   type CustomHabitInput,
@@ -67,7 +69,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
 
   const fetchScore = useCallback(
     async (uid: string) => {
-      const { data } = await supabase
+      const { data } = await db
         .from("domain_scores")
         .select("score")
         .eq("user_id", uid)
@@ -87,14 +89,14 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
 
       const today = getTodayDateString();
       const [habitsRes, logsRes] = await Promise.all([
-        supabase
+        db
           .from("habits")
           .select("*")
           .eq("user_id", uid)
           .eq("domain", domainId)
           .eq("is_template", false)
           .order("created_at"),
-        supabase
+        db
           .from("habit_logs")
           .select("*")
           .eq("user_id", uid)
@@ -107,10 +109,10 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
         return;
       }
 
-      const habitList = habitsRes.data ?? [];
+      const habitList = (habitsRes.data ?? []) as Habit[];
       const habitIds = new Set(habitList.map((h) => h.id));
       const logMap: Record<string, HabitLog> = {};
-      for (const log of logsRes.data ?? []) {
+      for (const log of (logsRes.data ?? []) as HabitLog[]) {
         if (habitIds.has(log.habit_id)) logMap[log.habit_id] = log;
       }
 
@@ -160,19 +162,13 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
       }));
       setCardState(habit.id, { saving: true, error: null, lastPatch: patch });
 
-      const { data, error } = await supabase
-        .from("habit_logs")
-        .upsert(
-          {
-            habit_id: habit.id,
-            user_id: uid,
-            log_date: getTodayDateString(),
-            ...patch,
-          },
-          { onConflict: "habit_id,log_date" },
-        )
-        .select()
-        .single();
+      const { data, error } = await writeHabitLog({
+        habit_id: habit.id,
+        log_date: getTodayDateString(),
+        value: patch.value,
+        completed: patch.completed,
+        checkpoints_done: patch.checkpoints_done,
+      });
 
       if (error || !data) {
         // Revert to pre-interaction state; keep the patch available for Retry.
@@ -191,7 +187,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
 
       setLogsByHabit((prev) => ({ ...prev, [habit.id]: data as HabitLog }));
       setCardState(habit.id, { saving: false });
-      // Scoring triggers commit inside the upsert transaction — re-read is fresh.
+      // Engine computes scores server-side inside the /api/log transaction — re-read is fresh.
       await fetchScore(uid);
     },
     [logsByHabit, fetchScore, setCardState],
@@ -223,7 +219,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
       }
       setCreating(true);
       setCreateError(null);
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("habits")
         .insert({ user_id: uid, domain: domainId, is_template: false, ...input })
         .select()
@@ -251,7 +247,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
       }
       setCreating(true);
       setCreateError(null);
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("habits")
         .update({ name: input.name, difficulty: input.difficulty, target_value: input.target_value, checkpoint_count: input.checkpoint_count })
         .eq("id", editingHabit.id)
@@ -277,7 +273,7 @@ export default function DomainPageClient({ domainId }: { domainId: DomainId }) {
       const uid = await getUserId();
       if (!uid) return;
       setDeleteConfirming(true);
-      const { error } = await supabase
+      const { error } = await db
         .from("habits")
         .delete()
         .eq("id", habit.id)
